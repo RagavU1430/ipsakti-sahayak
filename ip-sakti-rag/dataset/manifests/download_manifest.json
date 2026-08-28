@@ -24,5 +24,82 @@
     "validation_status": "VALID",
     "validation_errors": [],
     "page_count": 215
+  },
+  {
+    "source_id": "IND-BD-ACT-2002",
+    "title": "The Biological Diversity Act, 2002",
+    "source_url": "https://www.indiacode.nic.in/handle/123456789/18553",
+    "local_path": "dataset/raw/india_code/biodiversity/biological_diversity_act_2002.pdf",
+    "sha256": "729b07e581fe55319adcbf48fadb3b7d30293033a9a1550e70fc6adfb4ecb45f",
+    "size_bytes": 404214,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 25
+  },
+  {
+    "source_id": "IND-CR-ACT-1957",
+    "title": "The Copyright Act, 1957",
+    "source_url": "https://www.indiacode.nic.in/indiacode/handle/123456789/1367",
+    "local_path": "dataset/raw/india_code/copyright/copyright_act_1957.pdf",
+    "sha256": "fc1e8ab7dee763fcda531eedc44de835c8e2bc4b9aaaf8cf29730e45b4289523",
+    "size_bytes": 615402,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 50
+  },
+  {
+    "source_id": "IND-DES-ACT-2000",
+    "title": "The Designs Act, 2000",
+    "source_url": "https://www.indiacode.nic.in/indiacode/handle/123456789/1917",
+    "local_path": "dataset/raw/india_code/designs/designs_act_2000.pdf",
+    "sha256": "25d76416d93f1c4b510189f8857941a8228437f7494382b228fdbd74e9e87be5",
+    "size_bytes": 414466,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 18
+  },
+  {
+    "source_id": "IND-GI-ACT-1999",
+    "title": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+    "source_url": "https://www.indiacode.nic.in/handle/123456789/1981",
+    "local_path": "dataset/raw/india_code/gi/gi_act_1999.pdf",
+    "sha256": "f627842df535a20bb531fea8bb228f59f04e36fe664bf1b2a36ca688331bccc5",
+    "size_bytes": 427558,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 31
+  },
+  {
+    "source_id": "IND-PAT-ACT-1970",
+    "title": "The Patents Act, 1970",
+    "source_url": "https://www.indiacode.nic.in/handle/123456789/1392",
+    "local_path": "dataset/raw/india_code/patents/patents_act_1970.pdf",
+    "sha256": "583f2461d79572692d9046e5ac13bb7cff82eedb7863c565da02d9a0893cb8f6",
+    "size_bytes": 714957,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 72
+  },
+  {
+    "source_id": "IND-PPV-ACT-2001",
+    "title": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+    "source_url": "https://www.indiacode.nic.in/handle/123456789/1909",
+    "local_path": "dataset/raw/india_code/ppvfr/ppvfr_act_2001.pdf",
+    "sha256": "37e100975868c3ae9ae61cbd89b1964156faa514df2115e36ad4564e0811d765",
+    "size_bytes": 534906,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 34
+  },
+  {
+    "source_id": "IND-TM-ACT-1999",
+    "title": "The Trade Marks Act, 1999",
+    "source_url": "https://www.indiacode.nic.in/handle/123456789/1993",
+    "local_path": "dataset/raw/india_code/trademarks/trade_marks_act_1999.pdf",
+    "sha256": "3ee682af4ec4701a00aa27842e0add2321a6aed75808aa1c5ca33591e85d4986",
+    "size_bytes": 783419,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 56
   }
 ]
