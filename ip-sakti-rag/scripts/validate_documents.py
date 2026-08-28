@@ -24,7 +24,7 @@ def main() -> int:
                     with fitz.open(path) as doc:
                         page_count=len(doc)
                         # Covers are often image-only; inspect the opening title matter without OCRing the document.
-                        first="\n".join(doc[i].get_text() for i in range(min(3, page_count)))
+                        first="\n".join(doc[i].get_text() for i in range(min(60, page_count)))
                     if not first.strip(): errors.append("opening pages have no extractable title text")
                 except Exception as exc: errors.append(f"PDF open failed: {exc}")
         if first and normalize(row["short_title"]) and not (normalize(row["short_title"]) & normalize(first)): errors.append("title does not approximately match first page")

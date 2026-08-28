@@ -48,6 +48,17 @@
     "page_count": 15
   },
   {
+    "source_id": "IND-BD-RULES-2024",
+    "title": "The Biological Diversity Rules, 2024",
+    "source_url": "https://nbaindia.org/",
+    "local_path": "dataset/raw/nba/biological_diversity_rules_2024.pdf",
+    "sha256": "33ec189d783e1124cb9c7f027ea9fabcae850bbb3df1a6753cdebc7fe776f4d1",
+    "size_bytes": 2414630,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 86
+  },
+  {
     "source_id": "IND-CR-ACT-1957",
     "title": "The Copyright Act, 1957",
     "source_url": "https://www.indiacode.nic.in/indiacode/handle/123456789/1367",
@@ -96,6 +107,17 @@
     "title": "Food Safety and Standards (Ayurveda Aahara) Regulations, 2022",
     "source_url": "https://www.fssai.gov.in/",
     "local_path": "dataset/raw/fssai/ayurveda_aahara_regulations_2022.pdf",
+    "sha256": "977eecb464a93ab215639c31263d685c99842d222eaecc89d27606b28cedee58",
+    "size_bytes": 418630,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 3
+  },
+  {
+    "source_id": "IND-FSS-AA-ORDER-2025",
+    "title": "Ayurveda Aahara Order dated 25 July 2025",
+    "source_url": "https://www.fssai.gov.in/",
+    "local_path": "dataset/raw/fssai/ayurveda_aahara/ayurveda_aahara_order_2025.pdf",
     "sha256": "498d6f579357e7bb8e8d7b9f7741db5863f6eea8d29ffd559ff9add7d32d7edc",
     "size_bytes": 9881569,
     "validation_status": "VALID",
@@ -134,6 +156,17 @@
     "validation_status": "VALID",
     "validation_errors": [],
     "page_count": 72
+  },
+  {
+    "source_id": "IND-PAT-RULES-2003",
+    "title": "The Patents Rules, 2003",
+    "source_url": "https://www.indiacode.nic.in/handle/123456789/1392",
+    "local_path": "dataset/raw/india_code/patents/patents_rules_2003.pdf",
+    "sha256": "6a4cb5d764af3692958899adb98b47a38ff378884bee2ebfc2d61d8a2d8f5ef1",
+    "size_bytes": 2931217,
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "page_count": 84
   },
   {
     "source_id": "IND-PPV-ACT-2001",
