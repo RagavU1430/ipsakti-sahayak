@@ -1,7 +1,9 @@
 {
-  "generated_at": "2026-08-28T06:41:42.153711+00:00",
-  "document_count": 9,
-  "chunk_count": 449,
-  "total_pages": 827,
-  "ocr_required": []
+  "generated_at": "2026-08-28T07:15:23.788855+00:00",
+  "document_count": 21,
+  "chunk_count": 744,
+  "total_pages": 1383,
+  "ocr_required": [
+    "IND-FSS-AA-2022"
+  ]
 }

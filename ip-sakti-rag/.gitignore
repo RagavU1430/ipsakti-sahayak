@@ -9,5 +9,6 @@ node_modules/
 dataset/raw/**/*.pdf
 dataset/raw/**/*.html
 dataset/raw/**/*.headers.json
+dataset/raw/**/*.txt
 !dataset/raw/**/.gitkeep
 
