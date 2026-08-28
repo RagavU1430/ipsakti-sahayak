@@ -1,0 +1,24 @@
+[
+  {
+    "source_id": "IND-AYUSH-2024",
+    "title": "Ayush in India 2024",
+    "source_url": "https://ayush.gov.in/",
+    "download_url": "https://ayush.gov.in/assets/pdf/whatsnew/Approved-Ayush-in-India-2024-Single.pdf",
+    "local_path": "dataset/raw/ayush/ayush_in_india_2024.pdf",
+    "sha256": "a82908deb4f9f2b4b940823f1bbf292396e566f78dcf7d432fc2065985e52b40",
+    "size_bytes": 9700190,
+    "retrieved_at": "2026-08-28T04:58:43.808536+00:00",
+    "validation_status": "PENDING"
+  },
+  {
+    "source_id": "IND-AYUSH-AR-2024-25",
+    "title": "Ministry of Ayush Annual Report 2024-25",
+    "source_url": "https://ayush.gov.in/",
+    "download_url": "https://ayush.gov.in/assets/pdf/annualReport/Annual-Report24-25_English.pdf",
+    "local_path": "dataset/raw/ayush/annual_report_2024_25.pdf",
+    "sha256": "5f7ef5c0dc71c4bb77e6a4f2c88732be1c914db25de46086ded1fcb71526b2bd",
+    "size_bytes": 13394044,
+    "retrieved_at": "2026-08-28T04:58:52.157853+00:00",
+    "validation_status": "PENDING"
+  }
+]

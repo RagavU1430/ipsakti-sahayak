@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.pytest_cache/
+dataset/raw/**/*.pdf
+dataset/raw/**/*.html
+dataset/raw/**/*.headers.json
+!dataset/raw/**/.gitkeep
+
