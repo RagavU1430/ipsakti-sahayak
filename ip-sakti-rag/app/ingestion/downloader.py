@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import hashlib, json, mimetypes, time
+import hashlib, json, time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin
@@ -56,4 +56,3 @@ def download(url: str, destination: Path, page_url: str = "") -> dict:
                 last_error = exc
                 if attempt < 2: time.sleep(2 ** attempt)
         raise RuntimeError(str(last_error))
-
