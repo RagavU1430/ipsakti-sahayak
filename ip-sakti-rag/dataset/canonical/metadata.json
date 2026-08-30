@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-08-29T04:08:04.471580+00:00",
+  "document_count": 25,
+  "retrievable_document_count": 24,
+  "chunk_count": 6514,
+  "validation_passed": true,
+  "errors": [],
+  "warnings": [
+    "IND-PAT-RULES-2003: raw source unavailable; page citations disabled",
+    "IND-CR-RULES-2013: raw source unavailable; page citations disabled"
+  ]
+}

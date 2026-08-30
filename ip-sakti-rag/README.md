@@ -1,33 +1,21 @@
-# IP-SAKTI Sahayak — RAG/Data Engineering
+# IP-SAKTI Sahayak RAG
 
-Reproducible, source-traceable ingestion for the project's authoritative legal and Ayurveda corpus. This directory owns only dataset acquisition, validation, extraction, chunking, RAG metadata, evaluation fixtures, and the RAG-owned Supabase schema. It contains no UI, authentication, user management, chat history, or backend business logic.
+Source-grounded retrieval and answer generation for the IP-SAKTI legal corpus. The repaired implementation has one canonical ingestion path, legal-structure-aware chunks, hybrid retrieval, deterministic reranking, application-generated citations, explicit abstention, confidence scoring, an optional OpenRouter generation path, and a FastAPI boundary.
+
+The local pipeline is operational, but the production release gate is **not passed**. Only the FSSAI 2025 order has a locally verified authoritative PDF; 23 retrievable documents use legacy text with page citations disabled, and the FSSAI 2022 regulation is quarantined because the downloaded bytes are HTML rather than a PDF. Supabase and production OpenRouter execution have not been verified because credentials are not configured.
 
 ## Reproduce
 
-Python 3.12+ is recommended.
-
 ```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-python scripts/discover_sources.py
-python scripts/download_sources.py
-python scripts/validate_documents.py
 python scripts/build_dataset.py
+python scripts/validate_dataset.py
+python scripts/ingest_embeddings.py --provider hash --dry-run --limit 2
 python -m pytest -q
+python scripts/evaluate_rag.py
+uvicorn app.api.main:app --host 127.0.0.1 --port 8000
 ```
 
-`build_dataset.py` performs extraction, cleaning, legal-structure detection, chunk creation, and metadata generation. The `extract_text.py`, `clean_text.py`, `chunk_documents.py`, and `build_metadata.py` compatibility entry points invoke that idempotent combined build.
+The default `auto` storage mode selects Supabase only when its URL, anon key, and embedding API key are present; otherwise it uses the clearly labelled local TF-IDF development store. Administrative ingestion requires a service-role key. Do not expose that key to the API process.
 
-Raw PDFs are intentionally ignored by Git. Re-run the downloader to reproduce them from `dataset/manifests/source_registry.csv`, then compare `checksums.sha256`. Files whose direct official URL has not been verified are not downloaded. Never insert a mirror URL to make a run pass.
-
-## Safety and versioning
-
-- Only allowlisted official HTTPS hosts are accepted by registry validation.
-- Restricted records are never sent to the downloader.
-- HTML error pages masquerading as PDFs are rejected.
-- If bytes at a stable path change, the old file is timestamp-versioned before the new file is written.
-- Production embeddings are not generated. `EMBEDDING_DIMENSION` defaults to 1536 but the provider interface is configurable.
-
-See [docs/DATASET.md](docs/DATASET.md), [docs/SOURCES.md](docs/SOURCES.md), [docs/DATA_SCHEMA.md](docs/DATA_SCHEMA.md), and [docs/INGESTION.md](docs/INGESTION.md).
-
+Start with [the final repair report](docs/RAG_REPAIR_FINAL_REPORT.md), [architecture](docs/RAG_ARCHITECTURE.md), [dataset validation](docs/DATASET_FINAL_VALIDATION.md), [evaluation](docs/RAG_EVALUATION.md), [API contract](docs/RAG_API_CONTRACT.md), and [deployment guide](docs/RAG_DEPLOYMENT.md).

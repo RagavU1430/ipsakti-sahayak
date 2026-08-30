@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-08-29T04:08:27.905110+00:00",
+  "execution_mode": "local",
+  "embedding_mode": "local TF-IDF retrieval (not production embeddings)",
+  "reranker": "legal-feature-reranker-v1",
+  "reranker_learned": false,
+  "generator": "deterministic extractive",
+  "end_to_end": {
+    "suite": "end_to_end",
+    "query_count": 65,
+    "recall_at_k": 0.9692307692307692,
+    "precision_at_k": 0.7617582417582417,
+    "mrr": 0.8724358974358974,
+    "citation_accuracy": 1.0,
+    "citation_completeness": 1.0,
+    "groundedness": 1.0,
+    "abstention_accuracy": 0.9692307692307692,
+    "abstained_count": 4,
+    "confidence_distribution": {
+      "HIGH": 53,
+      "MEDIUM": 8,
+      "INSUFFICIENT_EVIDENCE": 4
+    },
+    "median_total_ms": 65.222
+  },
+  "adversarial": {
+    "suite": "adversarial",
+    "query_count": 30,
+    "recall_at_k": 0.9666666666666667,
+    "precision_at_k": 0.6541666666666667,
+    "mrr": 0.9083333333333333,
+    "citation_accuracy": 1.0,
+    "citation_completeness": 1.0,
+    "groundedness": 1.0,
+    "abstention_accuracy": 0.9666666666666667,
+    "abstained_count": 16,
+    "confidence_distribution": {
+      "INSUFFICIENT_EVIDENCE": 16,
+      "MEDIUM": 5,
+      "HIGH": 9
+    },
+    "median_total_ms": 71.6285
+  },
+  "gates": {
+    "minimum_query_counts": true,
+    "citation_integrity": true,
+    "groundedness": true,
+    "production_backend_verified": false,
+    "authoritative_raw_corpus_complete": false
+  },
+  "release_ready": false
+}

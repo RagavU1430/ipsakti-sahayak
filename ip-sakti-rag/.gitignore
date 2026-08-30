@@ -6,9 +6,5 @@ __pycache__/
 .venv/
 node_modules/
 .pytest_cache/
-dataset/raw/**/*.pdf
-dataset/raw/**/*.html
-dataset/raw/**/*.headers.json
-dataset/raw/**/*.txt
-!dataset/raw/**/.gitkeep
+
 
