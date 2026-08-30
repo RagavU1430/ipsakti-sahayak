@@ -20,6 +20,22 @@ def test_query_routing() -> None:
     assert analyze_query(QueryRequest(query="What is Article 6 of GRATK?")).jurisdiction == Jurisdiction.INTERNATIONAL
 
 
+def test_natural_language_domain_routing() -> None:
+    assert "PATENT" in analyze_query(QueryRequest(query="I invented something new. How can I protect it in India?")).domains
+    assert "TRADEMARK" in analyze_query(QueryRequest(query="I created a logo for my company. What IP protection should I consider?")).domains
+    assert "COPYRIGHT" in analyze_query(QueryRequest(query="I created an original song. What kind of IP protection applies?")).domains
+    assert "GI" in analyze_query(QueryRequest(query="I have a traditional product from my region. Can I protect its geographical identity?")).domains
+    assert "PLANT_VARIETY" in analyze_query(QueryRequest(query="I developed a new plant variety. What protection is available?")).domains
+    assert "ABS" in analyze_query(QueryRequest(query="I want to use biological resources. What approvals matter?")).domains
+
+
+def test_out_of_scope_and_speculative_detection() -> None:
+    weather = analyze_query(QueryRequest(query="What is the current weather in Chennai?"))
+    assert weather.out_of_scope is True and not weather.domains
+    teleportation = analyze_query(QueryRequest(query="Tell me the exact patent law for teleportation in India."))
+    assert teleportation.speculative_subject == "teleportation" and "PATENT" in teleportation.domains
+
+
 def test_hybrid_retrieval_uses_both_signals(service) -> None:
     analysis = analyze_query(QueryRequest(query="What does Section 3(p) of the Patents Act say?"))
     rows = service.retriever.retrieve(analysis)

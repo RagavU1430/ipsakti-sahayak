@@ -124,9 +124,12 @@ class QueryAnalysis(BaseModel):
     retrieval_query: str
     jurisdiction: Jurisdiction
     domains: list[str]
+    intent: str | None = None
     legal_identifiers: list[str]
     language: str
     requested_top_k: int | None = None
+    out_of_scope: bool = False
+    speculative_subject: str | None = None
     ambiguous: bool = False
 
 

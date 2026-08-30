@@ -1,0 +1,2636 @@
+{
+  "endpoint": "/api/v1/ask",
+  "base_url": "http://127.0.0.1:8765",
+  "generated_at_unix": 1788106095.8145766,
+  "summary": {
+    "question_count": 55,
+    "passed_count": 55,
+    "failed_count": 0,
+    "api_success_rate": 1.0,
+    "expected_document_hit_rate": 1.0,
+    "mrr": 0.9734848484848485,
+    "citation_integrity_rate": 1.0,
+    "response_schema_rate": 1.0,
+    "confidence_validity_rate": 1.0,
+    "abstention_accuracy": 1.0,
+    "latency_ms": {
+      "min": 3.412,
+      "max": 597.934,
+      "average": 139.049,
+      "median": 71.242,
+      "p95": 550.439
+    },
+    "dataset_unchanged": true,
+    "dataset_before": {
+      "document_count": 25,
+      "retrievable_document_count": 24,
+      "chunk_count": 6514,
+      "warnings": [
+        "IND-PAT-RULES-2003: raw source unavailable; page citations disabled",
+        "IND-CR-RULES-2013: raw source unavailable; page citations disabled"
+      ],
+      "file_hashes": {
+        "dataset/canonical/documents.jsonl": "6d9b657a2fb84f6414dd7f28c7cc7550c4fe25681e6200242d38889da6ddb7f1",
+        "dataset/canonical/chunks.jsonl": "4ce211289e88958c89d4bafc4ede7271cc387c55cc1f18b73acbe9ea30131bda",
+        "dataset/manifests/source_registry.csv": "c48c09f6e1ae39352f43a40fb0fb1a7cf614fecee6a06050054cfe4fbc751a3e",
+        "dataset/manifests/download_manifest.json": "a0f19a145d79cf13ad3b39a4ea586bd8303ba38d1e744d99ebcdd7effdf2b84f",
+        "dataset/manifests/checksums.sha256": "d045c0845c7ecaa82f4702c616f36b933aeee65e19bcd1bf59019a2c3d85f791"
+      }
+    },
+    "dataset_after": {
+      "document_count": 25,
+      "retrievable_document_count": 24,
+      "chunk_count": 6514,
+      "warnings": [
+        "IND-PAT-RULES-2003: raw source unavailable; page citations disabled",
+        "IND-CR-RULES-2013: raw source unavailable; page citations disabled"
+      ],
+      "file_hashes": {
+        "dataset/canonical/documents.jsonl": "6d9b657a2fb84f6414dd7f28c7cc7550c4fe25681e6200242d38889da6ddb7f1",
+        "dataset/canonical/chunks.jsonl": "4ce211289e88958c89d4bafc4ede7271cc387c55cc1f18b73acbe9ea30131bda",
+        "dataset/manifests/source_registry.csv": "c48c09f6e1ae39352f43a40fb0fb1a7cf614fecee6a06050054cfe4fbc751a3e",
+        "dataset/manifests/download_manifest.json": "a0f19a145d79cf13ad3b39a4ea586bd8303ba38d1e744d99ebcdd7effdf2b84f",
+        "dataset/manifests/checksums.sha256": "d045c0845c7ecaa82f4702c616f36b933aeee65e19bcd1bf59019a2c3d85f791"
+      }
+    }
+  },
+  "malformed_request_checks": [
+    {
+      "name": "missing_question",
+      "http_status": 422,
+      "latency_ms": 2.538,
+      "passed": true,
+      "response": {
+        "detail": [
+          {
+            "type": "missing",
+            "loc": [
+              "body",
+              "question"
+            ],
+            "msg": "Field required",
+            "input": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "blank_question",
+      "http_status": 422,
+      "latency_ms": 3.514,
+      "passed": true,
+      "response": {
+        "detail": [
+          {
+            "type": "string_too_short",
+            "loc": [
+              "body",
+              "question"
+            ],
+            "msg": "String should have at least 2 characters",
+            "input": " ",
+            "ctx": {
+              "min_length": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid_domain",
+      "http_status": 422,
+      "latency_ms": 2.52,
+      "passed": true,
+      "response": {
+        "detail": [
+          {
+            "type": "enum",
+            "loc": [
+              "body",
+              "domain"
+            ],
+            "msg": "Input should be 'PATENT', 'TRADEMARK', 'GI', 'COPYRIGHT', 'DESIGN', 'PLANT_VARIETY', 'ABS', 'FOOD', 'AYURVEDA' or 'INTERNATIONAL'",
+            "input": "TAX",
+            "ctx": {
+              "expected": "'PATENT', 'TRADEMARK', 'GI', 'COPYRIGHT', 'DESIGN', 'PLANT_VARIETY', 'ABS', 'FOOD', 'AYURVEDA' or 'INTERNATIONAL'"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid_top_k",
+      "http_status": 422,
+      "latency_ms": 3.132,
+      "passed": true,
+      "response": {
+        "detail": [
+          {
+            "type": "less_than_equal",
+            "loc": [
+              "body",
+              "top_k"
+            ],
+            "msg": "Input should be less than or equal to 20",
+            "input": 99,
+            "ctx": {
+              "le": 20
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "results": [
+    {
+      "id": "Q1",
+      "category": "TRADEMARK",
+      "question": "What are the requirements for registering a trademark in India?",
+      "expected_domain": "TRADEMARK",
+      "expected_documents": [
+        "IND-TM-ACT-1999",
+        "IND-TM-RULES-2017"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited TRADEMARK evidence, the process turns on applying for registration in the prescribed manner before the relevant authority: (b) that in the circumstances of the case the trade mark should not be registered or should be registered subject to conditions or limitations or to conditions additional to or different from the conditions or limitations subject to which the application has been accepted. CHAPTER III Procedure For And Duration Of Registration 18 (1) Any person claiming to be the proprietor of a trade mark used or proposed Application for to be used by him, who is desirous of registering it , shall apply in writing to the Registrar in registration the prescribed manner for the registration of his trade mark (3) If, on consideration of the application for registration of a trademark and any evidence of use or of distinctiveness or of any other matter which the applicant may or may be required to furnish, the Registrar accepts the application for registration absolutely, he shall communicate such acceptance to the applicant and cause the application to be advertised as accepted under sub-section (1) of section 20. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9386,
+      "citations": [
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 11,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0107-44af98db17ab"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 11,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0102-0264b5427a61"
+        },
+        {
+          "document": "The Trade Marks Rules, 2017",
+          "document_id": "IND-TM-RULES-2017",
+          "page": 61,
+          "section": "Rule 33(3)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-rules",
+          "chunk_id": "IND-TM-RULES-2017-0342-dbde163273ea"
+        }
+      ],
+      "source_document_ids": [
+        "IND-TM-ACT-1999",
+        "IND-TM-RULES-2017"
+      ],
+      "source_scores": [
+        0.808,
+        0.7688
+      ],
+      "latency_ms": 597.934,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q2",
+      "category": "TRADEMARK",
+      "question": "What is the procedure for applying for a trademark in India?",
+      "expected_domain": "TRADEMARK",
+      "expected_documents": [
+        "IND-TM-ACT-1999",
+        "IND-TM-RULES-2017"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited TRADEMARK evidence, the process turns on applying for registration in the prescribed manner before the relevant authority: (b) that in the circumstances of the case the trade mark should not be registered or should be registered subject to conditions or limitations or to conditions additional to or different from the conditions or limitations subject to which the application has been accepted. (3) If, on consideration of the application for registration of a trademark and any evidence of use or of distinctiveness or of any other matter which the applicant may or may be required to furnish, the Registrar accepts the application for registration absolutely, he shall communicate such acceptance to the applicant and cause the application to be advertised as accepted under sub-section (1) of section 20. CHAPTER III Procedure For And Duration Of Registration 18 (1) Any person claiming to be the proprietor of a trade mark used or proposed Application for to be used by him, who is desirous of registering it , shall apply in writing to the Registrar in registration the prescribed manner for the registration of his trade mark This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9404,
+      "citations": [
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 11,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0107-44af98db17ab"
+        },
+        {
+          "document": "The Trade Marks Rules, 2017",
+          "document_id": "IND-TM-RULES-2017",
+          "page": 61,
+          "section": "Rule 33(3)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-rules",
+          "chunk_id": "IND-TM-RULES-2017-0342-dbde163273ea"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 11,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0102-0264b5427a61"
+        }
+      ],
+      "source_document_ids": [
+        "IND-TM-ACT-1999",
+        "IND-TM-RULES-2017"
+      ],
+      "source_scores": [
+        0.8137,
+        0.7857
+      ],
+      "latency_ms": 66.177,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q3",
+      "category": "TRADEMARK",
+      "question": "What rights does registration of a trademark provide?",
+      "expected_domain": "TRADEMARK",
+      "expected_documents": [
+        "IND-TM-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited TRADEMARK evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: 28 (1) Subject to the other provisions of this Act, the registration of a tradeRights confered by mark shall, if valid, give to the registered proprietor of the trade mark the exclusive right to the registration use of the trade mark in relation to the goods or services in respect of which the trade mark is registered and to obtain relief in respect of infringement of trade mark in the manner provided by this Act. (1) Subject to the provisions of sections 34, 35 and 76 the registration of a person as a proprietor of certification trade mark in respect of any goods or services shall if Rights valid, give to that person the exclusive right to the use of the mark in relation to those goods or conferred by services. Infringement of 29 (1) A registered trade mark is infringed by a person who, not being a registered trade registered proprietor or a person using by way of permitted use, uses in the course of trade, a marks. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9543,
+      "citations": [
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 14,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0129-0873498c38c8"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 30,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0256-8ff5b8fde30b"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 14,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0131-df7c960e4b0b"
+        }
+      ],
+      "source_document_ids": [
+        "IND-TM-ACT-1999"
+      ],
+      "source_scores": [
+        0.8573
+      ],
+      "latency_ms": 66.125,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q4",
+      "category": "TRADEMARK",
+      "question": "What happens when a trademark application is opposed?",
+      "expected_domain": "TRADEMARK",
+      "expected_documents": [
+        "IND-TM-ACT-1999",
+        "IND-TM-RULES-2017"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited TRADEMARK evidence, opposition is handled through the retrieved opposition/application procedure: (a) the application has not been opposed and the time for notice of opposition has expired or (i) which is not opposed, and the application is either refused by the Registrar or is accepted by him subject to any amendment, modification conditions or limitations, or (b) the application has been opposed and the opposition has been decided in favour of the applicant. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9239,
+      "citations": [
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 13,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0117-4ed2be74236f"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 35,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0305-f1561c8b6703"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 13,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0118-5df13d5ae7bd"
+        }
+      ],
+      "source_document_ids": [
+        "IND-TM-ACT-1999",
+        "IND-TM-RULES-2017"
+      ],
+      "source_scores": [
+        0.7623,
+        0.7169
+      ],
+      "latency_ms": 60.576,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q5",
+      "category": "TRADEMARK",
+      "question": "What is the duration of trademark registration in India?",
+      "expected_domain": "TRADEMARK",
+      "expected_documents": [
+        "IND-TM-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited TRADEMARK evidence, the period of protection is governed by the retrieved term and renewal provisions: 59. Advertisement of removal of trademark from the register.- If at the expiration of registration of a trademark, the renewal fees has not been paid, the Registrar may remove the trademark from the register and advertise the fact forthwith in the Journal: ¹Hkkx IIµ[k.M 3(i)º Hkkjr dk jkti=k % vlk/kj.k 67 Provided that the Registrar shall not remove the trademark from the regis This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.6959,
+      "citations": [
+        {
+          "document": "The Trade Marks Rules, 2017",
+          "document_id": "IND-TM-RULES-2017",
+          "page": 66,
+          "section": "Rule 59",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-rules",
+          "chunk_id": "IND-TM-RULES-2017-0422-26f66d7bdd0d"
+        }
+      ],
+      "source_document_ids": [
+        "IND-TM-RULES-2017",
+        "IND-TM-ACT-1999"
+      ],
+      "source_scores": [
+        0.7164,
+        0.6493
+      ],
+      "latency_ms": 66.82,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q6",
+      "category": "PATENTS",
+      "question": "What is a patent in India?",
+      "expected_domain": "PATENT",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PATENT evidence, the term is described as follows: The Patents Act, 1970 is a act source from Government of India / IP India in the retrieved corpus. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.6462,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 30,
+          "section": "Section 53",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0264-aae7e8ee21f6"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970"
+      ],
+      "source_scores": [
+        0.7069
+      ],
+      "latency_ms": 59.935,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q7",
+      "category": "PATENTS",
+      "question": "What are the basic requirements for obtaining a patent?",
+      "expected_domain": "PATENT",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PATENT evidence: (a) the subject matter of the patent is a process for obtaining a new product What are not inventions.-The following are not inventions within the meaning of this Act Explanation.-Where applications have been made for similar protection in respect of an invention in two or more convention countries, the period of twelve months referred to in this sub-section shall be reckoned from the date on which the earlier or earliest of the said applications was made. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8979,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 50,
+          "section": "Section 104(a)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0474-6823aaea8852"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 9,
+          "section": "Section 3",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0047-8af23ea943d2"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 59,
+          "section": "Section 135",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0563-ec361bbb2158"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970",
+        "IND-PAT-RULES-2003"
+      ],
+      "source_scores": [
+        0.6809,
+        0.5317
+      ],
+      "latency_ms": 60.195,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q8",
+      "category": "PATENTS",
+      "question": "How is a patent application filed in India?",
+      "expected_domain": "PATENT",
+      "expected_documents": [
+        "IND-PAT-ACT-1970",
+        "IND-PAT-RULES-2003"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PATENT evidence, the process turns on applying for registration in the prescribed manner before the relevant authority: (i) that in the case of a patent granted on convention application, the application for patent was not made within twelve months from the date of the first application for protection for the invention made in a convention country or in India by the patentee or a person from whom he derives title (2) Subject to the provisions contained in this section, where an invention, being an improvement in or modification of another invention, is the subject of an independent patent and the patentee in respect of that patent is also the patentee in respect of the patent for the main invention, the Controller may, if the patentee so requests, by order, revoke the patent for the imp (c) that the invention so far as claimed in any claim of the complete specification is claimed in a claim of a complete specification published on or after the priority date of the claim of the patentee and filed in pursuance of an application for a patent in India, being a claim of which the priority date is earlier than that of the claim of the patentee This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9183,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 21,
+          "section": "Section 20(2)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0174-001087263297"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 31,
+          "section": "Section 54(2)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0267-d0705be836a0"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 21,
+          "section": "Section 20(2)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0168-ab6336354294"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970"
+      ],
+      "source_scores": [
+        0.7447
+      ],
+      "latency_ms": 61.274,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q9",
+      "category": "PATENTS",
+      "question": "What rights does a patent provide to the patent holder?",
+      "expected_domain": "PATENT",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PATENT evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: 105. Power of court to make declaration as to non-infringement.-(1) Notwithstanding anything contained in section 34 of the Specific Relief Act, 1963 (47 of 1963), any person may institute a suit for a declaration that the use by him of any process, or the making, use or sale of any article by him does not, or would not, constitute an infringement of a claim of a patent against 91. Licensing of related patents.-(1) Notwithstanding anything contained in the other provisions of this Chapter, at any time after the sealing of a patent, any person who has the right to work any other patented invention either as patentee or as licensee thereof, exclusive or otherwise, may apply to the Controller for the grant of a licence of the first-mentioned patent on th (f) that the patent right is not abused by the patentee or person deriving title or interest on patent from the patentee, and the patentee or a person deriving title or interest on patent from the patentee does not resort to practices which unreasonably restrain trade or adversely affect the international transfer of technology This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9028,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 50,
+          "section": "Section 105",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0477-5f9a7dc36b34"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 45,
+          "section": "Section 91",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0428-45200b22b89f"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 41,
+          "section": "Section 83(f)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0379-91b21d6201e6"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970"
+      ],
+      "source_scores": [
+        0.6964
+      ],
+      "latency_ms": 66.264,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q10",
+      "category": "PATENTS",
+      "question": "How long does patent protection last?",
+      "expected_domain": "PATENT",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PATENT evidence, the period of protection is governed by the retrieved term and renewal provisions: 53. Term of patent.-4[(1) Subject to the provisions of this Act, the term of every patent granted, after the commencement of the Patents (Amendment) Act, 2002, and the term of every patent which has not expired and has not ceased to have effect, on the date of such commencement, under this Act, shall be twenty years from the date of filing of the application for the patent.] 5[ 55. Term of patents of addition.-(1) A patent of addition shall be granted for a term equal to that of the patent for the main invention, or so much thereof as has not expired, and shall remain in force during that term or until the previous cesser of the patent for the main invention and no longer: Provided that if the patent for the main invention is revoked under this Act, t (7) Where in respect of a patent which has been the subject of an authorisation under this section, there is an exclusive licensee as is referred to in sub-section (3) of section 101, or where such patent has been assigned to the patentee in consideration of royalties or other benefits determined by reference to the use of the invention (including payments by way of minimum roy This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8705,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 30,
+          "section": "Section 53",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0264-aae7e8ee21f6"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 31,
+          "section": "Section 55",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0269-250a904c5522"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 48,
+          "section": "Section 99(7)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0453-4c14cd8852e2"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970"
+      ],
+      "source_scores": [
+        0.7411
+      ],
+      "latency_ms": 55.582,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q11",
+      "category": "COPYRIGHT",
+      "question": "What rights does copyright provide to an author?",
+      "expected_domain": "COPYRIGHT",
+      "expected_documents": [
+        "IND-CR-ACT-1957"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited COPYRIGHT evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: Term of copyright in published literary, dramatic, musical and artistic works.- Except as otherwise hereinafter provided, copyright shall subsist in any literary, dramatic, musical or artistic work 3[***] published within the lifetime of the author until 4[sixty years] from the beginning of the calendar year next following the year in which the author dies. Author’s special rights.- 1[(1) Independently of the author’s copyright and even after the assignment either wholly or partially of the said copyright, the author of a work shall have the right- (a) to claim authorship of the work (i) the work is published as aforesaid in pursuance of an agreement in that behalf with the author, being an agreement which does not reserve to the author the copyright, if any, in the work, or This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9241,
+      "citations": [
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 15,
+          "section": "Section 22",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0099-2960d17debdd"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 48,
+          "section": "Section 57",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0317-ceed10d97455"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 36,
+          "section": "Section 41(i)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0241-ea5cfa4106c2"
+        }
+      ],
+      "source_document_ids": [
+        "IND-CR-ACT-1957"
+      ],
+      "source_scores": [
+        0.7629
+      ],
+      "latency_ms": 55.458,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q12",
+      "category": "COPYRIGHT",
+      "question": "How is copyright protection obtained in India?",
+      "expected_domain": "COPYRIGHT",
+      "expected_documents": [
+        "IND-CR-ACT-1957"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited COPYRIGHT evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: Term of copyright in published literary, dramatic, musical and artistic works.- Except as otherwise hereinafter provided, copyright shall subsist in any literary, dramatic, musical or artistic work 3[***] published within the lifetime of the author until 4[sixty years] from the beginning of the calendar year next following the year in which the author dies. Works in which copyright subsists.- (1) Subject to the provisions of this section and the other provisions of this Act, copyright shall subsist throughout India in the following classes of works, that is to say,- (a) original literary, dramatic, musical and artistic works (y) in relation to a literary, 1[dramatic, artistic or] musical work recorded or reproduced in any cinematograph film, the exhibition of such film after the expiration of the term of copyright therein: Provided that the provisions of sub-clause (ii) of clause (a), sub-clause (i) of clause (b) and clauses (d), (f), (g), (m) and (p) shall not apply as respects any act unless that This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8745,
+      "citations": [
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 15,
+          "section": "Section 22",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0099-2960d17debdd"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 9,
+          "section": "Section 13",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0052-b84e5ca46156"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 44,
+          "section": "Section 52(y)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0295-bcad86455d12"
+        }
+      ],
+      "source_document_ids": [
+        "IND-CR-ACT-1957"
+      ],
+      "source_scores": [
+        0.7535
+      ],
+      "latency_ms": 54.423,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q13",
+      "category": "COPYRIGHT",
+      "question": "How long does copyright protection last?",
+      "expected_domain": "COPYRIGHT",
+      "expected_documents": [
+        "IND-CR-ACT-1957"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited COPYRIGHT evidence, the period of protection is governed by the retrieved term and renewal provisions: Term of copyright in published literary, dramatic, musical and artistic works.- Except as otherwise hereinafter provided, copyright shall subsist in any literary, dramatic, musical or artistic work 3[***] published within the lifetime of the author until 4[sixty years] from the beginning of the calendar year next following the year in which the author dies. 24. Term of copyright in posthumous work.- (1) In the case of a literary, dramatic or musical work or an engraving, in which copyright subsists at the date of the death of the author or, in the case of any such work of joint authorship, at or immediately before the date of the death of the author who dies last, but which, or any adaptation of which, has not been published befor (y) in relation to a literary, 1[dramatic, artistic or] musical work recorded or reproduced in any cinematograph film, the exhibition of such film after the expiration of the term of copyright therein: Provided that the provisions of sub-clause (ii) of clause (a), sub-clause (i) of clause (b) and clauses (d), (f), (g), (m) and (p) shall not apply as respects any act unless that This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9328,
+      "citations": [
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 15,
+          "section": "Section 22",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0099-2960d17debdd"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 16,
+          "section": "Section 24",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0108-ce4db1836c79"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 44,
+          "section": "Section 52(y)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0295-bcad86455d12"
+        }
+      ],
+      "source_document_ids": [
+        "IND-CR-ACT-1957",
+        "IND-CR-RULES-2013"
+      ],
+      "source_scores": [
+        0.79,
+        0.5045
+      ],
+      "latency_ms": 51.534,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q14",
+      "category": "COPYRIGHT",
+      "question": "What is copyright infringement?",
+      "expected_domain": "COPYRIGHT",
+      "expected_documents": [
+        "IND-CR-ACT-1957"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited COPYRIGHT evidence, the term is described as follows: The Copyright Act, 1957 is a act source from Government of India / IP India in the retrieved corpus. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.7013,
+      "citations": [
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 15,
+          "section": "Section 22",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0099-2960d17debdd"
+        }
+      ],
+      "source_document_ids": [
+        "IND-CR-ACT-1957",
+        "IND-CR-RULES-2013"
+      ],
+      "source_scores": [
+        0.7331,
+        0.5564
+      ],
+      "latency_ms": 49.965,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q15",
+      "category": "DESIGNS",
+      "question": "What is a design under Indian law?",
+      "expected_domain": "DESIGN",
+      "expected_documents": [
+        "IND-DES-ACT-2000"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited DESIGN evidence, the term is described as follows: (g) \"original\" , in relation to a design, means originating from the author of such design and includes the cases which though old in themselves yet are new in their application This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8041,
+      "citations": [
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 2",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0006-d6f1493b4763"
+        }
+      ],
+      "source_document_ids": [
+        "IND-DES-ACT-2000"
+      ],
+      "source_scores": [
+        0.7627
+      ],
+      "latency_ms": 25.953,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q16",
+      "category": "DESIGNS",
+      "question": "What are the requirements for registering a design?",
+      "expected_domain": "DESIGN",
+      "expected_documents": [
+        "IND-DES-ACT-2000",
+        "IND-DES-RULES-2001"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited DESIGN evidence, the process turns on applying for registration in the prescribed manner before the relevant authority: (3) The application for registration of a design of a design under this section must be made in the same manner as an ordinary application under this Act. (1) The Controller may, on the application of any person claiming to be the proprietor of any new or original design not previously published in any country and which is not contrary to public order or morality, register the design under this Act: Provided that the Controller shall before such registration refer the application for examination, by an examiner appointed under su Section 7 - Publication of particulars of registered designs The Controller shall, as soon as may be after the registration of a design, cause publication of the prescribed particulars of the design to be published in such manner as may be prescribed and thereafter the design shall be open to public inspection. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9342,
+      "citations": [
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 44(3)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0152-9e52efec50e5"
+        },
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 5(1)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0019-89019fba5ac1"
+        },
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 7",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0034-69430c56be59"
+        }
+      ],
+      "source_document_ids": [
+        "IND-DES-ACT-2000"
+      ],
+      "source_scores": [
+        0.7943
+      ],
+      "latency_ms": 25.743,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q17",
+      "category": "DESIGNS",
+      "question": "How long is design protection valid?",
+      "expected_domain": "DESIGN",
+      "expected_documents": [
+        "IND-DES-ACT-2000"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited DESIGN evidence, the period of protection is governed by the retrieved term and renewal provisions: (1) When a design is registered, the registered proprietor of the design shall, subject to the provisions of this Act, have copyright in the design during ten years from the date of registration. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.7404,
+      "citations": [
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 11(1)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0054-84c8c7408d11"
+        }
+      ],
+      "source_document_ids": [
+        "IND-DES-ACT-2000"
+      ],
+      "source_scores": [
+        0.7097
+      ],
+      "latency_ms": 27.61,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q18",
+      "category": "GEOGRAPHICAL INDICATIONS",
+      "question": "What is a geographical indication?",
+      "expected_domain": "GI",
+      "expected_documents": [
+        "IND-GI-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited GI evidence, the term is described as follows: The Geographical Indications of Goods (Registration and Protection) Act, 1999 is a act source from Government of India / IP India in the retrieved corpus. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.6901,
+      "citations": [
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0101-38d65f638a6c"
+        }
+      ],
+      "source_document_ids": [
+        "IND-GI-ACT-1999"
+      ],
+      "source_scores": [
+        0.6981
+      ],
+      "latency_ms": 42.821,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q19",
+      "category": "GEOGRAPHICAL INDICATIONS",
+      "question": "How is a GI registered in India?",
+      "expected_domain": "GI",
+      "expected_documents": [
+        "IND-GI-ACT-1999",
+        "IND-GI-RULES-2002"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited GI evidence, the process turns on applying for registration in the prescribed manner before the relevant authority: Rule 113 On application for restoration of the name of 8D a person to the Register of Geographical 33 Indications under rule 113 22(2), rule 77 On application to Registrar for additional 9A protection to certain goods. 1D On a single application for the registration 5,000 of a geographical indication for goods in for each class different classes from a convention country [Section 11(3), 84(1), rule 23(4)]. Upon receipt of an application for the registration as an authorised user in respect of a registered geographical indication, the Registrar shall cause it to be examined and shall issue a report. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9517,
+      "citations": [
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Rules, 2002",
+          "document_id": "IND-GI-RULES-2002",
+          "page": 32,
+          "section": "Rule 41",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/geographical-indications-resources-rules",
+          "chunk_id": "IND-GI-RULES-2002-0180-7c6eb6489079"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Rules, 2002",
+          "document_id": "IND-GI-RULES-2002",
+          "page": 29,
+          "section": "Rule 73(1)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/geographical-indications-resources-rules",
+          "chunk_id": "IND-GI-RULES-2002-0177-a547453fbd00"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Rules, 2002",
+          "document_id": "IND-GI-RULES-2002",
+          "page": 15,
+          "section": "Rule 56",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/geographical-indications-resources-rules",
+          "chunk_id": "IND-GI-RULES-2002-0100-eaf86924cb01"
+        }
+      ],
+      "source_document_ids": [
+        "IND-GI-RULES-2002"
+      ],
+      "source_scores": [
+        0.8489
+      ],
+      "latency_ms": 72.051,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q20",
+      "category": "GEOGRAPHICAL INDICATIONS",
+      "question": "What protection does a registered GI provide?",
+      "expected_domain": "GI",
+      "expected_documents": [
+        "IND-GI-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited GI evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: (a) to the registered proprietor of the geographical indication and the authorised user or users thereof the right to obtain relief in respect of infringement of the geographical indication in the manner provided by this Act (2) The last preceding sub-section does not apply if the registered proprietor of the geographical indication or an authorised user thereof with due diligence commences and prosecutes an action against the person threatened for infringement of the geographical indication. (b) to the authorised user thereof the exclusive right to the use of the geographical indication in relation to the goods in respect of which the geographical indication is registered. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9384,
+      "citations": [
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0101-38d65f638a6c"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0237-c2d71f975fb4"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0102-b7c1226f4b9f"
+        }
+      ],
+      "source_document_ids": [
+        "IND-GI-ACT-1999"
+      ],
+      "source_scores": [
+        0.8075
+      ],
+      "latency_ms": 96.39,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q21",
+      "category": "PLANT VARIETIES",
+      "question": "What is the purpose of plant variety protection in India?",
+      "expected_domain": "PLANT_VARIETY",
+      "expected_documents": [
+        "IND-PPV-ACT-2001"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PLANT_VARIETY evidence, the purpose is reflected in the retrieved conservation, use, and benefit-sharing provisions: (a) the benefit sharing received in the prescribed manner from the breeder of a variety or an essentially derived variety registered under this Act, or propagating material of such variety or essentially derived variety, as the case may be (b) uses any package bearing a denomination which is identical with or deceptively similar to the denomination of such variety registered under this Act, for the purpose of packing, filing or wrapping therein any variety other than such variety registered under this Act. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.756,
+      "citations": [
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 28,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0217-622692e5f411"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 38,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0294-c4d428c7aecf"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PPV-ACT-2001"
+      ],
+      "source_scores": [
+        0.7167
+      ],
+      "latency_ms": 57.936,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q22",
+      "category": "PLANT VARIETIES",
+      "question": "Who can apply for protection of a plant variety?",
+      "expected_domain": "PLANT_VARIETY",
+      "expected_documents": [
+        "IND-PPV-ACT-2001",
+        "IND-PPV-RULES-2003"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PLANT_VARIETY evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: Appropriate office for the opposition of proceeding under rule 29, of the Protection of Plant Varieties and Farmer's Rights, 2003, Rules is4 ……………………………. (i) a farmer who has bred or developed a new variety shall be entitled for registration and other protection in like manner as a breeder of a variety under this Act (6) The rights of the breeder of a variety contained in section 28 shall apply to the breeder of essentially derived variety : Provided that the authorization by the breeder of the initial variety to the breeder of essentially derived variety under sub- section (2) of section 28 may be subject to such terms and conditions as both the parties may mutually agree upon. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9341,
+      "citations": [
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Rules, 2003",
+          "document_id": "IND-PPV-RULES-2003",
+          "page": 51,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-RULES-2003-0251-204f0e040c66"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 26,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0204-e08fbc2e526d"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 16,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0128-423395d74ea8"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PPV-ACT-2001",
+        "IND-PPV-RULES-2003"
+      ],
+      "source_scores": [
+        0.7941,
+        0.7095
+      ],
+      "latency_ms": 71.242,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q23",
+      "category": "PLANT VARIETIES",
+      "question": "What rights are provided to registered plant varieties?",
+      "expected_domain": "PLANT_VARIETY",
+      "expected_documents": [
+        "IND-PPV-ACT-2001"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PLANT_VARIETY evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: Appropriate office for the opposition of proceeding under rule 29, of the Protection of Plant Varieties and Farmer's Rights, 2003, Rules is4 ……………………………. (i) a farmer who has bred or developed a new variety shall be entitled for registration and other protection in like manner as a breeder of a variety under this Act (8) Nothing in this section shall confer on a registered agent of registered licensee of a variety any right to transfer such right further thereof. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9348,
+      "citations": [
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Rules, 2003",
+          "document_id": "IND-PPV-RULES-2003",
+          "page": 51,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-RULES-2003-0251-204f0e040c66"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 26,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0204-e08fbc2e526d"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 20,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0158-02c4682ee1df"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PPV-ACT-2001",
+        "IND-PPV-RULES-2003"
+      ],
+      "source_scores": [
+        0.7964,
+        0.7031
+      ],
+      "latency_ms": 133.16,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q24",
+      "category": "BIODIVERSITY",
+      "question": "What is the purpose of the Biological Diversity Act?",
+      "expected_domain": "ABS",
+      "expected_documents": [
+        "IND-BD-ACT-2002"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited ABS evidence, the purpose is reflected in the retrieved conservation, use, and benefit-sharing provisions: (c) not more than five non-official members to be appointed from amongst experts, including legal experts, scientists having special knowledge, expertise and work experience in matters relating to conservation of biological diversity, sustainable use of biological resources and fair and equitable sharing of benefits arising out of the use of biological resources.\". (k) collect, compile and publish technical and statistical data, manuals, codes or guides relating to biodiversity including conservation, sustainable use of its components, and fair and equitable sharing of benefits arising out of the use of biological resources and knowledge associated thereto 18 OF 2003 [5 th February, 2003] An Act to provide for conservation of biological diversity, sustainable use of its components and fair and equitable sharing of the benefits arising out of the use of biological resources, knowledge and for matters connected therewith or incidental thereto. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.954,
+      "citations": [
+        {
+          "document": "The Biological Diversity (Amendment) Act, 2023",
+          "document_id": "IND-BD-AMEND-2023",
+          "page": 8,
+          "section": "Section 19(c)",
+          "authority": "Ministry of Environment Forest and Climate Change",
+          "source_url": "https://moef.gov.in/",
+          "chunk_id": "IND-BD-AMEND-2023-0064-65d317d4d761"
+        },
+        {
+          "document": "The Biological Diversity Rules, 2024",
+          "document_id": "IND-BD-RULES-2024",
+          "page": 52,
+          "section": "Rule 11(k)",
+          "authority": "Government of India / India Code",
+          "source_url": "https://indiacode.ecourtsindia.com/rules/07592f36/",
+          "chunk_id": "IND-BD-RULES-2024-0258-bdccb0ae3615"
+        },
+        {
+          "document": "The Biological Diversity Act, 2002",
+          "document_id": "IND-BD-ACT-2002",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / WIPO Lex",
+          "source_url": "https://www.indiacode.nic.in/handle/123456789/18553",
+          "chunk_id": "IND-BD-ACT-2002-0002-2e71d68b247c"
+        }
+      ],
+      "source_document_ids": [
+        "IND-BD-AMEND-2023",
+        "IND-BD-RULES-2024",
+        "IND-BD-ACT-2002"
+      ],
+      "source_scores": [
+        0.8561,
+        0.8239,
+        0.8128
+      ],
+      "latency_ms": 68.001,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q25",
+      "category": "BIODIVERSITY",
+      "question": "What is access and benefit sharing?",
+      "expected_domain": "ABS",
+      "expected_documents": [
+        "IND-BD-ACT-2002",
+        "IND-BD-RULES-2024"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited ABS evidence, the term is described as follows: (k) collect, compile and publish technical and statistical data, manuals, codes or guides relating to biodiversity including conservation, sustainable use of its components, and fair and equitable sharing of benefits arising out of the use of biological resources and knowledge associated thereto This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.6879,
+      "citations": [
+        {
+          "document": "The Biological Diversity Rules, 2024",
+          "document_id": "IND-BD-RULES-2024",
+          "page": 52,
+          "section": "Rule 11(k)",
+          "authority": "Government of India / India Code",
+          "source_url": "https://indiacode.ecourtsindia.com/rules/07592f36/",
+          "chunk_id": "IND-BD-RULES-2024-0258-bdccb0ae3615"
+        }
+      ],
+      "source_document_ids": [
+        "IND-BD-RULES-2024",
+        "IND-BD-AMEND-2023"
+      ],
+      "source_scores": [
+        0.6912,
+        0.6433
+      ],
+      "latency_ms": 72.838,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q26",
+      "category": "BIODIVERSITY",
+      "question": "What changed under the Biological Diversity Amendment Act 2023?",
+      "expected_domain": "ABS",
+      "expected_documents": [
+        "IND-BD-AMEND-2023",
+        "IND-BD-ACT-2002"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited ABS evidence: In section 5 of the principal Act,- Amendment of section 5. In section 6 of the principal Act,- Amendment of section 6. In section 9 of the principal Act,- Amendment of section 9. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8923,
+      "citations": [
+        {
+          "document": "The Biological Diversity (Amendment) Act, 2023",
+          "document_id": "IND-BD-AMEND-2023",
+          "page": 3,
+          "section": "Section 7",
+          "authority": "Ministry of Environment Forest and Climate Change",
+          "source_url": "https://moef.gov.in/",
+          "chunk_id": "IND-BD-AMEND-2023-0017-2125fe3fcd24"
+        },
+        {
+          "document": "The Biological Diversity (Amendment) Act, 2023",
+          "document_id": "IND-BD-AMEND-2023",
+          "page": 3,
+          "section": "Section 8",
+          "authority": "Ministry of Environment Forest and Climate Change",
+          "source_url": "https://moef.gov.in/",
+          "chunk_id": "IND-BD-AMEND-2023-0020-db2879f1f789"
+        },
+        {
+          "document": "The Biological Diversity (Amendment) Act, 2023",
+          "document_id": "IND-BD-AMEND-2023",
+          "page": 5,
+          "section": "Section 11",
+          "authority": "Ministry of Environment Forest and Climate Change",
+          "source_url": "https://moef.gov.in/",
+          "chunk_id": "IND-BD-AMEND-2023-0035-e0c6f23ba65e"
+        }
+      ],
+      "source_document_ids": [
+        "IND-BD-AMEND-2023"
+      ],
+      "source_scores": [
+        0.6633
+      ],
+      "latency_ms": 55.966,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q27",
+      "category": "BIODIVERSITY",
+      "question": "What are the objectives of the Biological Diversity Rules?",
+      "expected_domain": "ABS",
+      "expected_documents": [
+        "IND-BD-RULES-2024"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited ABS evidence, the purpose is reflected in the retrieved conservation, use, and benefit-sharing provisions: (k) collect, compile and publish technical and statistical data, manuals, codes or guides relating to biodiversity including conservation, sustainable use of its components, and fair and equitable sharing of benefits arising out of the use of biological resources and knowledge associated thereto (c) not more than five non-official members to be appointed from amongst experts, including legal experts, scientists having special knowledge, expertise and work experience in matters relating to conservation of biological diversity, sustainable use of biological resources and fair and equitable sharing of benefits arising out of the use of biological resources.\". (r) function as a Competent National Authority for the purposes of Nagoya Protocol on access to genetic resources and the fair and equitable sharing of benefits arising from their utilization to the Convention on Biological Diversity This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9528,
+      "citations": [
+        {
+          "document": "The Biological Diversity Rules, 2024",
+          "document_id": "IND-BD-RULES-2024",
+          "page": 52,
+          "section": "Rule 11(k)",
+          "authority": "Government of India / India Code",
+          "source_url": "https://indiacode.ecourtsindia.com/rules/07592f36/",
+          "chunk_id": "IND-BD-RULES-2024-0258-bdccb0ae3615"
+        },
+        {
+          "document": "The Biological Diversity (Amendment) Act, 2023",
+          "document_id": "IND-BD-AMEND-2023",
+          "page": 8,
+          "section": "Section 19(c)",
+          "authority": "Ministry of Environment Forest and Climate Change",
+          "source_url": "https://moef.gov.in/",
+          "chunk_id": "IND-BD-AMEND-2023-0064-65d317d4d761"
+        },
+        {
+          "document": "The Biological Diversity Rules, 2024",
+          "document_id": "IND-BD-RULES-2024",
+          "page": 53,
+          "section": "Rule 11(r)",
+          "authority": "Government of India / India Code",
+          "source_url": "https://indiacode.ecourtsindia.com/rules/07592f36/",
+          "chunk_id": "IND-BD-RULES-2024-0265-d511229d06dd"
+        }
+      ],
+      "source_document_ids": [
+        "IND-BD-RULES-2024",
+        "IND-BD-AMEND-2023",
+        "IND-BD-ACT-2002"
+      ],
+      "source_scores": [
+        0.8524,
+        0.8109,
+        0.5332
+      ],
+      "latency_ms": 65.522,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q28",
+      "category": "AYURVEDA",
+      "question": "What is Ayurveda Aahara?",
+      "expected_domain": "FOOD",
+      "expected_documents": [
+        "IND-FSS-AA-ORDER-2025"
+      ],
+      "http_status": 200,
+      "answer": "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 89.747,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": false,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q29",
+      "category": "AYURVEDA",
+      "question": "What regulations apply to Ayurveda Aahara?",
+      "expected_domain": "FOOD",
+      "expected_documents": [
+        "IND-FSS-AA-ORDER-2025"
+      ],
+      "http_status": 200,
+      "answer": "The authoritative 2022 Ayurveda Aahara regulation source is quarantined because its local file is not a valid PDF; this question cannot be answered safely from the verified 2025 list order alone.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 3.412,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": false,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q30",
+      "category": "AYURVEDA",
+      "question": "What is covered by the Ayurveda Aahara framework?",
+      "expected_domain": "FOOD",
+      "expected_documents": [
+        "IND-FSS-AA-ORDER-2025"
+      ],
+      "http_status": 200,
+      "answer": "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 83.871,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": false,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q31",
+      "category": "INTERNATIONAL IP",
+      "question": "What is the TRIPS Agreement?",
+      "expected_domain": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-TRIPS-1994"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited INTERNATIONAL evidence, the term is described as follows: For the purposes of this Agreement, the term \"intellectual property\" refers to all categories of intellectual property that are the subject of Sections 1 through 7 of Part II. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.6945,
+      "citations": [
+        {
+          "document": "Agreement on Trade-Related Aspects of Intellectual Property Rights",
+          "document_id": "INT-TRIPS-1994",
+          "page": 1,
+          "section": "Article 1",
+          "authority": "World Trade Organization / WIPO Lex",
+          "source_url": "https://www.wto.org/english/docs_e/legal_e/27-trips_01_e.htm",
+          "chunk_id": "INT-TRIPS-1994-0011-c7182d4cdb22"
+        }
+      ],
+      "source_document_ids": [
+        "INT-TRIPS-1994",
+        "INT-WIPO-MADRID"
+      ],
+      "source_scores": [
+        0.712,
+        0.6177
+      ],
+      "latency_ms": 68.703,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q32",
+      "category": "INTERNATIONAL IP",
+      "question": "What is the Paris Convention for the Protection of Industrial Property?",
+      "expected_domain": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-PARIS"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited INTERNATIONAL evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: (1) The countries to which this Convention applies constitute a Union for the protection of industrial property. (4) The International Bureau shall, on request, furnish any country of the Union with information on matters concerning the protection of industrial property. (5) The International Bureau shall conduct Studies, and shall provide services, designed to facilitate the protection of industrial property. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.822,
+      "citations": [
+        {
+          "document": "Paris Convention for the Protection of Industrial Property",
+          "document_id": "INT-WIPO-PARIS",
+          "page": 2,
+          "section": "Article 1",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/ip/paris/index",
+          "chunk_id": "INT-WIPO-PARIS-0033-3d67d19174c7"
+        },
+        {
+          "document": "Paris Convention for the Protection of Industrial Property",
+          "document_id": "INT-WIPO-PARIS",
+          "page": 15,
+          "section": "Article 15",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/ip/paris/index",
+          "chunk_id": "INT-WIPO-PARIS-0179-79915484c022"
+        },
+        {
+          "document": "Paris Convention for the Protection of Industrial Property",
+          "document_id": "INT-WIPO-PARIS",
+          "page": 15,
+          "section": "Article 15",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/ip/paris/index",
+          "chunk_id": "INT-WIPO-PARIS-0180-3990e5c0767a"
+        }
+      ],
+      "source_document_ids": [
+        "INT-WIPO-PARIS"
+      ],
+      "source_scores": [
+        0.7353
+      ],
+      "latency_ms": 70.76,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q33",
+      "category": "INTERNATIONAL IP",
+      "question": "What is the Patent Cooperation Treaty?",
+      "expected_domain": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-PCT"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited INTERNATIONAL evidence, the term is described as follows: Patent Cooperation Treaty is a treaty source from World Intellectual Property Organization in the retrieved corpus. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.6136,
+      "citations": [
+        {
+          "document": "Patent Cooperation Treaty",
+          "document_id": "INT-WIPO-PCT",
+          "page": 11,
+          "section": "Article 9",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/pct-system/texts/index",
+          "chunk_id": "INT-WIPO-PCT-0115-13748cc79c48"
+        }
+      ],
+      "source_document_ids": [
+        "INT-WIPO-PCT"
+      ],
+      "source_scores": [
+        0.605
+      ],
+      "latency_ms": 108.971,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q34",
+      "category": "INTERNATIONAL IP",
+      "question": "What is the Madrid Protocol?",
+      "expected_domain": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-MADRID"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited INTERNATIONAL evidence, the term is described as follows: Article 14(1)(b) which are party to this Protocol (hereinafter referred to as “the Contracting Organizations”) shall be members of the same Union of which countries party to the Madrid (Stockholm) Agreement are members 1 . This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.7338,
+      "citations": [
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 14",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0025-1fc04150a660"
+        }
+      ],
+      "source_document_ids": [
+        "INT-WIPO-MADRID"
+      ],
+      "source_scores": [
+        0.6889
+      ],
+      "latency_ms": 63.307,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q35",
+      "category": "INTERNATIONAL IP",
+      "question": "What is the Budapest Treaty?",
+      "expected_domain": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-BUDAPEST"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited INTERNATIONAL evidence, the term is described as follows: (vi) “industrial property office” means an authority of a Contracting State or an intergovernmental industrial property organization competent for the grant of patents This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.6807,
+      "citations": [
+        {
+          "document": "Budapest Treaty on the International Recognition of the Deposit of Microorganisms for the Purposes of Patent Procedure",
+          "document_id": "INT-WIPO-BUDAPEST",
+          "page": 1,
+          "section": "Article 9",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/budapest/index",
+          "chunk_id": "INT-WIPO-BUDAPEST-0030-b2f13cec4a66"
+        }
+      ],
+      "source_document_ids": [
+        "INT-WIPO-BUDAPEST"
+      ],
+      "source_scores": [
+        0.669
+      ],
+      "latency_ms": 65.307,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q36",
+      "category": "INTERNATIONAL IP",
+      "question": "What is the WIPO GRATK Treaty?",
+      "expected_domain": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-GRATK-2024"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited INTERNATIONAL evidence, the term is described as follows: WIPO Treaty on Intellectual Property Genetic Resources and Associated Traditional Knowledge is a treaty source from World Intellectual Property Organization in the retrieved corpus. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.6576,
+      "citations": [
+        {
+          "document": "WIPO Treaty on Intellectual Property Genetic Resources and Associated Traditional Knowledge",
+          "document_id": "INT-WIPO-GRATK-2024",
+          "page": 1,
+          "section": null,
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/traditional-knowledge/wipo-treaty-on-ip-gr-and-associated-tk",
+          "chunk_id": "INT-WIPO-GRATK-2024-0001-dcdc3714a345"
+        }
+      ],
+      "source_document_ids": [
+        "INT-WIPO-GRATK-2024",
+        "INT-TRIPS-1994",
+        "INT-WIPO-PCT",
+        "INT-WIPO-MADRID"
+      ],
+      "source_scores": [
+        0.5967,
+        0.4745,
+        0.4586,
+        0.4225
+      ],
+      "latency_ms": 74.909,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q37",
+      "category": "CROSS-DOMAIN",
+      "question": "What is the difference between a patent and a trademark?",
+      "expected_domain": null,
+      "expected_documents": [
+        "IND-PAT-ACT-1970",
+        "IND-TM-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited evidence, the distinction depends on the different subject matter and rights described in the retrieved sources: (7) Where in respect of a patent which has been the subject of an authorisation under this section, there is an exclusive licensee as is referred to in sub-section (3) of section 101, or where such patent has been assigned to the patentee in consideration of royalties or other benefits determined by reference to the use of the invention (including payments by way of minimum roy 28 (1) Subject to the other provisions of this Act, the registration of a tradeRights confered by mark shall, if valid, give to the registered proprietor of the trade mark the exclusive right to the registration use of the trade mark in relation to the goods or services in respect of which the trade mark is registered and to obtain relief in respect of infringement of trade mark in the manner provided by this Act. (1) Subject to the provisions of sections 34, 35 and 76 the registration of a person as a proprietor of certification trade mark in respect of any goods or services shall if Rights valid, give to that person the exclusive right to the use of the mark in relation to those goods or conferred by services. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8586,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 48,
+          "section": "Section 99(7)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0453-4c14cd8852e2"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 14,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0129-0873498c38c8"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 30,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0256-8ff5b8fde30b"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970",
+        "IND-TM-ACT-1999"
+      ],
+      "source_scores": [
+        0.5581,
+        0.8136
+      ],
+      "latency_ms": 244.795,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q38",
+      "category": "CROSS-DOMAIN",
+      "question": "What is the difference between copyright and design protection?",
+      "expected_domain": null,
+      "expected_documents": [
+        "IND-CR-ACT-1957",
+        "IND-DES-ACT-2000"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited evidence, the distinction depends on the different subject matter and rights described in the retrieved sources: Term of copyright in published literary, dramatic, musical and artistic works.- Except as otherwise hereinafter provided, copyright shall subsist in any literary, dramatic, musical or artistic work 3[***] published within the lifetime of the author until 4[sixty years] from the beginning of the calendar year next following the year in which the author dies. (c) \"copyright\" means the exclusive right to apply a design to any article in any class in which the design is registered (1) When a design is registered, the registered proprietor of the design shall, subject to the provisions of this Act, have copyright in the design during ten years from the date of registration. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8996,
+      "citations": [
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 15,
+          "section": "Section 22",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0099-2960d17debdd"
+        },
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 2",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0006-d6f1493b4763"
+        },
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 11(1)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0054-84c8c7408d11"
+        }
+      ],
+      "source_document_ids": [
+        "IND-CR-ACT-1957",
+        "IND-DES-ACT-2000"
+      ],
+      "source_scores": [
+        0.6862,
+        0.7454
+      ],
+      "latency_ms": 228.725,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q39",
+      "category": "CROSS-DOMAIN",
+      "question": "How is a geographical indication different from a trademark?",
+      "expected_domain": null,
+      "expected_documents": [
+        "IND-GI-ACT-1999",
+        "IND-TM-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited evidence, the distinction depends on the different subject matter and rights described in the retrieved sources: 28 (1) Subject to the other provisions of this Act, the registration of a tradeRights confered by mark shall, if valid, give to the registered proprietor of the trade mark the exclusive right to the registration use of the trade mark in relation to the goods or services in respect of which the trade mark is registered and to obtain relief in respect of infringement of trade mark in the manner provided by this Act. (b) to the authorised user thereof the exclusive right to the use of the geographical indication in relation to the goods in respect of which the geographical indication is registered. (a) to the registered proprietor of the geographical indication and the authorised user or users thereof the right to obtain relief in respect of infringement of the geographical indication in the manner provided by this Act This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9096,
+      "citations": [
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 14,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0129-0873498c38c8"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0102-b7c1226f4b9f"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0101-38d65f638a6c"
+        }
+      ],
+      "source_document_ids": [
+        "IND-TM-ACT-1999",
+        "IND-GI-ACT-1999"
+      ],
+      "source_scores": [
+        0.7174,
+        0.7388
+      ],
+      "latency_ms": 456.696,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q40",
+      "category": "CROSS-DOMAIN",
+      "question": "How does patent protection differ from plant variety protection?",
+      "expected_domain": null,
+      "expected_documents": [
+        "IND-PAT-ACT-1970",
+        "IND-PPV-ACT-2001"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited evidence, the distinction depends on the different subject matter and rights described in the retrieved sources: The Patents Act, 1970 is a act source from Government of India / IP India in the retrieved corpus. The Protection of Plant Varieties and Farmers' Rights Act, 2001 is a act source from Protection of Plant Varieties and Farmers' Rights Authority in the retrieved corpus. Notice is hereby given under rule 38 of the Protection of Plant Varieties and Farmers Rights Rules, 2003 that the registration of the plant variety, in respect of which application was made on the .......................... This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8328,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 51,
+          "section": "Section 109",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0491-6cd0b819a5eb"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 19,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0151-c2f7e83d6340"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Rules, 2003",
+          "document_id": "IND-PPV-RULES-2003",
+          "page": 51,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-RULES-2003-0251-204f0e040c66"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970",
+        "IND-PPV-ACT-2001",
+        "IND-PPV-RULES-2003"
+      ],
+      "source_scores": [
+        0.4776,
+        0.7986,
+        0.6819
+      ],
+      "latency_ms": 443.916,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q41",
+      "category": "NATURAL LANGUAGE",
+      "question": "I invented something new. How can I protect it in India?",
+      "expected_domain": "PATENT",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PATENT evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: (i) that in the case of a patent granted on convention application, the application for patent was not made within twelve months from the date of the first application for protection for the invention made in a convention country or in India by the patentee or a person from whom he derives title 91. Licensing of related patents.-(1) Notwithstanding anything contained in the other provisions of this Chapter, at any time after the sealing of a patent, any person who has the right to work any other patented invention either as patentee or as licensee thereof, exclusive or otherwise, may apply to the Controller for the grant of a licence of the first-mentioned patent on th (7) Where in respect of a patent which has been the subject of an authorisation under this section, there is an exclusive licensee as is referred to in sub-section (3) of section 101, or where such patent has been assigned to the patentee in consideration of royalties or other benefits determined by reference to the use of the invention (including payments by way of minimum roy This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8948,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 21,
+          "section": "Section 20(2)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0174-001087263297"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 45,
+          "section": "Section 91",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0428-45200b22b89f"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 48,
+          "section": "Section 99(7)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0453-4c14cd8852e2"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970"
+      ],
+      "source_scores": [
+        0.6714
+      ],
+      "latency_ms": 119.014,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q42",
+      "category": "NATURAL LANGUAGE",
+      "question": "I created a logo for my company. What IP protection should I consider?",
+      "expected_domain": "TRADEMARK",
+      "expected_documents": [
+        "IND-TM-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited TRADEMARK evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: 28 (1) Subject to the other provisions of this Act, the registration of a tradeRights confered by mark shall, if valid, give to the registered proprietor of the trade mark the exclusive right to the registration use of the trade mark in relation to the goods or services in respect of which the trade mark is registered and to obtain relief in respect of infringement of trade mark in the manner provided by this Act. (1) Subject to the provisions of sections 34, 35 and 76 the registration of a person as a proprietor of certification trade mark in respect of any goods or services shall if Rights valid, give to that person the exclusive right to the use of the mark in relation to those goods or conferred by services. (a) an exclusive right in one of the persons concerned, to the use of the trade exclusive rights mark limited to use in relation to goods to be sold or otherwise traded in, in any place in India, would be or in relation to services for use, or services available for acceptance in any place in India: and created in different parts This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9419,
+      "citations": [
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 14,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0129-0873498c38c8"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 30,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0256-8ff5b8fde30b"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 19,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0174-0d7c270270b7"
+        }
+      ],
+      "source_document_ids": [
+        "IND-TM-ACT-1999"
+      ],
+      "source_scores": [
+        0.8185
+      ],
+      "latency_ms": 115.382,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q43",
+      "category": "NATURAL LANGUAGE",
+      "question": "I have a traditional product from my region. Can I protect its geographical identity?",
+      "expected_domain": "GI",
+      "expected_documents": [
+        "IND-GI-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited GI evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: (a) to the registered proprietor of the geographical indication and the authorised user or users thereof the right to obtain relief in respect of infringement of the geographical indication in the manner provided by this Act (2) The last preceding sub-section does not apply if the registered proprietor of the geographical indication or an authorised user thereof with due diligence commences and prosecutes an action against the person threatened for infringement of the geographical indication. (b) to the authorised user thereof the exclusive right to the use of the geographical indication in relation to the goods in respect of which the geographical indication is registered. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9317,
+      "citations": [
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0101-38d65f638a6c"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0237-c2d71f975fb4"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": null,
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0102-b7c1226f4b9f"
+        }
+      ],
+      "source_document_ids": [
+        "IND-GI-ACT-1999"
+      ],
+      "source_scores": [
+        0.7866
+      ],
+      "latency_ms": 82.798,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q44",
+      "category": "NATURAL LANGUAGE",
+      "question": "I created an original song. What kind of IP protection applies?",
+      "expected_domain": "COPYRIGHT",
+      "expected_documents": [
+        "IND-CR-ACT-1957"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited COPYRIGHT evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: Term of copyright in published literary, dramatic, musical and artistic works.- Except as otherwise hereinafter provided, copyright shall subsist in any literary, dramatic, musical or artistic work 3[***] published within the lifetime of the author until 4[sixty years] from the beginning of the calendar year next following the year in which the author dies. (y) in relation to a literary, 1[dramatic, artistic or] musical work recorded or reproduced in any cinematograph film, the exhibition of such film after the expiration of the term of copyright therein: Provided that the provisions of sub-clause (ii) of clause (a), sub-clause (i) of clause (b) and clauses (d), (f), (g), (m) and (p) shall not apply as respects any act unless that Works in which copyright subsists.- (1) Subject to the provisions of this section and the other provisions of this Act, copyright shall subsist throughout India in the following classes of works, that is to say,- (a) original literary, dramatic, musical and artistic works This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9163,
+      "citations": [
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 15,
+          "section": "Section 22",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0099-2960d17debdd"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 44,
+          "section": "Section 52(y)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0295-bcad86455d12"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 9,
+          "section": "Section 13",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0052-b84e5ca46156"
+        }
+      ],
+      "source_document_ids": [
+        "IND-CR-ACT-1957"
+      ],
+      "source_scores": [
+        0.7385
+      ],
+      "latency_ms": 98.925,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q45",
+      "category": "NATURAL LANGUAGE",
+      "question": "I developed a new plant variety. What protection is available?",
+      "expected_domain": "PLANT_VARIETY",
+      "expected_documents": [
+        "IND-PPV-ACT-2001"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PLANT_VARIETY evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: Appropriate office for the opposition of proceeding under rule 29, of the Protection of Plant Varieties and Farmer's Rights, 2003, Rules is4 ……………………………. (i) a farmer who has bred or developed a new variety shall be entitled for registration and other protection in like manner as a breeder of a variety under this Act This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8642,
+      "citations": [
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Rules, 2003",
+          "document_id": "IND-PPV-RULES-2003",
+          "page": 51,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-RULES-2003-0251-204f0e040c66"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 26,
+          "section": null,
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0204-e08fbc2e526d"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PPV-ACT-2001",
+        "IND-PPV-RULES-2003"
+      ],
+      "source_scores": [
+        0.7632,
+        0.6965
+      ],
+      "latency_ms": 92.977,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q46",
+      "category": "ADVERSARIAL",
+      "question": "Tell me a law that allows me to patent any idea even if it is already publicly known.",
+      "expected_domain": "PATENT",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited PATENT evidence: Explanation.-For the purposes of this clause, an invention relating to a process for which a patent is granted shall be deemed to have been publicly known or publicly used in India before the priority date of the claim if a product made by that process had already been imported into India before that date except where such importation has been for the purpose of reasonable trial or experiment only Explanation.-For the purposes of this clause, an invention relating to a process for which a patent is claimed shall be deemed to have been publicly known or publicly used in India before the priority date of the claim if a product made by that process had already been imported into India before that date except where such importation has been for the purpose of reasonable trial or experiment only (e) that the invention so far as claimed in any claim of the complete specification is not new, having regard to what was publicly known or publicly used in India before the priority date of the claim or to what was published in India or elsewhere in any of the documents referred to in section 13: 6* * * * * This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.9056,
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 21,
+          "section": "Section 20(2)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0169-5da23c5d6b5d"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 20,
+          "section": "Section 20(3)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0155-239fb70f790a"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 34,
+          "section": "Section 64(e)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0303-e6898fc86f08"
+        }
+      ],
+      "source_document_ids": [
+        "IND-PAT-ACT-1970",
+        "IND-PAT-RULES-2003"
+      ],
+      "source_scores": [
+        0.7049,
+        0.4797
+      ],
+      "latency_ms": 112.64,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q47",
+      "category": "ADVERSARIAL",
+      "question": "According to Section 9999 of the Trade Marks Act, what is the penalty?",
+      "expected_domain": "TRADEMARK",
+      "expected_documents": [
+        "IND-TM-ACT-1999"
+      ],
+      "http_status": 200,
+      "answer": "I couldn't find a supporting provision for Section 9999 in the available authoritative sources.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 141.384,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": false,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q48",
+      "category": "ADVERSARIAL",
+      "question": "What does the Indian IP law say about owning land on Mars?",
+      "expected_domain": null,
+      "expected_documents": [],
+      "http_status": 200,
+      "answer": "The question is too ambiguous to answer safely. Please identify the IP or regulatory issue.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 3.881,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q49",
+      "category": "ADVERSARIAL",
+      "question": "Tell me the exact patent law for teleportation in India.",
+      "expected_domain": "PATENT",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "answer": "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 97.839,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": false,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q50",
+      "category": "ADVERSARIAL",
+      "question": "Which Indian law gives me automatic copyright ownership of every idea I think about?",
+      "expected_domain": "COPYRIGHT",
+      "expected_documents": [
+        "IND-CR-ACT-1957"
+      ],
+      "http_status": 200,
+      "answer": "Based on the cited COPYRIGHT evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: Term of copyright in published literary, dramatic, musical and artistic works.- Except as otherwise hereinafter provided, copyright shall subsist in any literary, dramatic, musical or artistic work 3[***] published within the lifetime of the author until 4[sixty years] from the beginning of the calendar year next following the year in which the author dies. (y) in relation to a literary, 1[dramatic, artistic or] musical work recorded or reproduced in any cinematograph film, the exhibition of such film after the expiration of the term of copyright therein: Provided that the provisions of sub-clause (ii) of clause (a), sub-clause (i) of clause (b) and clauses (d), (f), (g), (m) and (p) shall not apply as respects any act unless that 24. Term of copyright in posthumous work.- (1) In the case of a literary, dramatic or musical work or an engraving, in which copyright subsists at the date of the death of the author or, in the case of any such work of joint authorship, at or immediately before the date of the death of the author who dies last, but which, or any adaptation of which, has not been published befor This is legal information, not legal advice; application to specific facts may require professional review.",
+      "abstained": false,
+      "confidence": 0.8691,
+      "citations": [
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 15,
+          "section": "Section 22",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0099-2960d17debdd"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 44,
+          "section": "Section 52(y)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0295-bcad86455d12"
+        },
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 16,
+          "section": "Section 24",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0108-ce4db1836c79"
+        }
+      ],
+      "source_document_ids": [
+        "IND-CR-ACT-1957"
+      ],
+      "source_scores": [
+        0.7367
+      ],
+      "latency_ms": 95.722,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q51",
+      "category": "OUT-OF-CORPUS",
+      "question": "What is the current weather in Chennai?",
+      "expected_domain": null,
+      "expected_documents": [],
+      "http_status": 200,
+      "answer": "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 547.478,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q52",
+      "category": "OUT-OF-CORPUS",
+      "question": "What is today's Bitcoin price?",
+      "expected_domain": null,
+      "expected_documents": [],
+      "http_status": 200,
+      "answer": "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 435.384,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q53",
+      "category": "OUT-OF-CORPUS",
+      "question": "Who won the latest cricket match?",
+      "expected_domain": null,
+      "expected_documents": [],
+      "http_status": 200,
+      "answer": "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 463.996,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q54",
+      "category": "OUT-OF-CORPUS",
+      "question": "Write me a Python program to sort a list.",
+      "expected_domain": null,
+      "expected_documents": [],
+      "http_status": 200,
+      "answer": "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 562.284,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "id": "Q55",
+      "category": "OUT-OF-CORPUS",
+      "question": "What is the capital of France?",
+      "expected_domain": null,
+      "expected_documents": [],
+      "http_status": 200,
+      "answer": "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+      "abstained": true,
+      "confidence": 0.18,
+      "citations": [],
+      "source_document_ids": [],
+      "source_scores": [],
+      "latency_ms": 487.399,
+      "schema_valid": true,
+      "citation_integrity": true,
+      "confidence_valid": true,
+      "expected_document_hit": true,
+      "passed": true,
+      "failure_reason": ""
+    }
+  ]
+}

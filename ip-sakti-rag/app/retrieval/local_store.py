@@ -54,6 +54,7 @@ class LocalCorpusStore:
                 score += idf * frequency * 2.2 / (frequency + 1.2 * (0.25 + 0.75 * length / self.average_length))
             if _identifier_match(chunk, analysis):
                 score += 10.0
+            score += _title_intent_boost(chunk, analysis, lexical=True)
             if score:
                 results.append({**chunk, "lexical_score": score})
         return sorted(results, key=lambda item: item["lexical_score"], reverse=True)[:count]
@@ -81,6 +82,7 @@ class LocalCorpusStore:
             score = dot / (math.sqrt(norm) * query_norm or 1.0)
             if _identifier_match(chunk, analysis):
                 score += 0.75
+            score += _title_intent_boost(chunk, analysis, lexical=False)
             if score:
                 results.append({**chunk, "vector_score": score})
         return sorted(results, key=lambda item: item["vector_score"], reverse=True)[:count]
@@ -107,3 +109,24 @@ def _identifier_match(chunk: dict[str, Any], analysis: QueryAnalysis) -> bool:
 
 def _combined(parent: str | None, child: str | None) -> str | None:
     return f"{parent}({child})" if parent and child else parent
+
+
+def _title_intent_boost(chunk: dict[str, Any], analysis: QueryAnalysis, *, lexical: bool) -> float:
+    query = analysis.query.lower()
+    title = chunk.get("title", "").lower()
+    boost = 0.0
+    if title:
+        title_tokens = {token for token in tokens(title) if len(token) >= 4 and token not in {"india", "rules", "rule", "act"}}
+        query_tokens = {token for token in tokens(query) if len(token) >= 4}
+        overlap = len(title_tokens & query_tokens)
+        if overlap >= 2:
+            boost += 4.0 if lexical else 0.20
+        if "act" in query and chunk.get("document_type") == "ACT":
+            boost += 2.5 if lexical else 0.12
+        if "rules" in query and chunk.get("document_type") == "RULES":
+            boost += 2.5 if lexical else 0.12
+    if analysis.intent in {"rights", "difference"} and chunk.get("document_type") == "ACT":
+        boost += 2.0 if lexical else 0.10
+    if analysis.intent == "purpose" and chunk.get("document_type") == "ACT":
+        boost += 3.0 if lexical else 0.14
+    return boost

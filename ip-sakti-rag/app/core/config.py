@@ -58,6 +58,7 @@ class Settings:
     openrouter_api_key: str | None
     openrouter_model: str
     enable_llm: bool
+    enable_general_llm: bool
     top_k: int
     candidate_k: int
     similarity_threshold: float
@@ -83,6 +84,7 @@ def get_settings() -> Settings:
         openrouter_api_key=os.getenv("OPENROUTER_API_KEY") or os.getenv("LLM_API_KEY") or None,
         openrouter_model=os.getenv("OPENROUTER_MODEL") or os.getenv("LLM_MODEL") or "openai/gpt-4.1-mini",
         enable_llm=_bool("RAG_ENABLE_LLM"),
+        enable_general_llm=_bool("RAG_ENABLE_GENERAL_LLM"),
         top_k=_int("RAG_TOP_K", 8),
         candidate_k=_int("RAG_CANDIDATE_K", 24),
         similarity_threshold=_float("RAG_SIMILARITY_THRESHOLD", 0.10),

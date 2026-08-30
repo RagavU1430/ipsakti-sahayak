@@ -46,6 +46,20 @@ Successful grounded response:
 
 Grounded answers are generated only from retrieved evidence. Citation metadata is not trusted from the model: the backend maps used evidence IDs to chunk/document metadata and validates citations programmatically before returning an answer.
 
+General fallback response:
+
+```json
+{
+  "answer": "I checked the verified IP-SAKTI corpus first, but the question does not appear to match that IP/legal corpus. This is a general question outside the available IP-SAKTI legal sources, so I cannot provide a corpus-grounded legal citation for it.",
+  "confidence": 0.35,
+  "abstained": false,
+  "citations": [],
+  "sources": []
+}
+```
+
+General fallback answers are returned only after query processing and RAG relevance comparison determine that the verified corpus does not contain sufficiently relevant evidence for a grounded answer. They are explicitly citation-free: empty `citations` and `sources` means the answer is not grounded in the IP-SAKTI corpus. Local/dev mode uses a deterministic safe fallback. Production may enable remote general fallback with `RAG_ENABLE_GENERAL_LLM=true` plus provider credentials.
+
 Abstained response:
 
 ```json
@@ -58,13 +72,25 @@ Abstained response:
 }
 ```
 
-An abstention is a successful HTTP 200 response because the RAG system completed safely and refused to overclaim. Invalid requests return 422. Infrastructure/configuration failures return 503 with a controlled `RAG_UNAVAILABLE` error and no stack trace, secret, prompt, embedding, or database detail.
+An abstention is reserved for fail-closed cases such as unsupported exact legal identifiers, quarantined sources, security/prompt-exfiltration requests, grounded generation failure, or citation validation failure. Invalid requests return 422. Infrastructure/configuration failures return 503 with a controlled `RAG_UNAVAILABLE` error and no stack trace, secret, prompt, embedding, or database detail.
 
 ## Runtime behavior
 
-The endpoint executes:
+The endpoint follows a RAG-first policy:
 
-`question -> query processing -> metadata detection/filtering -> hybrid vector + keyword retrieval -> score fusion -> legal reranking -> evidence sufficiency -> grounded generation -> citation validation -> deterministic confidence -> answer or abstention`.
+`question -> query processing -> metadata detection/filtering -> hybrid vector + keyword retrieval -> score fusion -> legal reranking -> relevance/sufficiency comparison`.
+
+If relevant corpus evidence is available, the runtime continues:
+
+`grounded generation -> citation validation -> deterministic confidence -> RAG-grounded answer`.
+
+If relevant corpus evidence is not available, the runtime returns:
+
+`general fallback answer -> no citations -> no sources`.
+
+If a strict safety/integrity check fails, the runtime returns:
+
+`fail-closed abstention`.
 
 The runtime can use the local canonical corpus for safe development/testing or Supabase for production retrieval when configured. Supabase credentials and model/provider keys must come from environment variables; service-role credentials must never be exposed to the frontend.
 
@@ -89,6 +115,7 @@ Important runtime knobs:
 ```env
 RAG_STORAGE_BACKEND=auto
 RAG_ENABLE_LLM=false
+RAG_ENABLE_GENERAL_LLM=false
 OPENROUTER_MODEL=openai/gpt-4.1-mini
 RAG_TOP_K=8
 RAG_CANDIDATE_K=24

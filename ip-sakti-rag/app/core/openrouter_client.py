@@ -40,21 +40,46 @@ class OpenRouterClient:
         messages: List[Dict[str, str]], 
         model: str = "openrouter/free", 
         temperature: float = 0.3,
-        max_tokens: Optional[int] = None
+        max_tokens: Optional[int] = None,
+        timeout: float = 12.0
     ) -> Dict[str, Any]:
         """
-        Query OpenRouter chat completion API.
+        Query OpenRouter chat completion API, trying each configured model until one responds quickly.
         """
         url = f"{self.base_url}/chat/completions"
-        payload = {
-            "model": model,
-            "messages": messages,
-            "temperature": temperature
-        }
-        if max_tokens:
-            payload["max_tokens"] = max_tokens
+        if isinstance(model, str):
+            models_list = [m.strip() for m in model.split(",") if m.strip()]
+        else:
+            models_list = list(model)
+        
+        if not models_list:
+            models_list = ["openrouter/free"]
 
-        with httpx.Client(timeout=90.0) as client:
-            response = client.post(url, headers=self.headers, json=payload)
-            response.raise_for_status()
-            return response.json()
+        last_err = None
+        for current_model in models_list:
+            payload: Dict[str, Any] = {
+                "model": current_model,
+                "messages": messages,
+                "temperature": temperature
+            }
+            if max_tokens:
+                payload["max_tokens"] = max_tokens
+
+            try:
+                with httpx.Client(timeout=timeout) as client:
+                    response = client.post(url, headers=self.headers, json=payload)
+                    response.raise_for_status()
+                    data = response.json()
+                    if "choices" in data and len(data["choices"]) > 0:
+                        content = data["choices"][0].get("message", {}).get("content")
+                        if content:
+                            return data
+            except Exception as e:
+                last_err = e
+                continue
+        
+        if last_err:
+            raise last_err
+        raise RuntimeError("No configured model responded successfully.")
+
+

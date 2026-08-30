@@ -1,3 +1,3 @@
-from app.generation.grounded import ExtractiveGroundedGenerator, OpenRouterGroundedGenerator
+from app.generation.grounded import ExtractiveGroundedGenerator, GeneralFallbackGenerator, OpenRouterGroundedGenerator
 
-__all__ = ["ExtractiveGroundedGenerator", "OpenRouterGroundedGenerator"]
+__all__ = ["ExtractiveGroundedGenerator", "GeneralFallbackGenerator", "OpenRouterGroundedGenerator"]

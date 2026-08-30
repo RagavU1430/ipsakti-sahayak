@@ -28,6 +28,7 @@ def settings() -> Settings:
         openrouter_api_key=None,
         openrouter_model="test",
         enable_llm=False,
+        enable_general_llm=False,
         top_k=8,
         candidate_k=24,
         similarity_threshold=0.1,
@@ -40,6 +41,15 @@ def settings() -> Settings:
 @pytest.fixture(scope="session")
 def service(settings: Settings) -> RAGService:
     return RAGService(settings=settings)
+
+
+@pytest.fixture(autouse=True)
+def override_api_service(service: RAGService):
+    from app.api.main import app
+    from app.service import get_service
+    app.dependency_overrides[get_service] = lambda: service
+    yield
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture(scope="session")

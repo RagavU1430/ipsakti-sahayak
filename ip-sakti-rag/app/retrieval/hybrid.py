@@ -19,8 +19,15 @@ class HybridRetriever:
         self.candidate_k = candidate_k
 
     def retrieve(self, analysis: QueryAnalysis) -> list[Evidence]:
+        if not analysis.domains and (analysis.out_of_scope or analysis.ambiguous):
+            return []
         vector = self.store.vector_search(analysis, self.candidate_k)
         lexical = self.store.keyword_search(analysis, self.candidate_k)
+        if analysis.intent == "difference" and len(set(analysis.domains)) >= 2:
+            for domain in dict.fromkeys(analysis.domains):
+                domain_analysis = analysis.model_copy(update={"domains": [domain]})
+                vector.extend(self.store.vector_search(domain_analysis, max(6, self.candidate_k // 2)))
+                lexical.extend(self.store.keyword_search(domain_analysis, max(6, self.candidate_k // 2)))
         vector_scores = _normalize(vector, "vector_score")
         lexical_scores = _normalize(lexical, "lexical_score")
         combined = {row["chunk_id"]: dict(row) for row in vector + lexical}

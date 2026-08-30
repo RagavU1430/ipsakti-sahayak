@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from app.citations import citations_for, evidence_supports_identifier, validate_citations
 from app.core.config import Settings, get_settings
-from app.generation import ExtractiveGroundedGenerator, OpenRouterGroundedGenerator
+from app.generation import ExtractiveGroundedGenerator, GeneralFallbackGenerator, OpenRouterGroundedGenerator
 from app.generation.context import assemble_context
 from app.guardrails import abstention_reason, calculate_confidence
 from app.models import (
@@ -36,6 +36,7 @@ class RAGService:
         self.retriever = HybridRetriever(self.store, self.settings.candidate_k)
         self.reranker = LegalFeatureReranker()
         self.generator = generator or self._generator()
+        self.general_generator = self._general_generator()
 
     def _store(self):
         use_supabase = self.settings.storage_backend == "supabase" or (
@@ -70,6 +71,16 @@ class RAGService:
             )
         return ExtractiveGroundedGenerator()
 
+    def _general_generator(self):
+        if self.settings.enable_general_llm and self.settings.openrouter_api_key:
+            from app.core.openrouter_client import OpenRouterClient
+
+            return GeneralFallbackGenerator(
+                OpenRouterClient(self.settings.openrouter_api_key),
+                self.settings.openrouter_model,
+            )
+        return GeneralFallbackGenerator()
+
     def query(self, request: QueryRequest) -> QueryResponse:
         request_id = str(uuid4())
         total_started = time.perf_counter()
@@ -81,10 +92,6 @@ class RAGService:
                     "The request asks for hidden instructions or credentials. Those are not legal evidence and cannot be provided.",
                     total_started,
                 )
-                self._log_request(request_id, analysis, response)
-                return response
-            if analysis.ambiguous:
-                response = self._abstained(analysis, "The question is too ambiguous to answer safely. Please identify the IP or regulatory issue.", total_started)
                 self._log_request(request_id, analysis, response)
                 return response
             if self._requires_quarantined_ayurveda_aahara_source(request.query):
@@ -105,6 +112,10 @@ class RAGService:
             rerank_ms = (time.perf_counter() - rerank_started) * 1000
             reason = abstention_reason(analysis, evidence, max(self.settings.min_score, self.settings.abstention_threshold))
             if reason:
+                if self._should_general_fallback(analysis, reason):
+                    response = self._general_fallback(analysis, reason, total_started, retrieval_ms, rerank_ms, candidates)
+                    self._log_request(request_id, analysis, response)
+                    return response
                 response = self._abstained(analysis, reason, total_started, retrieval_ms, rerank_ms, evidence)
                 self._log_request(request_id, analysis, response)
                 return response
@@ -122,17 +133,22 @@ class RAGService:
             try:
                 generated = self.generator.generate(analysis, context, selected)
             except Exception:
-                # Fail closed. A model/provider failure must not produce a guessed answer.
-                response = self._abstained(
-                    analysis,
-                    "The grounded generation provider failed, so no legal answer was produced.",
-                    total_started,
-                    retrieval_ms,
-                    rerank_ms,
-                    selected,
-                )
-                self._log_request(request_id, analysis, response)
-                return response
+                logger.warning("Remote LLM generator failed or timed out; falling back to extractive generator.")
+                try:
+                    from app.generation import ExtractiveGroundedGenerator
+                    generated = ExtractiveGroundedGenerator().generate(analysis, context, selected)
+                except Exception:
+                    logger.exception("rag_generation_failed")
+                    response = self._abstained(
+                        analysis,
+                        "The grounded generation provider failed, so no legal answer was produced.",
+                        total_started,
+                        retrieval_ms,
+                        rerank_ms,
+                        selected,
+                    )
+                    self._log_request(request_id, analysis, response)
+                    return response
             generation_ms = (time.perf_counter() - generation_started) * 1000
             if generated.insufficient_evidence or not generated.used_chunk_ids:
                 response = self._abstained(
@@ -162,7 +178,7 @@ class RAGService:
                 )
                 self._log_request(request_id, analysis, response)
                 return response
-            confidence, score = calculate_confidence(selected, len(citations), True, False)
+            confidence, score = calculate_confidence(selected, len(citations), True, False, analysis)
             limitations = []
             if any(item.source_status != "VERIFIED" for item in selected):
                 limitations.append("One or more raw source files were unavailable for independent page verification; confidence is capped.")
@@ -219,6 +235,56 @@ class RAGService:
             "list service keys",
             "reveal credentials",
         ))
+
+    @staticmethod
+    def _should_general_fallback(analysis, reason: str) -> bool:
+        if analysis.legal_identifiers:
+            return False
+        normalized = reason.lower()
+        return (
+            analysis.out_of_scope
+            or analysis.speculative_subject is not None
+            or analysis.ambiguous
+            or "sufficient authoritative evidence" in normalized
+            or "sufficiently relevant supporting evidence" in normalized
+        )
+
+    def _general_fallback(self, analysis, reason, started, retrieval_ms=0.0, rerank_ms=0.0, candidates=None):
+        try:
+            generated = self.general_generator.generate(analysis, reason)
+            answer = generated.answer
+            provider = generated.provider
+        except Exception:
+            logger.exception("rag_general_fallback_failed")
+            answer = (
+                "I checked the verified IP-SAKTI corpus first, but it did not contain sufficiently relevant evidence. "
+                "The general-answer provider was unavailable, so I cannot safely provide a non-corpus answer."
+            )
+            provider = "general-fallback-failed"
+        return QueryResponse(
+            answer=answer,
+            confidence=Confidence.LOW,
+            abstained=False,
+            jurisdiction=analysis.jurisdiction,
+            domain=analysis.domains[0] if analysis.domains else None,
+            citations=[],
+            evidence=[],
+            limitations=[
+                "No relevant RAG evidence was sufficient for a grounded answer.",
+                "This response is not grounded in the verified IP-SAKTI corpus and has no citations.",
+            ],
+            metrics={
+                "retrieval_ms": round(retrieval_ms, 3),
+                "reranking_ms": round(rerank_ms, 3),
+                "generation_ms": 0.0,
+                "total_ms": round((time.perf_counter() - started) * 1000, 3),
+                "confidence_score": 0.35,
+                "candidate_count": len(candidates or []),
+                "evidence_count": 0,
+                "answer_mode": "general_fallback",
+                "generator": provider,
+            },
+        )
 
     @staticmethod
     def _abstained(analysis, reason, started, retrieval_ms=0.0, rerank_ms=0.0, evidence=None, generation_ms=0.0, limitations=None):
