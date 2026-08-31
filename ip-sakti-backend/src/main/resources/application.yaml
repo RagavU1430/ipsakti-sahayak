@@ -3,25 +3,46 @@ spring:
     name: ip-sakti-backend
 
   datasource:
-    url: jdbc:postgresql://db.jqggmtbfujmpnplwzbyn.supabase.co:5432/postgres
-    username: postgres
-    password: ${SUPABASE_DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:${SUPABASE_DB_PASSWORD:}}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format_sql: ${SPRING_JPA_FORMAT_SQL:false}
 
 # Supabase API keys (loaded from environment variables)
 supabase:
-  url: https://jqggmtbfujmpnplwzbyn.supabase.co
-  anon-key: ${SUPABASE_ANON_KEY}
-  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY}
+  url: ${SUPABASE_URL:}
+  anon-key: ${SUPABASE_ANON_KEY:}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:}
+
+# RAG microservice connection
+rag:
+  base-url: ${RAG_BASE_URL:http://localhost:8000}
+  connect-timeout: ${RAG_CONNECT_TIMEOUT:2s}
+  read-timeout: ${RAG_READ_TIMEOUT:20s}
+
+app:
+  security:
+    mode: ${BACKEND_SECURITY_MODE:dev}
+    api-key: ${BACKEND_API_KEY:}
+    allowed-origins: ${BACKEND_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+  jwt:
+    issuer: ${BACKEND_JWT_ISSUER:ip-sakti-sahayak}
+    secret: ${BACKEND_JWT_SECRET:}
+    access-token-ttl: ${BACKEND_JWT_ACCESS_TOKEN_TTL:30m}
+
+bhashini:
+  enabled: ${BHASHINI_ENABLED:false}
+  base-url: ${BHASHINI_BASE_URL:}
+  api-key: ${BHASHINI_API_KEY:}
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
