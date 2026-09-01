@@ -14,16 +14,23 @@ def load_env(env_path: str = ".env") -> None:
     2. ip-sakti-rag/.env  (own project root)
     3. ip-sakti-backend/.env  (unified .env lives here)
     """
-    if not os.path.exists(env_path):
-        # Own project root (ip-sakti-rag/)
-        env_path = str(Path(__file__).resolve().parents[2] / ".env")
-    if not os.path.exists(env_path):
-        # Sibling backend directory (ip-sakti-backend/.env)
-        env_path = str(Path(__file__).resolve().parents[3] / "ip-sakti-backend" / ".env")
-    if not os.path.exists(env_path):
+    search_paths = [
+        Path(env_path),
+        Path(__file__).resolve().parents[3] / ".env",               # Workspace repository root
+        Path(__file__).resolve().parents[2] / ".env",               # ip-sakti-rag/
+        Path(__file__).resolve().parents[3] / "ip-sakti-backend" / ".env",  # ip-sakti-backend/
+    ]
+    
+    target_path = None
+    for p in search_paths:
+        if p.is_file():
+            target_path = p
+            break
+            
+    if not target_path:
         return
             
-    with open(env_path, "r", encoding="utf-8") as f:
+    with open(target_path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith("#"):
