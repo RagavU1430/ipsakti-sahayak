@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ipsakti.ip_sakti_backend.config.SecurityConfig;
+import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.QuestionService;
 import com.ipsakti.ip_sakti_backend.question.classification.JurisdictionResolver;
 import com.ipsakti.ip_sakti_backend.question.classification.QuestionIntentClassifier;
@@ -23,7 +25,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(QuestionController.class)
-@Import({SecurityConfig.class, QuestionService.class, QuestionIntentClassifier.class, JurisdictionResolver.class})
+@Import({SecurityConfig.class, QuestionService.class, QuestionIntentClassifier.class, JurisdictionResolver.class, TranslationService.class})
 @TestPropertySource(properties = {
         "app.security.mode=prod",
         "app.security.api-key=test-api-key"
@@ -35,6 +37,9 @@ class QuestionControllerSecurityTest {
 
     @MockitoBean
     private RagClient ragClient;
+
+    @MockitoBean
+    private BhashiniClient bhashiniClient;
 
     @Test
     void rejectsQuestionWithoutApiKeyInProdMode() throws Exception {

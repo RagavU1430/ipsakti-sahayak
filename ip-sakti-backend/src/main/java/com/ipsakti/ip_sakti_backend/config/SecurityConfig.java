@@ -27,32 +27,49 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityProperties securityProperties) throws Exception {
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            SecurityProperties securityProperties,
+            org.springframework.beans.factory.ObjectProvider<com.ipsakti.ip_sakti_backend.auth.JwtAuthenticationFilter> jwtAuthenticationFilterProvider
+    ) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable);
+                .logout(AbstractHttpConfigurer::disable)
+                .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
+                    response.getWriter().write("{\"error\":\"Unauthorized\",\"code\":\"UNAUTHORIZED\",\"message\":\"Authentication is required to access this resource.\"}");
+                }));
+
+        com.ipsakti.ip_sakti_backend.auth.JwtAuthenticationFilter jwtFilter = jwtAuthenticationFilterProvider.getIfAvailable();
+        if (jwtFilter != null) {
+            http.addFilterBefore(jwtFilter, AnonymousAuthenticationFilter.class);
+        }
 
         if (securityProperties.apiKeyRequired()) {
             http.addFilterBefore(new ApiKeyAuthenticationFilter(securityProperties), AnonymousAuthenticationFilter.class)
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                            .requestMatchers("/health", "/actuator/health").permitAll()
+                            .requestMatchers("/health", "/health/**", "/actuator/health").permitAll()
                             .anyRequest().authenticated());
         } else {
             http.authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(
                             "/health",
+                            "/health/**",
+                            "/actuator/health",
                             "/api/v1/ask",
                             "/api/v1/questions",
                             "/api/v1/questions/health",
                             "/api/v1/formulations/classify",
                             "/api/v1/regulatory/analyze"
                     ).permitAll()
+                    .requestMatchers("/api/v1/conversations/**").authenticated()
                     .anyRequest().denyAll());
         }
 
@@ -77,5 +94,18 @@ public class SecurityConfig {
         return username -> {
             throw new UsernameNotFoundException("No password-based users are configured.");
         };
+    }
+
+    @Bean
+    com.ipsakti.ip_sakti_backend.auth.JwtAuthenticationFilter jwtAuthenticationFilter(
+            org.springframework.beans.factory.ObjectProvider<com.ipsakti.ip_sakti_backend.auth.JwtService> jwtServiceProvider,
+            org.springframework.beans.factory.ObjectProvider<com.ipsakti.ip_sakti_backend.auth.UserService> userServiceProvider,
+            SecurityProperties securityProperties
+    ) {
+        return new com.ipsakti.ip_sakti_backend.auth.JwtAuthenticationFilter(
+                jwtServiceProvider.getIfAvailable(),
+                userServiceProvider.getIfAvailable(),
+                securityProperties
+        );
     }
 }

@@ -2,6 +2,7 @@ package com.ipsakti.ip_sakti_backend.formulation.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import com.ipsakti.ip_sakti_backend.question.model.Language;
 import java.util.List;
 
 public record FormulationRequest(
@@ -17,8 +18,28 @@ public record FormulationRequest(
         @Size(max = 120) String targetMarket,
         @Size(max = 120) String country,
         @Size(max = 160) String existingLicense,
-        @Size(max = 160) String knownClassification
+        @Size(max = 160) String knownClassification,
+        Language language
 ) {
+    public FormulationRequest(
+            String productName,
+            List<String> ingredients,
+            String dosageForm,
+            String intendedUse,
+            List<String> claims,
+            String manufacturingMethod,
+            String classicalReference,
+            Boolean traditionalUse,
+            Boolean commercialIntent,
+            String targetMarket,
+            String country,
+            String existingLicense,
+            String knownClassification
+    ) {
+        this(productName, ingredients, dosageForm, intendedUse, claims, manufacturingMethod, classicalReference,
+                traditionalUse, commercialIntent, targetMarket, country, existingLicense, knownClassification, null);
+    }
+
     public FormulationRequest {
         productName = normalizeRequired(productName);
         ingredients = normalizeList(ingredients);

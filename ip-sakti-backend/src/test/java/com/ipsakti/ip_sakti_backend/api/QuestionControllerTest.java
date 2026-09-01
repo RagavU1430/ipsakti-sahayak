@@ -1,6 +1,7 @@
 package com.ipsakti.ip_sakti_backend.api;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -8,7 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ipsakti.ip_sakti_backend.config.SecurityConfig;
+import com.ipsakti.ip_sakti_backend.exception.BhashiniClientException;
 import com.ipsakti.ip_sakti_backend.exception.RagClientException;
+import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.QuestionService;
 import com.ipsakti.ip_sakti_backend.question.classification.JurisdictionResolver;
 import com.ipsakti.ip_sakti_backend.question.classification.QuestionIntentClassifier;
@@ -26,7 +30,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(QuestionController.class)
-@Import({SecurityConfig.class, QuestionService.class, QuestionIntentClassifier.class, JurisdictionResolver.class})
+@Import({SecurityConfig.class, QuestionService.class, QuestionIntentClassifier.class, JurisdictionResolver.class, TranslationService.class})
 class QuestionControllerTest {
 
     @Autowired
@@ -34,6 +38,9 @@ class QuestionControllerTest {
 
     @MockitoBean
     private RagClient ragClient;
+
+    @MockitoBean
+    private BhashiniClient bhashiniClient;
 
     @Test
     void returnsFrontendReadyGroundedResponse() throws Exception {
@@ -184,6 +191,25 @@ class QuestionControllerTest {
                         .content("{\"question\":\"What is a trademark?\"}"))
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.code").value("RAG_MALFORMED_RESPONSE"));
+    }
+
+    @Test
+    void mapsBhashiniTimeoutToSafeError() throws Exception {
+        when(bhashiniClient.translate(any(), eq(com.ipsakti.ip_sakti_backend.question.model.Language.TA), eq(com.ipsakti.ip_sakti_backend.question.model.Language.EN)))
+                .thenThrow(BhashiniClientException.timeout());
+
+        mockMvc.perform(post("/api/v1/questions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "question": "இந்தியாவில் வர்த்தக முத்திரையை பதிவு செய்ய என்ன தேவைகள்?",
+                                  "jurisdiction": "INDIA",
+                                  "language": "ta"
+                                }
+                                """))
+                .andExpect(status().isGatewayTimeout())
+                .andExpect(jsonPath("$.code").value("BHASHINI_TIMEOUT"))
+                .andExpect(jsonPath("$.detail").value("The translation service timed out."));
     }
 
     @Test

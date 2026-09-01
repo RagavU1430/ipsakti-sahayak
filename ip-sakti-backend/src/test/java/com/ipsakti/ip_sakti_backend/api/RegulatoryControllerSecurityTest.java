@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ipsakti.ip_sakti_backend.config.SecurityConfig;
+import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
 import com.ipsakti.ip_sakti_backend.regulatory.RegulatoryAnalysisService;
@@ -35,7 +37,8 @@ import org.springframework.test.web.servlet.MockMvc;
         Section3pAnalysisService.class,
         Section3eAnalysisService.class,
         AbsAnalysisService.class,
-        GratkAnalysisService.class
+        GratkAnalysisService.class,
+        TranslationService.class
 })
 @TestPropertySource(properties = {
         "app.security.mode=prod",
@@ -48,6 +51,9 @@ class RegulatoryControllerSecurityTest {
 
     @MockitoBean
     private RagClient ragClient;
+
+    @MockitoBean
+    private BhashiniClient bhashiniClient;
 
     @Test
     void rejectsWithoutApiKeyInProdMode() throws Exception {

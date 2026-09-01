@@ -2,6 +2,7 @@ package com.ipsakti.ip_sakti_backend.formulation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.ipsakti.ip_sakti_backend.formulation.classification.FormulationClarificationService;
@@ -11,6 +12,9 @@ import com.ipsakti.ip_sakti_backend.formulation.model.FormulationClassification;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationRequest;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationResponse;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationStatus;
+import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
+import com.ipsakti.ip_sakti_backend.question.model.Language;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagCitation;
@@ -23,16 +27,19 @@ import org.mockito.Mockito;
 class FormulationClassificationServiceTest {
 
     private RagClient ragClient;
+    private BhashiniClient bhashiniClient;
     private FormulationClassificationService service;
 
     @BeforeEach
     void setUp() {
         ragClient = Mockito.mock(RagClient.class);
+        bhashiniClient = Mockito.mock(BhashiniClient.class);
         service = new FormulationClassificationService(
                 ragClient,
                 new FormulationRuleEngine(),
                 new FormulationClarificationService(),
-                new RegulatoryRouteService()
+                new RegulatoryRouteService(),
+                new TranslationService(bhashiniClient)
         );
         when(ragClient.ask(any())).thenReturn(groundedRagResponse());
     }
@@ -270,6 +277,38 @@ class FormulationClassificationServiceTest {
         assertThat(response.citations().getFirst().documentId()).isEqualTo("IND-AYUSH-TEST");
         assertThat(response.sources().getFirst().score()).isEqualTo(0.91);
         assertThat(response.confidence()).isBetween(0.0, 1.0);
+    }
+
+    @Test
+    void translatesTamilFormulationInputAndReasonWhilePreservingCategoryAndCitations() {
+        when(bhashiniClient.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.TA), eq(Language.EN)))
+                .thenReturn("Herbal Cream skin beauty glow");
+        when(bhashiniClient.translate(org.mockito.ArgumentMatchers.contains("COSMETIC"), eq(Language.EN), eq(Language.TA)))
+                .thenReturn("தமிழில் வகைப்பாடு காரணம் COSMETIC");
+
+        FormulationResponse response = service.classify(new FormulationRequest(
+                "மூலிகை கிரீம்",
+                List.of(),
+                null,
+                "சரும அழகு",
+                List.of("பளபளப்பு"),
+                null,
+                null,
+                false,
+                true,
+                null,
+                null,
+                null,
+                null,
+                Language.TA
+        ));
+
+        assertThat(response.status()).isEqualTo(FormulationStatus.CLASSIFIED);
+        assertThat(response.classification()).isEqualTo(FormulationClassification.COSMETIC);
+        assertThat(response.reason()).isEqualTo("தமிழில் வகைப்பாடு காரணம் COSMETIC");
+        assertThat(response.language()).isEqualTo(Language.TA);
+        assertThat(response.detectedLanguage()).isEqualTo(Language.TA);
+        assertThat(response.citations().getFirst().documentId()).isEqualTo("IND-AYUSH-TEST");
     }
 
     private RagAskResponse groundedRagResponse() {

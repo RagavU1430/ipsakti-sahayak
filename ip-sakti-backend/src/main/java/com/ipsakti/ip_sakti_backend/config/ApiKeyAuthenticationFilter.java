@@ -33,12 +33,15 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
         String configuredApiKey = properties.getApiKey();
         String providedApiKey = request.getHeader(API_KEY_HEADER);
         if (configuredApiKey != null && !configuredApiKey.isBlank() && configuredApiKey.equals(providedApiKey)) {
-            var authentication = new UsernamePasswordAuthenticationToken(
-                    "api-key-client",
-                    null,
-                    List.of(new SimpleGrantedAuthority("ROLE_API_CLIENT"))
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            var existingAuth = SecurityContextHolder.getContext().getAuthentication();
+            if (existingAuth == null || !existingAuth.isAuthenticated() || "anonymousUser".equals(existingAuth.getName())) {
+                var authentication = new UsernamePasswordAuthenticationToken(
+                        "api-key-client",
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_API_CLIENT"))
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
             filterChain.doFilter(request, response);
             return;
         }

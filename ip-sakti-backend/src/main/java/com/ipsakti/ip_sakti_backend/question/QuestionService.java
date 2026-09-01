@@ -1,9 +1,13 @@
 package com.ipsakti.ip_sakti_backend.question;
 
+import com.ipsakti.ip_sakti_backend.multilingual.LanguageMetadata;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslatedText;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.classification.JurisdictionResolver;
 import com.ipsakti.ip_sakti_backend.question.classification.QuestionIntentClassifier;
 import com.ipsakti.ip_sakti_backend.question.model.AnswerType;
 import com.ipsakti.ip_sakti_backend.question.model.Jurisdiction;
+import com.ipsakti.ip_sakti_backend.question.model.Language;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionCitation;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionIntent;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionRequest;
@@ -30,58 +34,70 @@ public class QuestionService {
     private final RagClient ragClient;
     private final QuestionIntentClassifier intentClassifier;
     private final JurisdictionResolver jurisdictionResolver;
+    private final TranslationService translationService;
 
     public QuestionService(
             RagClient ragClient,
             QuestionIntentClassifier intentClassifier,
-            JurisdictionResolver jurisdictionResolver
+            JurisdictionResolver jurisdictionResolver,
+            TranslationService translationService
     ) {
         this.ragClient = ragClient;
         this.intentClassifier = intentClassifier;
         this.jurisdictionResolver = jurisdictionResolver;
+        this.translationService = translationService;
     }
 
     public QuestionResponse answer(QuestionRequest request) {
         long started = System.nanoTime();
         String questionId = UUID.randomUUID().toString();
-        QuestionIntent intent = intentClassifier.classify(request.question());
-        Jurisdiction jurisdiction = jurisdictionResolver.resolve(request.jurisdiction(), intent, request.question());
+        TranslatedText canonicalQuestion = translationService.toCanonical(request.question(), request.language(), questionId);
+        LanguageMetadata languageMetadata = canonicalQuestion.metadata();
+        QuestionIntent intent = intentClassifier.classify(canonicalQuestion.canonicalText());
+        Jurisdiction jurisdiction = jurisdictionResolver.resolve(request.jurisdiction(), intent, canonicalQuestion.canonicalText());
 
         log.info(
-                "question_request_received questionId={} intent={} jurisdiction={} language={} questionLength={}",
+                "question_request_received questionId={} intent={} jurisdiction={} requestedLanguage={} detectedLanguage={} processingLanguage={} questionLength={}",
                 questionId,
                 intent,
                 jurisdiction,
-                request.language(),
+                languageMetadata.requestedLanguage(),
+                languageMetadata.detectedLanguage(),
+                languageMetadata.processingLanguage(),
                 request.question().length()
         );
 
         RagAskRequest ragRequest = new RagAskRequest(
-                request.question(),
+                canonicalQuestion.canonicalText(),
                 intentClassifier.ragDomainFor(intent),
                 jurisdictionResolver.ragJurisdictionFor(jurisdiction),
                 null
         );
         RagAskResponse ragResponse = ragClient.ask(ragRequest);
+        String answer = translationService.fromCanonical(ragResponse.answer(), languageMetadata, questionId);
 
         QuestionResponse response = new QuestionResponse(
-                ragResponse.answer(),
+                answer,
                 mapAnswerType(ragResponse.answerSource()),
                 ragResponse.confidence(),
                 ragResponse.abstained(),
                 jurisdiction,
-                request.language(),
+                languageMetadata.requestedLanguage(),
+                languageMetadata.detectedLanguage(),
+                languageMetadata.processingLanguage(),
                 intent,
                 mapCitations(ragResponse.citations()),
                 mapSources(ragResponse.sources())
         );
 
         log.info(
-                "question_response_ready questionId={} intent={} jurisdiction={} language={} answerType={} confidence={} latencyMs={}",
+                "question_response_ready questionId={} intent={} jurisdiction={} requestedLanguage={} detectedLanguage={} processingLanguage={} answerType={} confidence={} latencyMs={}",
                 questionId,
                 intent,
                 jurisdiction,
-                request.language(),
+                languageMetadata.requestedLanguage(),
+                languageMetadata.detectedLanguage(),
+                languageMetadata.processingLanguage(),
                 response.answerType(),
                 response.confidence(),
                 Duration.ofNanos(System.nanoTime() - started).toMillis()

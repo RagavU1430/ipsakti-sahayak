@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.ipsakti.ip_sakti_backend.config.SecurityConfig;
 import com.ipsakti.ip_sakti_backend.exception.RagClientException;
+import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagCitation;
@@ -37,7 +39,8 @@ import org.springframework.test.web.servlet.MockMvc;
         Section3pAnalysisService.class,
         Section3eAnalysisService.class,
         AbsAnalysisService.class,
-        GratkAnalysisService.class
+        GratkAnalysisService.class,
+        TranslationService.class
 })
 class RegulatoryControllerTest {
 
@@ -46,6 +49,9 @@ class RegulatoryControllerTest {
 
     @MockitoBean
     private RagClient ragClient;
+
+    @MockitoBean
+    private BhashiniClient bhashiniClient;
 
     @Test
     void returnsStructuredRegulatoryAnalysis() throws Exception {

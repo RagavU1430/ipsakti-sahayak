@@ -2,9 +2,13 @@ package com.ipsakti.ip_sakti_backend.regulatory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.model.Jurisdiction;
+import com.ipsakti.ip_sakti_backend.question.model.Language;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagCitation;
@@ -29,11 +33,13 @@ import org.mockito.Mockito;
 class RegulatoryAnalysisServiceTest {
 
     private RagClient ragClient;
+    private BhashiniClient bhashiniClient;
     private RegulatoryAnalysisService service;
 
     @BeforeEach
     void setUp() {
         ragClient = Mockito.mock(RagClient.class);
+        bhashiniClient = Mockito.mock(BhashiniClient.class);
         RegulatoryEvidenceMapper mapper = new RegulatoryEvidenceMapper();
         RegulatoryJurisdictionRouter router = new RegulatoryJurisdictionRouter();
         service = new RegulatoryAnalysisService(
@@ -41,7 +47,8 @@ class RegulatoryAnalysisServiceTest {
                 new Section3pAnalysisService(ragClient, mapper, router),
                 new Section3eAnalysisService(ragClient, router),
                 new AbsAnalysisService(ragClient, mapper, router),
-                new GratkAnalysisService(ragClient, mapper, router)
+                new GratkAnalysisService(ragClient, mapper, router),
+                new TranslationService(bhashiniClient)
         );
         when(ragClient.ask(any())).thenReturn(grounded());
     }
@@ -174,6 +181,41 @@ class RegulatoryAnalysisServiceTest {
 
         assertThat(response.overallConfidence()).isBetween(0.0, 1.0);
         assertThat(response.engines()).allMatch(engine -> engine.confidence() >= 0.0 && engine.confidence() <= 1.0);
+    }
+
+    @Test
+    void translatesHindiRegulatoryInputAndUserFacingOutputWithoutChangingLegalMetadata() {
+        when(bhashiniClient.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.HI), eq(Language.EN)))
+                .thenReturn("Ayurvedic product plant traditional use India");
+        when(bhashiniClient.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.EN), eq(Language.HI)))
+                .thenAnswer(invocation -> "HI:" + invocation.getArgument(0));
+
+        RegulatoryAnalysisResponse response = service.analyze(new RegulatoryAnalysisRequest(
+                "आयुर्वेदिक उत्पाद",
+                List.of("पौधा"),
+                null,
+                "पारंपरिक उपयोग",
+                List.of(),
+                true,
+                null,
+                true,
+                "भारत",
+                "भारत",
+                Jurisdiction.AUTO,
+                true,
+                true,
+                false,
+                true,
+                Language.HI
+        ));
+
+        assertThat(response.jurisdiction()).isEqualTo(Jurisdiction.INDIA);
+        assertThat(response.language()).isEqualTo(Language.HI);
+        assertThat(response.processingLanguage()).isEqualTo(Language.EN);
+        assertThat(response.reason()).startsWith("HI:");
+        assertThat(response.engines()).hasSize(4);
+        assertThat(response.engines().getFirst().citations().getFirst().documentId()).isEqualTo("DOC-1");
+        assertThat(response.overallConfidence()).isBetween(0.0, 1.0);
     }
 
     private RegulatoryAnalysisRequest request(boolean tk, boolean bio, boolean gr, Jurisdiction jurisdiction) {

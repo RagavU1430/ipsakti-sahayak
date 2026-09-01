@@ -2,9 +2,12 @@ package com.ipsakti.ip_sakti_backend.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.classification.JurisdictionResolver;
 import com.ipsakti.ip_sakti_backend.question.classification.QuestionIntentClassifier;
 import com.ipsakti.ip_sakti_backend.question.model.AnswerType;
@@ -27,15 +30,18 @@ import org.mockito.Mockito;
 class QuestionServiceTest {
 
     private RagClient ragClient;
+    private BhashiniClient bhashiniClient;
     private QuestionService questionService;
 
     @BeforeEach
     void setUp() {
         ragClient = Mockito.mock(RagClient.class);
+        bhashiniClient = Mockito.mock(BhashiniClient.class);
         questionService = new QuestionService(
                 ragClient,
                 new QuestionIntentClassifier(),
-                new JurisdictionResolver()
+                new JurisdictionResolver(),
+                new TranslationService(bhashiniClient)
         );
     }
 
@@ -92,14 +98,14 @@ class QuestionServiceTest {
         QuestionResponse response = questionService.answer(new QuestionRequest(
                 "What is the capital of Mars?",
                 Jurisdiction.AUTO,
-                Language.HI
+                Language.EN
         ));
 
         assertThat(response.answerType()).isEqualTo(AnswerType.ABSTAINED);
         assertThat(response.answer()).isEqualTo("I could not find sufficient authoritative evidence.");
         assertThat(response.confidence()).isEqualTo(0.18);
         assertThat(response.abstained()).isTrue();
-        assertThat(response.language()).isEqualTo(Language.HI);
+        assertThat(response.language()).isEqualTo(Language.EN);
         assertThat(response.citations()).isEmpty();
         assertThat(response.sources()).isEmpty();
     }
@@ -117,12 +123,12 @@ class QuestionServiceTest {
         QuestionResponse response = questionService.answer(new QuestionRequest(
                 "What is machine learning?",
                 Jurisdiction.AUTO,
-                Language.TA
+                Language.EN
         ));
 
         assertThat(response.answerType()).isEqualTo(AnswerType.GENERAL_FALLBACK);
         assertThat(response.intent()).isEqualTo(QuestionIntent.GENERAL);
-        assertThat(response.language()).isEqualTo(Language.TA);
+        assertThat(response.language()).isEqualTo(Language.EN);
     }
 
     @Test
@@ -141,5 +147,65 @@ class QuestionServiceTest {
         assertThat(response.jurisdiction()).isEqualTo(Jurisdiction.INTERNATIONAL);
         assertThat(captor.getValue().domain()).isEqualTo("INTERNATIONAL");
         assertThat(captor.getValue().jurisdiction()).isEqualTo("INTERNATIONAL");
+    }
+
+    @Test
+    void translatesTamilQuestionToCanonicalRagAndTranslatesAnswerBack() {
+        when(bhashiniClient.translate(eq("இந்தியாவில் வர்த்தக முத்திரையை பதிவு செய்ய என்ன தேவைகள்?"), eq(Language.TA), eq(Language.EN)))
+                .thenReturn("What are the requirements for registering a trademark in India?");
+        when(bhashiniClient.translate(eq("Grounded answer"), eq(Language.EN), eq(Language.TA)))
+                .thenReturn("மொழிபெயர்க்கப்பட்ட பதில்");
+        when(ragClient.ask(any())).thenReturn(new RagAskResponse(
+                "Grounded answer",
+                0.94,
+                false,
+                List.of(new RagCitation("Trade Marks Act, 1999", "IND-TM-ACT-1999", 12, "Section 18",
+                        "Government of India", "https://example.invalid", "chunk-1")),
+                List.of(new RagSource("IND-TM-ACT-1999", 0.95))
+        ));
+
+        QuestionResponse response = questionService.answer(new QuestionRequest(
+                "இந்தியாவில் வர்த்தக முத்திரையை பதிவு செய்ய என்ன தேவைகள்?",
+                Jurisdiction.INDIA,
+                Language.TA
+        ));
+
+        assertThat(response.answer()).isEqualTo("மொழிபெயர்க்கப்பட்ட பதில்");
+        assertThat(response.language()).isEqualTo(Language.TA);
+        assertThat(response.detectedLanguage()).isEqualTo(Language.TA);
+        assertThat(response.processingLanguage()).isEqualTo(Language.EN);
+        assertThat(response.confidence()).isEqualTo(0.94);
+        assertThat(response.citations().getFirst().documentId()).isEqualTo("IND-TM-ACT-1999");
+
+        ArgumentCaptor<RagAskRequest> captor = ArgumentCaptor.forClass(RagAskRequest.class);
+        verify(ragClient).ask(captor.capture());
+        assertThat(captor.getValue().question()).isEqualTo("What are the requirements for registering a trademark in India?");
+    }
+
+    @Test
+    void translatesHindiAbstentionWithoutChangingAbstentionState() {
+        when(bhashiniClient.translate(eq("पेटेंट के बाहर का प्रश्न"), eq(Language.HI), eq(Language.EN)))
+                .thenReturn("Question outside patent scope");
+        when(bhashiniClient.translate(eq("I could not find sufficient authoritative evidence."), eq(Language.EN), eq(Language.HI)))
+                .thenReturn("पर्याप्त प्रमाण नहीं मिला।");
+        when(ragClient.ask(any())).thenReturn(new RagAskResponse(
+                "I could not find sufficient authoritative evidence.",
+                0.18,
+                true,
+                List.of(),
+                List.of()
+        ));
+
+        QuestionResponse response = questionService.answer(new QuestionRequest(
+                "पेटेंट के बाहर का प्रश्न",
+                Jurisdiction.AUTO,
+                Language.HI
+        ));
+
+        assertThat(response.answer()).isEqualTo("पर्याप्त प्रमाण नहीं मिला।");
+        assertThat(response.abstained()).isTrue();
+        assertThat(response.confidence()).isEqualTo(0.18);
+        assertThat(response.citations()).isEmpty();
+        assertThat(response.sources()).isEmpty();
     }
 }

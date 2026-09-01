@@ -15,8 +15,5 @@ public record QuestionRequest(
         if (jurisdiction == null) {
             jurisdiction = Jurisdiction.AUTO;
         }
-        if (language == null) {
-            language = Language.EN;
-        }
     }
 }

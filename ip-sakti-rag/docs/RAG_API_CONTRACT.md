@@ -126,3 +126,116 @@ RAG_MAX_CONTEXT_CHARS=18000
 ```
 
 `GET /health` reports process health only. It is not a production dependency-readiness probe.
+
+## Backend multilingual wrapper
+
+The Spring Boot backend now exposes multilingual support around the canonical RAG boundary. The Python RAG service remains English/canonical and remains the source of legal evidence.
+
+Supported backend request languages are the project-configured values:
+
+- `en`
+- `hi`
+- `ta`
+
+When `language` is omitted, existing English behavior is preserved. Non-English requests are translated to the canonical processing language before RAG/classification/regulatory analysis, and only user-facing textual response fields are translated back.
+
+Translation does not modify:
+
+- citation metadata
+- `document_id`
+- `chunk_id`
+- section/page identifiers
+- retrieval scores
+- confidence values
+- answer/source/status/classification enums
+
+### `POST /api/v1/questions`
+
+Request:
+
+```json
+{
+  "question": "இந்தியாவில் வர்த்தக முத்திரையை பதிவு செய்ய என்ன தேவைகள்?",
+  "jurisdiction": "INDIA",
+  "language": "ta"
+}
+```
+
+Response includes multilingual metadata in addition to the existing fields:
+
+```json
+{
+  "answer": "...",
+  "answerType": "rag_grounded",
+  "confidence": 0.91,
+  "abstained": false,
+  "jurisdiction": "INDIA",
+  "language": "ta",
+  "detected_language": "ta",
+  "processing_language": "en",
+  "intent": "TRADEMARK",
+  "citations": [],
+  "sources": []
+}
+```
+
+`answerType` remains one of:
+
+- `rag_grounded`
+- `general_fallback`
+- `abstained`
+
+### `POST /api/v1/formulations/classify`
+
+The formulation classifier accepts optional `language`. The existing five categories are preserved:
+
+- `CLASSICAL_DRUG`
+- `PATENT_PROPRIETARY`
+- `PHYTOPHARMACEUTICAL_NEW_DRUG`
+- `AYURVEDA_AAHAR_NUTRACEUTICAL`
+- `COSMETIC`
+
+Only textual fields such as `reason` and clarification `questions` are translated. Classification/status enums and citations remain canonical.
+
+### `POST /api/v1/regulatory/analyze`
+
+The regulatory analyzer accepts optional `language`. The existing engines and status values are preserved:
+
+- `SECTION_3P`
+- `SECTION_3E`
+- `ABS`
+- `GRATK`
+
+Only user-facing text such as `reason`, `questions`, and engine `considerations` is translated. Legal identifiers such as `Section 3(p)`, `Section 3(e)`, `ABS`, `GRATK`, citation metadata, confidence, and source scores remain unchanged.
+
+### Conversation & History Management (`/api/v1/conversations`)
+
+The Spring Boot backend persists conversations and user query/answer history with grounded citations and source linkages:
+
+- `POST /api/v1/conversations`: Create conversation (returns `201 Created` with UUID `id`).
+- `GET /api/v1/conversations`: List user's conversations with pagination (`page`, `size`, `sort`).
+- `GET /api/v1/conversations/{id}`: Get full conversation transcript including messages, citations, and sources.
+- `PATCH /api/v1/conversations/{id}`: Update conversation title.
+- `DELETE /api/v1/conversations/{id}`: Cascade delete conversation and all associated messages/citations.
+- `POST /api/v1/conversations/{id}/messages`: Submit message in conversation context, invoke intelligence pipeline, store user and assistant messages, citations, and sources, and return the grounded answer.
+
+Security & Multi-Tenancy:
+- All `/api/v1/conversations/**` endpoints enforce strict tenant isolation. Authenticated users can only read, update, message, or delete conversations they own (`403 Forbidden` if mismatched).
+
+### Bhashini configuration
+
+Bhashini integration is environment-based. Do not commit credentials.
+
+```env
+BHASHINI_ENABLED=false
+BHASHINI_BASE_URL=
+BHASHINI_API_KEY=
+BHASHINI_USER_ID=
+BHASHINI_TRANSLATION_SERVICE_ID=
+BHASHINI_PIPELINE_ID=
+BHASHINI_CONNECT_TIMEOUT=2s
+BHASHINI_READ_TIMEOUT=15s
+```
+
+If non-English translation is requested and Bhashini is unavailable, disabled, times out, returns an HTTP error, or returns a malformed response, the backend returns a controlled translation error. It does not fabricate translations and does not convert abstentions into grounded answers.
+

@@ -1,6 +1,7 @@
 package com.ipsakti.ip_sakti_backend.regulatory.model;
 
 import com.ipsakti.ip_sakti_backend.question.model.Jurisdiction;
+import com.ipsakti.ip_sakti_backend.question.model.Language;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.List;
@@ -20,8 +21,31 @@ public record RegulatoryAnalysisRequest(
         Boolean formulationNovelty,
         Boolean knownIngredients,
         Boolean synergisticEffectClaimed,
-        Boolean geneticResources
+        Boolean geneticResources,
+        Language language
 ) {
+    public RegulatoryAnalysisRequest(
+            String productName,
+            List<String> ingredients,
+            String dosageForm,
+            String intendedUse,
+            List<String> claims,
+            Boolean traditionalKnowledge,
+            String classicalReference,
+            Boolean biologicalResources,
+            String resourceOrigin,
+            String targetMarket,
+            Jurisdiction jurisdiction,
+            Boolean formulationNovelty,
+            Boolean knownIngredients,
+            Boolean synergisticEffectClaimed,
+            Boolean geneticResources
+    ) {
+        this(productName, ingredients, dosageForm, intendedUse, claims, traditionalKnowledge, classicalReference,
+                biologicalResources, resourceOrigin, targetMarket, jurisdiction, formulationNovelty, knownIngredients,
+                synergisticEffectClaimed, geneticResources, null);
+    }
+
     public RegulatoryAnalysisRequest {
         productName = normalizeRequired(productName);
         ingredients = normalizeList(ingredients);

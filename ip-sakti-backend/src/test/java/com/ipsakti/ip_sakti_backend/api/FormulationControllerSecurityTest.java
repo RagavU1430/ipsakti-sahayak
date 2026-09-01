@@ -11,6 +11,8 @@ import com.ipsakti.ip_sakti_backend.formulation.FormulationClassificationService
 import com.ipsakti.ip_sakti_backend.formulation.classification.FormulationClarificationService;
 import com.ipsakti.ip_sakti_backend.formulation.classification.FormulationRuleEngine;
 import com.ipsakti.ip_sakti_backend.formulation.classification.RegulatoryRouteService;
+import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
 import java.util.List;
@@ -29,7 +31,8 @@ import org.springframework.test.web.servlet.MockMvc;
         FormulationClassificationService.class,
         FormulationRuleEngine.class,
         FormulationClarificationService.class,
-        RegulatoryRouteService.class
+        RegulatoryRouteService.class,
+        TranslationService.class
 })
 @TestPropertySource(properties = {
         "app.security.mode=prod",
@@ -42,6 +45,9 @@ class FormulationControllerSecurityTest {
 
     @MockitoBean
     private RagClient ragClient;
+
+    @MockitoBean
+    private BhashiniClient bhashiniClient;
 
     @Test
     void rejectsWithoutApiKeyInProdMode() throws Exception {

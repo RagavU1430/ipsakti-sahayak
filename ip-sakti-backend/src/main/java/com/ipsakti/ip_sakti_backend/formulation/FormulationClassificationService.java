@@ -9,6 +9,9 @@ import com.ipsakti.ip_sakti_backend.formulation.model.FormulationRequest;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationResponse;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationStatus;
 import com.ipsakti.ip_sakti_backend.formulation.model.RegulatoryRoute;
+import com.ipsakti.ip_sakti_backend.multilingual.LanguageMetadata;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslatedText;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionCitation;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionSource;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
@@ -33,40 +36,49 @@ public class FormulationClassificationService {
     private final FormulationRuleEngine ruleEngine;
     private final FormulationClarificationService clarificationService;
     private final RegulatoryRouteService routeService;
+    private final TranslationService translationService;
 
     public FormulationClassificationService(
             RagClient ragClient,
             FormulationRuleEngine ruleEngine,
             FormulationClarificationService clarificationService,
-            RegulatoryRouteService routeService
+            RegulatoryRouteService routeService,
+            TranslationService translationService
     ) {
         this.ragClient = ragClient;
         this.ruleEngine = ruleEngine;
         this.clarificationService = clarificationService;
         this.routeService = routeService;
+        this.translationService = translationService;
     }
 
     public FormulationResponse classify(FormulationRequest request) {
         long started = System.nanoTime();
         String requestId = UUID.randomUUID().toString();
-        FormulationRuleAssessment assessment = ruleEngine.assess(request);
-        String jurisdiction = formulationJurisdiction(request);
+        TranslatedText translatedText = translationService.toCanonical(combinedInput(request), request.language(), requestId);
+        LanguageMetadata languageMetadata = translatedText.metadata();
+        FormulationRequest canonicalRequest = canonicalRequest(request, languageMetadata);
+        FormulationRuleAssessment assessment = ruleEngine.assess(canonicalRequest);
+        String jurisdiction = formulationJurisdiction(canonicalRequest);
         RagAskResponse ragResponse = ragClient.ask(new RagAskRequest(
-                ragQueryFor(request, assessment),
+                ragQueryFor(canonicalRequest, assessment),
                 "AYURVEDA",
                 "INTERNATIONAL".equals(jurisdiction) ? "INTERNATIONAL" : "INDIA",
                 null
         ));
 
-        FormulationResponse response = responseFor(request, assessment, jurisdiction, ragResponse);
+        FormulationResponse response = responseFor(canonicalRequest, assessment, jurisdiction, ragResponse, languageMetadata, requestId);
 
         log.info(
-                "formulation_classification_ready requestId={} status={} classification={} confidence={} route={} latencyMs={}",
+                "formulation_classification_ready requestId={} status={} classification={} confidence={} route={} requestedLanguage={} detectedLanguage={} processingLanguage={} latencyMs={}",
                 requestId,
                 response.status(),
                 response.classification(),
                 response.confidence(),
                 response.regulatoryRoute() == null ? null : response.regulatoryRoute().route(),
+                response.language(),
+                response.detectedLanguage(),
+                response.processingLanguage(),
                 Duration.ofNanos(System.nanoTime() - started).toMillis()
         );
         return response;
@@ -76,7 +88,9 @@ public class FormulationClassificationService {
             FormulationRequest request,
             FormulationRuleAssessment assessment,
             String jurisdiction,
-            RagAskResponse ragResponse
+            RagAskResponse ragResponse,
+            LanguageMetadata languageMetadata,
+            String requestId
     ) {
         List<QuestionCitation> citations = mapCitations(ragResponse.citations());
         List<QuestionSource> sources = mapSources(ragResponse.sources());
@@ -87,12 +101,15 @@ public class FormulationClassificationService {
                     null,
                     Math.min(confidence, ragResponse.confidence()),
                     true,
-                    clarificationService.questionsFor(assessment),
-                    "The available RAG evidence was insufficient, so no formulation classification is suggested.",
+                    translationService.fromCanonicalList(clarificationService.questionsFor(assessment), languageMetadata, requestId),
+                    translate("The available RAG evidence was insufficient, so no formulation classification is suggested.", languageMetadata, requestId),
                     FormulationStatus.INSUFFICIENT_EVIDENCE,
                     null,
                     citations,
-                    sources
+                    sources,
+                    languageMetadata.requestedLanguage(),
+                    languageMetadata.detectedLanguage(),
+                    languageMetadata.processingLanguage()
             );
         }
 
@@ -101,12 +118,15 @@ public class FormulationClassificationService {
                     null,
                     confidence,
                     true,
-                    clarificationService.questionsFor(assessment),
-                    clarificationReason(assessment),
+                    translationService.fromCanonicalList(clarificationService.questionsFor(assessment), languageMetadata, requestId),
+                    translate(clarificationReason(assessment), languageMetadata, requestId),
                     FormulationStatus.NEEDS_CLARIFICATION,
                     null,
                     citations,
-                    sources
+                    sources,
+                    languageMetadata.requestedLanguage(),
+                    languageMetadata.detectedLanguage(),
+                    languageMetadata.processingLanguage()
             );
         }
 
@@ -117,12 +137,63 @@ public class FormulationClassificationService {
                 confidence,
                 false,
                 List.of(),
-                "Based on the structured information provided and the available authoritative knowledge sources, the product appears most consistent with "
-                        + classification + ". This is a routing suggestion, not a final legal determination.",
+                translate("Based on the structured information provided and the available authoritative knowledge sources, the product appears most consistent with "
+                        + classification + ". This is a routing suggestion, not a final legal determination.", languageMetadata, requestId),
                 FormulationStatus.CLASSIFIED,
                 route,
                 citations,
-                sources
+                sources,
+                languageMetadata.requestedLanguage(),
+                languageMetadata.detectedLanguage(),
+                languageMetadata.processingLanguage()
+        );
+    }
+
+    private FormulationRequest canonicalRequest(FormulationRequest request, LanguageMetadata metadata) {
+        if (metadata.requestedLanguage() == metadata.processingLanguage()) {
+            return request;
+        }
+        return new FormulationRequest(
+                translateInput(request.productName(), metadata),
+                translationService.toCanonicalList(request.ingredients(), metadata.requestedLanguage()),
+                translateInput(request.dosageForm(), metadata),
+                translateInput(request.intendedUse(), metadata),
+                translationService.toCanonicalList(request.claims(), metadata.requestedLanguage()),
+                translateInput(request.manufacturingMethod(), metadata),
+                translateInput(request.classicalReference(), metadata),
+                request.traditionalUse(),
+                request.commercialIntent(),
+                translateInput(request.targetMarket(), metadata),
+                translateInput(request.country(), metadata),
+                translateInput(request.existingLicense(), metadata),
+                translateInput(request.knownClassification(), metadata),
+                metadata.processingLanguage()
+        );
+    }
+
+    private String translateInput(String value, LanguageMetadata metadata) {
+        if (value == null || metadata.requestedLanguage() == metadata.processingLanguage()) {
+            return value;
+        }
+        return translationService.toCanonical(value, metadata.requestedLanguage(), "field").canonicalText();
+    }
+
+    private String translate(String value, LanguageMetadata metadata, String requestId) {
+        return translationService.fromCanonical(value, metadata, requestId);
+    }
+
+    private String combinedInput(FormulationRequest request) {
+        return String.join(" ",
+                nullToEmpty(request.productName()),
+                String.join(" ", request.ingredients()),
+                nullToEmpty(request.dosageForm()),
+                nullToEmpty(request.intendedUse()),
+                String.join(" ", request.claims()),
+                nullToEmpty(request.manufacturingMethod()),
+                nullToEmpty(request.classicalReference()),
+                nullToEmpty(request.targetMarket()),
+                nullToEmpty(request.country()),
+                nullToEmpty(request.knownClassification())
         );
     }
 

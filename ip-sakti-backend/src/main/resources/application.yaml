@@ -3,18 +3,17 @@ spring:
     name: ip-sakti-backend
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:ipsaktidb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
     password: ${SPRING_DATASOURCE_PASSWORD:${SUPABASE_DB_PASSWORD:}}
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:}
 
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     show-sql: ${SPRING_JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: ${SPRING_JPA_FORMAT_SQL:false}
 
 # Supabase API keys (loaded from environment variables)
@@ -43,6 +42,16 @@ bhashini:
   enabled: ${BHASHINI_ENABLED:false}
   base-url: ${BHASHINI_BASE_URL:}
   api-key: ${BHASHINI_API_KEY:}
+  user-id: ${BHASHINI_USER_ID:}
+  translation-service-id: ${BHASHINI_TRANSLATION_SERVICE_ID:}
+  pipeline-id: ${BHASHINI_PIPELINE_ID:}
+  connect-timeout: ${BHASHINI_CONNECT_TIMEOUT:2s}
+  read-timeout: ${BHASHINI_READ_TIMEOUT:15s}
 
 server:
   port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    org.springframework.web.client: ${SPRING_WEB_CLIENT_LOG_LEVEL:INFO}
+    org.springframework.http.converter: ${SPRING_HTTP_CONVERTER_LOG_LEVEL:INFO}
