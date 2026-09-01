@@ -60,9 +60,10 @@ public class FormulationClassificationService {
         FormulationRequest canonicalRequest = canonicalRequest(request, languageMetadata);
         FormulationRuleAssessment assessment = ruleEngine.assess(canonicalRequest);
         String jurisdiction = formulationJurisdiction(canonicalRequest);
+        String domain = ragDomainFor(assessment.leadingClassification());
         RagAskResponse ragResponse = ragClient.ask(new RagAskRequest(
                 ragQueryFor(canonicalRequest, assessment),
-                "AYURVEDA",
+                domain,
                 "INTERNATIONAL".equals(jurisdiction) ? "INTERNATIONAL" : "INDIA",
                 null
         ));
@@ -105,8 +106,8 @@ public class FormulationClassificationService {
                     translate("The available RAG evidence was insufficient, so no formulation classification is suggested.", languageMetadata, requestId),
                     FormulationStatus.INSUFFICIENT_EVIDENCE,
                     null,
-                    citations,
-                    sources,
+                    List.of(),
+                    List.of(),
                     languageMetadata.requestedLanguage(),
                     languageMetadata.detectedLanguage(),
                     languageMetadata.processingLanguage()
@@ -122,8 +123,8 @@ public class FormulationClassificationService {
                     translate(clarificationReason(assessment), languageMetadata, requestId),
                     FormulationStatus.NEEDS_CLARIFICATION,
                     null,
-                    citations,
-                    sources,
+                    List.of(),
+                    List.of(),
                     languageMetadata.requestedLanguage(),
                     languageMetadata.detectedLanguage(),
                     languageMetadata.processingLanguage()
@@ -185,10 +186,10 @@ public class FormulationClassificationService {
     private String combinedInput(FormulationRequest request) {
         return String.join(" ",
                 nullToEmpty(request.productName()),
-                String.join(" ", request.ingredients()),
+                request.ingredients() == null ? "" : String.join(" ", request.ingredients()),
                 nullToEmpty(request.dosageForm()),
                 nullToEmpty(request.intendedUse()),
-                String.join(" ", request.claims()),
+                request.claims() == null ? "" : String.join(" ", request.claims()),
                 nullToEmpty(request.manufacturingMethod()),
                 nullToEmpty(request.classicalReference()),
                 nullToEmpty(request.targetMarket()),
@@ -201,7 +202,7 @@ public class FormulationClassificationService {
         return assessment.leadingScore() < 2
                 || assessment.leadingScore() == assessment.secondScore()
                 || assessment.hasConflict()
-                || confidence < 0.70;
+                || confidence < 0.65;
     }
 
     private String clarificationReason(FormulationRuleAssessment assessment) {
@@ -215,13 +216,13 @@ public class FormulationClassificationService {
     }
 
     private double confidenceFor(FormulationRuleAssessment assessment, RagAskResponse ragResponse) {
-        double score = 0.25;
-        score += Math.min(assessment.leadingScore(), 4) * 0.14;
-        score += Math.max(0, assessment.leadingScore() - assessment.secondScore()) * 0.06;
-        score += Boolean.TRUE.equals(ragResponse.abstained()) ? 0.0 : Math.min(ragResponse.confidence(), 1.0) * 0.18;
-        score -= assessment.conflicts().size() * 0.18;
-        score -= assessment.missingInformation().size() * 0.06;
-        return Math.round(Math.max(0.0, Math.min(1.0, score)) * 10000.0) / 10000.0;
+        double score = 0.45;
+        score += Math.min(assessment.leadingScore(), 4) * 0.12;
+        score += Math.max(0, assessment.leadingScore() - assessment.secondScore()) * 0.08;
+        score += (ragResponse != null && !Boolean.TRUE.equals(ragResponse.abstained())) ? Math.min(ragResponse.confidence(), 1.0) * 0.15 : 0.05;
+        score -= assessment.conflicts().size() * 0.15;
+        score -= assessment.missingInformation().size() * 0.05;
+        return Math.round(Math.max(0.30, Math.min(0.98, score)) * 10000.0) / 10000.0;
     }
 
     private String formulationJurisdiction(FormulationRequest request) {
@@ -233,18 +234,25 @@ public class FormulationClassificationService {
         return "INDIA";
     }
 
+    private String ragDomainFor(FormulationClassification classification) {
+        if (classification == FormulationClassification.AYURVEDA_AAHAR_NUTRACEUTICAL) {
+            return "FOOD";
+        }
+        return "PATENT";
+    }
+
     private String ragQueryFor(FormulationRequest request, FormulationRuleAssessment assessment) {
-        return "Determine authoritative regulatory context for an Ayurvedic formulation classification. "
-                + "Potential rule signal: " + assessment.leadingClassification() + ". "
-                + "Dosage form: " + nullToEmpty(request.dosageForm()) + ". "
-                + "Intended use: " + nullToEmpty(request.intendedUse()) + ". "
-                + "Claims summary: " + String.join("; ", request.claims()) + ". "
-                + "Classical reference provided: " + (request.classicalReference() == null ? "no" : "yes") + ". "
-                + "Traditional use indicated: " + request.traditionalUse() + ". "
-                + "Target market: " + nullToEmpty(request.targetMarket()) + ".";
+        return "Ayurvedic formulation " + nullToEmpty(request.productName()) + " "
+                + nullToEmpty(request.dosageForm()) + " "
+                + nullToEmpty(request.intendedUse()) + " "
+                + (request.ingredients() == null ? "" : String.join(" ", request.ingredients())) + " "
+                + (request.claims() == null ? "" : String.join(" ", request.claims()));
     }
 
     private List<QuestionCitation> mapCitations(List<RagCitation> citations) {
+        if (citations == null) {
+            return List.of();
+        }
         return citations.stream()
                 .map(citation -> new QuestionCitation(
                         citation.document(),
@@ -259,6 +267,9 @@ public class FormulationClassificationService {
     }
 
     private List<QuestionSource> mapSources(List<RagSource> sources) {
+        if (sources == null) {
+            return List.of();
+        }
         return sources.stream()
                 .map(source -> new QuestionSource(source.documentId(), source.score()))
                 .toList();

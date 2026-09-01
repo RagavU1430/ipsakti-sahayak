@@ -21,36 +21,42 @@ public class FormulationRuleEngine {
         String text = normalizedText(request);
 
         addIf(scores, FormulationClassification.CLASSICAL_DRUG, 2,
-                hasText(request.classicalReference()) || hasClassicalIdentitySignal(text));
+                hasText(request.classicalReference()) || hasClassicalIdentitySignal(text)
+                        || (Boolean.TRUE.equals(request.traditionalUse()) && containsAny(text, "traditional", "classical", "ayurved", "churna", "tablet", "capsule", "syrup", "guggulu", "triphala", "ashwagandha", "taila", "kwath", "arishta", "asava", "avaleha", "ghrita", "bhasma", "vati", "gutika", "rasayana", "lehyam", "herbal", "powder", "oil", "decoction", "formulation", "medicine")));
         addIf(scores, FormulationClassification.CLASSICAL_DRUG, 1,
                 Boolean.TRUE.equals(request.traditionalUse()) || containsAny(text, "traditional", "classical", "churna",
-                        "arishta", "asava", "avaleha", "ghrita", "taila", "kwath"));
+                        "arishta", "asava", "avaleha", "ghrita", "taila", "kwath", "ayurved", "herbal", "herb", "bhasma", "vati", "rasayana", "ayush", "decoction", "powder"));
 
         addIf(scores, FormulationClassification.PATENT_PROPRIETARY, 2,
-                containsAny(text, "proprietary", "modified", "novel combination", "new combination", "non-classical",
-                        "own formulation", "unique blend"));
+                containsAny(text, "proprietary", "modified", "novel", "synergy", "synergistic", "bioavailability", "nano", "liposomal",
+                        "novel combination", "new combination", "non-classical", "own formulation", "unique blend", "unique formulation",
+                        "sustained release", "targeted delivery", "formulation", "composition", "ratio", "delivery matrix"));
         addIf(scores, FormulationClassification.PATENT_PROPRIETARY, 1,
-                containsAny(text, "patent", "ip protection", "commercial launch", "brand", "new process"));
+                containsAny(text, "patent", "ip protection", "commercial launch", "brand", "new process", "enhanced", "combination",
+                        "blend", "extract blend", "active formulation", "joint care", "pain relief", "anti-inflammatory"));
 
         addIf(scores, FormulationClassification.PHYTOPHARMACEUTICAL_NEW_DRUG, 2,
-                containsAny(text, "standardized extract", "active constituent", "active marker", "quantified",
-                        "clinical trial", "new drug", "phytopharmaceutical"));
+                containsAny(text, "standardized extract", "standardized fraction", "active constituent", "active marker", "marker compound",
+                        "quantified", "clinical trial", "new drug", "phytopharmaceutical", "botanical drug", "purified fraction",
+                        "isolated active", "hplc", "chromatography"));
         addIf(scores, FormulationClassification.PHYTOPHARMACEUTICAL_NEW_DRUG, 1,
-                containsAny(text, "plant derived active", "botanical extract", "therapeutic drug development",
-                        "isolated compound"));
+                containsAny(text, "plant derived active", "botanical extract", "therapeutic drug development", "isolated compound",
+                        "fraction", "bioactive", "marker", "extract", "nanoparticle"));
 
         addIf(scores, FormulationClassification.AYURVEDA_AAHAR_NUTRACEUTICAL, 2,
-                containsAny(text, "food", "nutraceutical", "ayurveda aahar", "dietary", "nutrition", "beverage",
-                        "snack", "health supplement"));
+                containsAny(text, "food", "nutraceutical", "ayurveda aahar", "aahara", "dietary", "nutrition", "beverage", "tea",
+                        "snack", "health supplement", "supplement", "health mix", "infusion", "energy bar", "tonic", "food supplement", "fssai"));
         addIf(scores, FormulationClassification.AYURVEDA_AAHAR_NUTRACEUTICAL, 1,
-                containsAny(text, "supports", "wellness", "general health", "digestive support", "immunity support",
-                        "daily consumption"));
+                containsAny(text, "supports", "wellness", "general health", "digestive support", "immunity support", "daily consumption",
+                        "vitality", "health drink", "daily health", "dietary use", "refreshing", "nutritious", "digestion", "immunity"));
 
         addIf(scores, FormulationClassification.COSMETIC, 2,
-                containsAny(text, "cosmetic", "skin", "hair", "beauty", "appearance", "personal care", "topical",
-                        "face cream", "shampoo", "lotion"));
+                containsAny(text, "cosmetic", "skin", "hair", "beauty", "appearance", "personal care", "topical", "face cream",
+                        "shampoo", "lotion", "serum", "cleanser", "face wash", "body wash", "cream", "moisturizer", "sunscreen",
+                        "conditioner", "lip balm", "skin care", "hair care", "fairness", "anti-aging"));
         addIf(scores, FormulationClassification.COSMETIC, 1,
-                containsAny(text, "glow", "fragrance", "cleansing", "moisturizing", "anti-dandruff", "fairness"));
+                containsAny(text, "glow", "fragrance", "cleansing", "moisturizing", "anti-dandruff", "brighten", "radiance",
+                        "smoothness", "complexion", "shine", "gel"));
 
         List<String> conflicts = conflicts(scores, text, request);
         List<String> missing = missingInformation(request);
@@ -72,11 +78,11 @@ public class FormulationRuleEngine {
 
     private String normalizedText(FormulationRequest request) {
         return String.join(" ",
-                request.productName(),
-                String.join(" ", request.ingredients()),
+                nullToEmpty(request.productName()),
+                request.ingredients() == null ? "" : String.join(" ", request.ingredients()),
                 nullToEmpty(request.dosageForm()),
                 nullToEmpty(request.intendedUse()),
-                String.join(" ", request.claims()),
+                request.claims() == null ? "" : String.join(" ", request.claims()),
                 nullToEmpty(request.manufacturingMethod()),
                 nullToEmpty(request.classicalReference()),
                 nullToEmpty(request.targetMarket()),
@@ -102,10 +108,10 @@ public class FormulationRuleEngine {
         if (therapeutic && foodLike) {
             conflicts.add("The description includes both therapeutic/drug-like signals and food/nutraceutical positioning.");
         }
-        if (therapeutic && cosmetic) {
+        if (therapeutic && cosmetic && containsAny(text, "cure", "treatment", "treat", "disease", "diabetes", "arthritis", "hypertension", "drug")) {
             conflicts.add("The description includes both therapeutic and cosmetic/personal-care signals.");
         }
-        if ((classical || hasText(request.classicalReference())) && modified) {
+        if ((classical || hasText(request.classicalReference())) && modified && containsAny(text, "modified", "proprietary", "non-classical", "novel")) {
             conflicts.add("The description includes both classical-reference and modified/proprietary formulation signals.");
         }
         return conflicts;
@@ -113,14 +119,11 @@ public class FormulationRuleEngine {
 
     private List<String> missingInformation(FormulationRequest request) {
         List<String> missing = new ArrayList<>();
-        if (!hasText(request.intendedUse()) && request.claims().isEmpty()) {
+        if (!hasText(request.intendedUse()) && (request.claims() == null || request.claims().isEmpty())) {
             missing.add("primary intended use or claims");
         }
         if (!hasText(request.classicalReference()) && request.traditionalUse() == null) {
             missing.add("whether the formulation is based on a recognized classical/traditional source");
-        }
-        if (!hasText(request.targetMarket()) && !hasText(request.country())) {
-            missing.add("target market or country");
         }
         return missing;
     }
@@ -148,10 +151,10 @@ public class FormulationRuleEngine {
     private boolean hasClassicalIdentitySignal(String text) {
         if (text.contains("non-classical")) {
             return containsAny(text, "classical text", "ashtanga", "charaka", "sushruta",
-                    "bhavaprakasha", "sharangadhara");
+                    "bhavaprakasha", "sharangadhara", "bhasma", "rasashastra");
         }
         return containsAny(text, "classical text", "ashtanga", "charaka", "sushruta",
-                "bhavaprakasha", "sharangadhara", "classical formulation");
+                "bhavaprakasha", "sharangadhara", "classical formulation", "ayurvedic formulary", "afi");
     }
 
     private boolean hasText(String value) {

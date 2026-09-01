@@ -132,6 +132,7 @@ public class ConversationService {
     @Transactional
     public void deleteConversation(UserPrincipal principal, UUID conversationId) {
         ConversationEntity conversation = findAndVerifyOwnership(principal, conversationId);
+        messageRepository.deleteByConversation(conversation);
         conversationRepository.delete(conversation);
         log.info("conversation_deleted conversationId={} userId={}", conversationId, principal.getId());
     }
@@ -166,7 +167,6 @@ public class ConversationService {
                 languageStr
         );
         MessageEntity savedUserMessage = messageRepository.save(userMessage);
-        conversation.addMessage(savedUserMessage);
 
         conversation.setUpdatedAt(Instant.now());
         conversationRepository.save(conversation);
@@ -197,7 +197,6 @@ public class ConversationService {
                 response.intent() != null ? response.intent().name() : null
         );
         MessageEntity savedAssistantMessage = messageRepository.save(assistantMessage);
-        conversation.addMessage(savedAssistantMessage);
 
         // Persist citations if present
         List<QuestionCitation> citations = response.citations() != null ? response.citations() : List.of();
@@ -262,16 +261,16 @@ public class ConversationService {
                 .orElseThrow(() -> new ConversationNotFoundException("Conversation not found with id: " + conversationId));
 
         boolean isOwner = false;
-        if (principal.getId() != null && conversation.getUser().getId() != null) {
+        if (principal.getId() != null && conversation.getUser() != null && conversation.getUser().getId() != null) {
             isOwner = principal.getId().equals(conversation.getUser().getId());
         }
-        if (!isOwner && principal.getExternalAuthId() != null && conversation.getUser().getExternalAuthId() != null) {
+        if (!isOwner && principal.getExternalAuthId() != null && conversation.getUser() != null && conversation.getUser().getExternalAuthId() != null) {
             isOwner = principal.getExternalAuthId().equals(conversation.getUser().getExternalAuthId());
         }
 
         if (!isOwner) {
             log.warn("conversation_access_denied conversationId={} principalAuthId={} ownerAuthId={}",
-                    conversationId, principal.getExternalAuthId(), conversation.getUser().getExternalAuthId());
+                    conversationId, principal.getExternalAuthId(), conversation.getUser() != null ? conversation.getUser().getExternalAuthId() : null);
             throw new ConversationAccessDeniedException("You do not have access to this conversation.");
         }
 

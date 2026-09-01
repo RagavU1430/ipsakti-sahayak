@@ -84,6 +84,8 @@ def _document_relevance(analysis: QueryAnalysis, item: Evidence) -> float:
     title = item.title.lower()
     if item.domain in analysis.domains:
         score += 0.45
+    elif analysis.domains:
+        score -= 0.40
     if analysis.jurisdiction.value == "BOTH" or item.jurisdiction == analysis.jurisdiction.value:
         score += 0.25
     if analysis.intent in {"definition", "rights", "duration", "purpose", "difference"} and item.document_type in {"ACT", "TREATY", "AMENDMENT_ACT"}:

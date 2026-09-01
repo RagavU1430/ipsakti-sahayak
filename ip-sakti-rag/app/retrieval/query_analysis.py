@@ -9,12 +9,12 @@ DOMAIN_TERMS: dict[str, tuple[str, ...]] = {
     "PATENT": ("patent", "invention", "inventive", "novelty", "specification", "invented", "inventor", "machine", "new device", "new process"),
     "TRADEMARK": ("trademark", "trade mark", "brand", "mark registration", "logo", "company name", "company logo", "business name"),
     "GI": ("geographical indication", " gi ", "origin-linked", "regional product", "traditional product", "geographical identity", "place of origin", "from my region"),
-    "COPYRIGHT": ("copyright", "literary work", "artistic work", "song", "music", "lyrics", "creative work", "original work", "author"),
+    "COPYRIGHT": ("copyright", "literary work", "artistic work", "song", "music", "lyrics", "creative work", "original work", " author "),
     "DESIGN": (" design ", "designed", "industrial design", "design registration", "design protection", "designs act", "product shape", "shape", "configuration", "pattern", "ornament", "visual design"),
     "PLANT_VARIETY": ("plant variety", "plant varieties", "farmer rights", "farmer", "ppvfr", "seed variety", "seed", "crop variety", "new variety"),
     "ABS": ("biodiversity", "biological diversity", "biological resource", "benefit sharing", "nba", "access and benefit", " abs "),
-    "FOOD": ("fssai", "food safety", "ayurveda aahara", "label", "food business"),
-    "AYURVEDA": ("ayurveda", "ayush", "traditional medicine"),
+    "FOOD": ("fssai", "food safety", "ayurveda aahara", "label", "food business", "nutraceutical", "dietary supplement", "health supplement"),
+    "AYURVEDA": ("ayurveda", "ayush", "traditional medicine", "classical formulation", "traditional use", "churna", "guggulu", "taila", "kwath", "avaleha"),
     "INTERNATIONAL": ("wipo", "trips", "treaty", "convention", "pct", "madrid", "budapest", "gratk"),
 }
 INTERNATIONAL_TERMS = set(DOMAIN_TERMS["INTERNATIONAL"])

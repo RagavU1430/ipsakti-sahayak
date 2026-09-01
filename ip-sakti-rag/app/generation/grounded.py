@@ -247,7 +247,24 @@ def _direct_answer(analysis: QueryAnalysis, selections: list[tuple[Evidence, str
 
 
 def _deterministic_general_answer(analysis: QueryAnalysis, reason: str) -> str:
-    query = analysis.query.lower()
+    query = analysis.query.lower().strip()
+
+    # Identity, purpose, greeting, and capability inquiries
+    if any(phrase in query for phrase in (
+        "what is your work", "what do you do", "who are you", "what can you do",
+        "help me", "how does this work", "about you", "what is this", "hello", "hi", "hey",
+        "tell me about yourself", "your features", "your capabilities"
+    )):
+        return (
+            "I am **IP-SAKTI Sahayak**, your specialized assistant for Indian and International Intellectual Property (IP) Law and Regulatory Compliance.\n\n"
+            "Here is how I can assist you:\n"
+            "• **Patents**: Patentability criteria, Section 3 statutory exclusions, filing procedures, and TKDL prior art searches under The Patents Act, 1970.\n"
+            "• **Trademarks**: Trademark registration, grounds for refusal (Sections 9 & 11), renewals, and Madrid Protocol under The Trade Marks Act, 1999.\n"
+            "• **Geographical Indications & Designs**: GI applicant qualifications, protection duration, and industrial design filings.\n"
+            "• **AYUSH & Biodiversity**: Biological Diversity Act approvals, NBA compliance, Benefit Sharing, and Ayurveda Aahara regulations.\n\n"
+            "You can ask me specific IP questions, classify formulations, or analyze regulatory compliance."
+        )
+
     if analysis.legal_identifiers:
         lead = "I checked the verified IP-SAKTI corpus first, but it did not contain support for the requested legal identifier."
     elif analysis.speculative_subject:
@@ -256,16 +273,16 @@ def _deterministic_general_answer(analysis: QueryAnalysis, reason: str) -> str:
             f"{analysis.speculative_subject}-specific IP law."
         )
     elif analysis.out_of_scope or not analysis.domains:
-        lead = "I checked the verified IP-SAKTI corpus first, but the question does not appear to match that IP/legal corpus."
+        lead = "I checked the verified IP-SAKTI corpus first, but the question appears to be outside our specific IP/legal corpus."
     else:
-        lead = "I checked the verified IP-SAKTI corpus first, but the retrieved evidence was not relevant enough to answer from the corpus."
+        lead = "I checked the verified IP-SAKTI corpus first, but the retrieved evidence was not relevant enough to provide a grounded statutory citation."
 
     if any(term in query for term in ("weather", "bitcoin", "cricket", "capital of france", "python program", "sort a list")):
-        guidance = "This is a general question outside the available IP-SAKTI legal sources, so I cannot provide a corpus-grounded legal citation for it."
+        guidance = "This question is outside the available IP-SAKTI legal sources."
     elif analysis.speculative_subject:
-        guidance = "As a general response, I would treat that as a hypothetical or unsupported premise unless a real, identified statute or authority is supplied."
+        guidance = "As general guidance, treat this as a hypothetical premise unless an official statute or authority is specified."
     elif analysis.ambiguous:
-        guidance = "Please provide the specific IP issue, jurisdiction, law, or document you want compared against the corpus."
+        guidance = "Please provide the specific IP issue, jurisdiction (e.g. India or International), or document you want to analyze."
     else:
-        guidance = "As a general response, please treat this as non-corpus, non-legal-advice guidance and verify it with an authoritative source before relying on it."
-    return f"{lead} {guidance} No IP-SAKTI citations are attached because the RAG evidence was not sufficient. RAG relevance reason: {reason}"
+        guidance = "For specific legal matters, please consult official IPO/WIPO publications or a qualified patent/trademark attorney."
+    return f"{lead} {guidance}"

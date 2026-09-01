@@ -78,6 +78,8 @@ class Settings:
 def get_settings() -> Settings:
     load_env()
     root = Path(__file__).resolve().parents[2]
+    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("LLM_API_KEY") or None
+    has_api_key = bool(api_key and api_key.strip())
     return Settings(
         root=root,
         canonical_documents_path=root / "dataset" / "canonical" / "documents.jsonl",
@@ -89,10 +91,10 @@ def get_settings() -> Settings:
         embedding_provider=os.getenv("EMBEDDING_PROVIDER", "openrouter").lower(),
         embedding_model=os.getenv("EMBEDDING_MODEL", "openai/text-embedding-3-small"),
         embedding_dimension=_int("EMBEDDING_DIMENSION", 1536),
-        openrouter_api_key=os.getenv("OPENROUTER_API_KEY") or os.getenv("LLM_API_KEY") or None,
+        openrouter_api_key=api_key,
         openrouter_model=os.getenv("OPENROUTER_MODEL") or os.getenv("LLM_MODEL") or "openai/gpt-4.1-mini",
-        enable_llm=_bool("RAG_ENABLE_LLM"),
-        enable_general_llm=_bool("RAG_ENABLE_GENERAL_LLM"),
+        enable_llm=_bool("RAG_ENABLE_LLM") if "RAG_ENABLE_LLM" in os.environ else has_api_key,
+        enable_general_llm=_bool("RAG_ENABLE_GENERAL_LLM") if "RAG_ENABLE_GENERAL_LLM" in os.environ else has_api_key,
         top_k=_int("RAG_TOP_K", 8),
         candidate_k=_int("RAG_CANDIDATE_K", 24),
         similarity_threshold=_float("RAG_SIMILARITY_THRESHOLD", 0.10),

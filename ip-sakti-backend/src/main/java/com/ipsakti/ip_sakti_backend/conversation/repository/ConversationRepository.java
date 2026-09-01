@@ -16,6 +16,9 @@ public interface ConversationRepository extends JpaRepository<ConversationEntity
 
     Page<ConversationEntity> findByUserOrderByUpdatedAtDesc(UserEntity user, Pageable pageable);
 
+    @Query("SELECT c FROM ConversationEntity c JOIN FETCH c.user WHERE c.id = :id")
+    Optional<ConversationEntity> findByIdWithUser(@Param("id") UUID id);
+
     @Query("SELECT c FROM ConversationEntity c WHERE c.id = :id AND c.user.id = :userId")
     Optional<ConversationEntity> findByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 

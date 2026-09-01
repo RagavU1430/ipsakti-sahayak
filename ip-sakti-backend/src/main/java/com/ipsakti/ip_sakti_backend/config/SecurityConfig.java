@@ -55,6 +55,27 @@ public class SecurityConfig {
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                             .requestMatchers("/health", "/health/**", "/actuator/health").permitAll()
+                            .requestMatchers(
+                                    "/",
+                                    "/index.html",
+                                    "/assets/**",
+                                    "/favicon.ico",
+                                    "/favicon.svg",
+                                    "/*.js",
+                                    "/*.css",
+                                    "/*.svg",
+                                    "/*.png",
+                                    "/*.ico",
+                                    "/manifest.json",
+                                    "/ask",
+                                    "/formulations",
+                                    "/regulatory",
+                                    "/history",
+                                    "/history/**",
+                                    "/login",
+                                    "/account",
+                                    "/about"
+                            ).permitAll()
                             .anyRequest().authenticated());
         } else {
             http.authorizeHttpRequests(auth -> auth
@@ -63,6 +84,25 @@ public class SecurityConfig {
                             "/health",
                             "/health/**",
                             "/actuator/health",
+                            "/",
+                            "/index.html",
+                            "/assets/**",
+                            "/favicon.ico",
+                            "/favicon.svg",
+                            "/*.js",
+                            "/*.css",
+                            "/*.svg",
+                            "/*.png",
+                            "/*.ico",
+                            "/manifest.json",
+                            "/ask",
+                            "/formulations",
+                            "/regulatory",
+                            "/history",
+                            "/history/**",
+                            "/login",
+                            "/account",
+                            "/about",
                             "/api/v1/ask",
                             "/api/v1/questions",
                             "/api/v1/questions/health",
