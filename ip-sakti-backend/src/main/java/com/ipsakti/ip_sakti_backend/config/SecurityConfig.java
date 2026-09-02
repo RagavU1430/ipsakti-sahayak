@@ -18,7 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableConfigurationProperties({
-        BhashiniProperties.class,
+        GeminiProperties.class,
         JwtProperties.class,
         RagProperties.class,
         SupabaseProperties.class,

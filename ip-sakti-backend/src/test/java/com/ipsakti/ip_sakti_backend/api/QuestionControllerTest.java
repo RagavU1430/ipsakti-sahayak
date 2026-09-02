@@ -9,9 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ipsakti.ip_sakti_backend.config.SecurityConfig;
-import com.ipsakti.ip_sakti_backend.exception.BhashiniClientException;
+import com.ipsakti.ip_sakti_backend.exception.TranslationException;
 import com.ipsakti.ip_sakti_backend.exception.RagClientException;
-import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationProvider;
 import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.QuestionService;
 import com.ipsakti.ip_sakti_backend.question.classification.JurisdictionResolver;
@@ -40,7 +40,7 @@ class QuestionControllerTest {
     private RagClient ragClient;
 
     @MockitoBean
-    private BhashiniClient bhashiniClient;
+    private TranslationProvider translationProvider;
 
     @Test
     void returnsFrontendReadyGroundedResponse() throws Exception {
@@ -194,9 +194,9 @@ class QuestionControllerTest {
     }
 
     @Test
-    void mapsBhashiniTimeoutToSafeError() throws Exception {
-        when(bhashiniClient.translate(any(), eq(com.ipsakti.ip_sakti_backend.question.model.Language.TA), eq(com.ipsakti.ip_sakti_backend.question.model.Language.EN)))
-                .thenThrow(BhashiniClientException.timeout());
+    void mapsTranslationTimeoutToSafeError() throws Exception {
+        when(translationProvider.translate(any(), eq(com.ipsakti.ip_sakti_backend.question.model.Language.TA), eq(com.ipsakti.ip_sakti_backend.question.model.Language.EN)))
+                .thenThrow(TranslationException.timeout());
 
         mockMvc.perform(post("/api/v1/questions")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -208,7 +208,7 @@ class QuestionControllerTest {
                                 }
                                 """))
                 .andExpect(status().isGatewayTimeout())
-                .andExpect(jsonPath("$.code").value("BHASHINI_TIMEOUT"))
+                .andExpect(jsonPath("$.code").value("TRANSLATION_TIMEOUT"))
                 .andExpect(jsonPath("$.detail").value("The translation service timed out."));
     }
 

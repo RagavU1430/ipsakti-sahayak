@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from app.models import Jurisdiction, QueryAnalysis
+from app.legal_aliases import document_hint_score, text_supports_identifier
 
 
 TOKEN_RE = re.compile(r"[a-z0-9]+(?:\([a-z0-9]+\))?", re.IGNORECASE)
@@ -54,6 +55,7 @@ class LocalCorpusStore:
                 score += idf * frequency * 2.2 / (frequency + 1.2 * (0.25 + 0.75 * length / self.average_length))
             if _identifier_match(chunk, analysis):
                 score += 10.0
+            score += 12.0 * document_hint_score(chunk.get("document_id", ""), analysis.query)
             score += _title_intent_boost(chunk, analysis, lexical=True)
             if score:
                 results.append({**chunk, "lexical_score": score})
@@ -82,6 +84,7 @@ class LocalCorpusStore:
             score = dot / (math.sqrt(norm) * query_norm or 1.0)
             if _identifier_match(chunk, analysis):
                 score += 0.75
+            score += 0.85 * document_hint_score(chunk.get("document_id", ""), analysis.query)
             score += _title_intent_boost(chunk, analysis, lexical=False)
             if score:
                 results.append({**chunk, "vector_score": score})
@@ -94,16 +97,38 @@ def _identifier_match(chunk: dict[str, Any], analysis: QueryAnalysis) -> bool:
         if not match:
             continue
         kind, expected = match.group("kind").lower(), match.group("number").lower()
+        base_num = re.sub(r"\(.*?\)", "", expected).strip()
+        has_subclause = base_num != expected
         if kind == "section":
             actual = _combined(chunk.get("section"), chunk.get("subsection") or chunk.get("clause"))
+            if actual and actual.lower() == expected:
+                return True
+            if not has_subclause and chunk.get("section") and chunk.get("section").lower() == base_num:
+                return True
+            if text_supports_identifier(identifier, chunk.get("text", "")):
+                return True
         elif kind == "rule":
             actual = _combined(chunk.get("rule_number"), chunk.get("sub_rule") or chunk.get("clause"))
+            if actual and actual.lower() == expected:
+                return True
+            if not has_subclause and chunk.get("rule_number") and chunk.get("rule_number").lower() == base_num:
+                return True
+            if text_supports_identifier(identifier, chunk.get("text", "")):
+                return True
         elif kind == "regulation":
             actual = _combined(chunk.get("regulation_number"), chunk.get("subsection") or chunk.get("clause"))
+            if actual and actual.lower() == expected:
+                return True
+            if not has_subclause and chunk.get("regulation_number") and chunk.get("regulation_number").lower() == base_num:
+                return True
+            if text_supports_identifier(identifier, chunk.get("text", "")):
+                return True
         else:
             actual = chunk.get("article_number")
-        if actual and actual.lower() == expected:
-            return True
+            if actual and (actual.lower() == expected or (not has_subclause and actual.lower() == base_num)):
+                return True
+            if text_supports_identifier(identifier, chunk.get("text", "")):
+                return True
     return False
 
 

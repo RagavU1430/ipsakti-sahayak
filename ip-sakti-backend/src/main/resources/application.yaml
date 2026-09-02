@@ -38,15 +38,13 @@ app:
     secret: ${BACKEND_JWT_SECRET:}
     access-token-ttl: ${BACKEND_JWT_ACCESS_TOKEN_TTL:30m}
 
-bhashini:
-  enabled: ${BHASHINI_ENABLED:false}
-  base-url: ${BHASHINI_BASE_URL:}
-  api-key: ${BHASHINI_API_KEY:}
-  user-id: ${BHASHINI_USER_ID:}
-  translation-service-id: ${BHASHINI_TRANSLATION_SERVICE_ID:}
-  pipeline-id: ${BHASHINI_PIPELINE_ID:}
-  connect-timeout: ${BHASHINI_CONNECT_TIMEOUT:2s}
-  read-timeout: ${BHASHINI_READ_TIMEOUT:15s}
+gemini:
+  enabled: ${GEMINI_ENABLED:true}
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-2.0-flash}
+  base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+  connect-timeout: ${GEMINI_CONNECT_TIMEOUT:2s}
+  read-timeout: ${GEMINI_READ_TIMEOUT:10s}
 
 server:
   port: ${SERVER_PORT:8080}

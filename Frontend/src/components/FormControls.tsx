@@ -18,9 +18,12 @@ export function LanguageSelect({ value, onChange }: { value: Language; onChange:
     <label className="field compact-field">
       <span>Language</span>
       <select value={value} onChange={(event) => onChange(event.target.value as Language)}>
-        <option value="en">English</option>
-        <option value="hi">Hindi</option>
-        <option value="ta">Tamil</option>
+        <option value="en">English — English</option>
+        <option value="hi">हिन्दी — Hindi</option>
+        <option value="ta">தமிழ் — Tamil</option>
+        <option value="te">తెలుగు — Telugu</option>
+        <option value="kn">ಕನ್ನಡ — Kannada</option>
+        <option value="ml">മലയാളം — Malayalam</option>
       </select>
     </label>
   );

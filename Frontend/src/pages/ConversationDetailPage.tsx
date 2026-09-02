@@ -121,9 +121,12 @@ export function ConversationDetailPage({ auth }: { auth: AuthHeaders }) {
                       onChange={(e) => setLanguage(e.target.value as Language)}
                       aria-label="Language"
                     >
-                      <option value="en">English</option>
-                      <option value="hi">हिंदी (Hindi)</option>
-                      <option value="ta">தமிழ் (Tamil)</option>
+                      <option value="en">English — English</option>
+                      <option value="hi">हिन्दी — Hindi</option>
+                      <option value="ta">தமிழ் — Tamil</option>
+                      <option value="te">తెలుగు — Telugu</option>
+                      <option value="kn">ಕನ್ನಡ — Kannada</option>
+                      <option value="ml">മലയാളം — Malayalam</option>
                     </select>
                   </label>
                 </div>

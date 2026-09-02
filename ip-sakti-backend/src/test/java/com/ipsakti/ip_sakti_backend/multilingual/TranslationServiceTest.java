@@ -10,7 +10,7 @@ class TranslationServiceTest {
 
     @Test
     void detectsEnglishTamilAndHindiScripts() {
-        TranslationService service = new TranslationService(Mockito.mock(BhashiniClient.class));
+        TranslationService service = new TranslationService(Mockito.mock(TranslationProvider.class));
 
         assertThat(service.detect("What is a patent?")).isEqualTo(Language.EN);
         assertThat(service.detect("காப்புரிமை")).isEqualTo(Language.TA);
@@ -18,8 +18,8 @@ class TranslationServiceTest {
     }
 
     @Test
-    void englishInputPassesThroughWithoutBhashini() {
-        BhashiniClient client = Mockito.mock(BhashiniClient.class);
+    void englishInputPassesThroughWithoutGemini() {
+        TranslationProvider client = Mockito.mock(TranslationProvider.class);
         TranslationService service = new TranslationService(client);
 
         TranslatedText translated = service.toCanonical("What is a patent?", Language.EN, "request-1");

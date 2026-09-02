@@ -51,25 +51,27 @@ class PropertiesBindingTest {
                         "app.jwt.issuer=ip-sakti-test",
                         "app.jwt.secret=test-secret",
                         "app.jwt.access-token-ttl=45m",
-                        "bhashini.enabled=true",
-                        "bhashini.base-url=https://example.invalid/bhashini",
-                        "bhashini.api-key=test-bhashini-key"
+                        "gemini.enabled=true",
+                        "gemini.base-url=https://example.invalid/gemini",
+                        "gemini.api-key=test-gemini-key",
+                        "gemini.model=gemini-2.0-flash"
                 )
                 .run(context -> {
                     JwtProperties jwtProperties = context.getBean(JwtProperties.class);
-                    BhashiniProperties bhashiniProperties = context.getBean(BhashiniProperties.class);
+                    GeminiProperties geminiProperties = context.getBean(GeminiProperties.class);
 
                     assertThat(jwtProperties.getIssuer()).isEqualTo("ip-sakti-test");
                     assertThat(jwtProperties.getSecret()).isEqualTo("test-secret");
                     assertThat(jwtProperties.getAccessTokenTtl()).isEqualTo(Duration.ofMinutes(45));
-                    assertThat(bhashiniProperties.isEnabled()).isTrue();
-                    assertThat(bhashiniProperties.getBaseUrl()).isEqualTo("https://example.invalid/bhashini");
-                    assertThat(bhashiniProperties.getApiKey()).isEqualTo("test-bhashini-key");
+                    assertThat(geminiProperties.isEnabled()).isTrue();
+                    assertThat(geminiProperties.getBaseUrl()).isEqualTo("https://example.invalid/gemini");
+                    assertThat(geminiProperties.getApiKey()).isEqualTo("test-gemini-key");
+                    assertThat(geminiProperties.getModel()).isEqualTo("gemini-2.0-flash");
                 });
     }
 
     @EnableConfigurationProperties({
-            BhashiniProperties.class,
+            GeminiProperties.class,
             JwtProperties.class,
             RagProperties.class,
             SupabaseProperties.class,

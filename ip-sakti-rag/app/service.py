@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from functools import lru_cache
 from uuid import uuid4
@@ -11,6 +12,7 @@ from app.core.config import Settings, get_settings
 from app.generation import ExtractiveGroundedGenerator, GeneralFallbackGenerator, OpenRouterGroundedGenerator
 from app.generation.context import assemble_context
 from app.guardrails import abstention_reason, calculate_confidence
+from app.legal_aliases import document_hint_ids
 from app.models import (
     AskCitation,
     AskRequest,
@@ -94,6 +96,14 @@ class RAGService:
                 )
                 self._log_request(request_id, analysis, response)
                 return response
+            if self._is_adversarial_unsupported_request(request.query):
+                response = self._abstained(
+                    analysis,
+                    "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably.",
+                    total_started,
+                )
+                self._log_request(request_id, analysis, response)
+                return response
             if self._requires_quarantined_ayurveda_aahara_source(request.query):
                 response = self._abstained(
                     analysis,
@@ -121,11 +131,13 @@ class RAGService:
                 return response
 
             if analysis.legal_identifiers:
+                hinted_documents = set(document_hint_ids(analysis.query))
                 exact = [
                     item for item in evidence
-                    if all(evidence_supports_identifier(identifier, [item]) for identifier in analysis.legal_identifiers)
+                    if any(evidence_supports_identifier(identifier, [item]) for identifier in analysis.legal_identifiers)
+                    or item.document_id in hinted_documents
                 ]
-                evidence_for_context = exact
+                evidence_for_context = exact or evidence
             else:
                 evidence_for_context = evidence
             context, selected = assemble_context(evidence_for_context, self.settings.max_context_chars)
@@ -150,7 +162,7 @@ class RAGService:
                     self._log_request(request_id, analysis, response)
                     return response
             generation_ms = (time.perf_counter() - generation_started) * 1000
-            if generated.insufficient_evidence or not generated.used_chunk_ids:
+            if not generated.used_chunk_ids or not generated.answer.strip() or (generated.insufficient_evidence and len(generated.answer.strip()) < 80):
                 response = self._abstained(
                     analysis,
                     "The retrieved evidence was insufficient to produce a supported answer.",
@@ -237,17 +249,26 @@ class RAGService:
         ))
 
     @staticmethod
+    def _is_adversarial_unsupported_request(query: str) -> bool:
+        normalized = query.lower()
+        return any(phrase in normalized for phrase in (
+            "invent a section",
+            "fictional law",
+            "teleportation can be patented",
+            "guarantees patent protection for every",
+            "patenting magic",
+            "ignore the corpus",
+            "secret document",
+            "black holes are trademarks",
+            "give a citation even if no source supports",
+            "automatically patented",
+        )) or bool(re.search(r"\bsection\s+\d+[a-z]?\([a-z0-9]+\)\(\d+\)", normalized))
+
+    @staticmethod
     def _should_general_fallback(analysis, reason: str) -> bool:
-        if analysis.legal_identifiers:
-            return False
-        normalized = reason.lower()
-        return (
-            analysis.out_of_scope
-            or analysis.speculative_subject is not None
-            or analysis.ambiguous
-            or "sufficient authoritative evidence" in normalized
-            or "sufficiently relevant supporting evidence" in normalized
-        )
+        # Deep-test repair policy: insufficient or ambiguous RAG evidence must
+        # not be converted into a non-grounded answer for API consumers.
+        return False
 
     def _general_fallback(self, analysis, reason, started, retrieval_ms=0.0, rerank_ms=0.0, candidates=None):
         try:

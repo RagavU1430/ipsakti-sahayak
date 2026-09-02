@@ -1,0 +1,104 @@
+{
+  "generated_at": "2026-09-02T10:39:06.754584+00:00",
+  "endpoint": "/api/v1/ask",
+  "question_count": 162,
+  "passed_count": 105,
+  "failed_count": 57,
+  "pass_rate": 0.6481481481481481,
+  "retrieval": {
+    "recall_at_k": 0.8571428571428571,
+    "mrr": 0.8095238095238095
+  },
+  "grounding": {
+    "groundedness": 1.0,
+    "citation_integrity": 1.0
+  },
+  "abstention": {
+    "tp": 2,
+    "tn": 114,
+    "fp": 12,
+    "fn": 34,
+    "accuracy": 0.7160493827160493,
+    "false_abstention_rate": 0.07407407407407407,
+    "unsafe_answer_rate": 0.20987654320987653
+  },
+  "confidence": {
+    "correct": 0.8415,
+    "incorrect": 0.4696,
+    "abstained": 0.18,
+    "unsupported": 0.35
+  },
+  "answer_quality_average": 1.5432098765432098,
+  "latency_ms": {
+    "min": 4.215,
+    "max": 5168.07,
+    "mean": 2506.464,
+    "median": 2635.13,
+    "p95": 3328.892,
+    "p99": 3733.062
+  },
+  "dataset_before": {
+    "dataset/canonical/documents.jsonl": "6d9b657a2fb84f6414dd7f28c7cc7550c4fe25681e6200242d38889da6ddb7f1",
+    "dataset/canonical/chunks.jsonl": "827f8a209ff7cbc86c00931fbb97d6eeaa861cdf360fa8770dafcf0fab05700d",
+    "dataset/manifests/source_registry.csv": "c48c09f6e1ae39352f43a40fb0fb1a7cf614fecee6a06050054cfe4fbc751a3e",
+    "dataset/manifests/download_manifest.json": "a0f19a145d79cf13ad3b39a4ea586bd8303ba38d1e744d99ebcdd7effdf2b84f",
+    "dataset/manifests/checksums.sha256": "d045c0845c7ecaa82f4702c616f36b933aeee65e19bcd1bf59019a2c3d85f791"
+  },
+  "dataset_after": {
+    "dataset/canonical/documents.jsonl": "6d9b657a2fb84f6414dd7f28c7cc7550c4fe25681e6200242d38889da6ddb7f1",
+    "dataset/canonical/chunks.jsonl": "827f8a209ff7cbc86c00931fbb97d6eeaa861cdf360fa8770dafcf0fab05700d",
+    "dataset/manifests/source_registry.csv": "c48c09f6e1ae39352f43a40fb0fb1a7cf614fecee6a06050054cfe4fbc751a3e",
+    "dataset/manifests/download_manifest.json": "a0f19a145d79cf13ad3b39a4ea586bd8303ba38d1e744d99ebcdd7effdf2b84f",
+    "dataset/manifests/checksums.sha256": "d045c0845c7ecaa82f4702c616f36b933aeee65e19bcd1bf59019a2c3d85f791"
+  },
+  "dataset_changed": false,
+  "category_counts": {
+    "A_DIRECT_LEGAL": 15,
+    "B_SECTION_SPECIFIC": 15,
+    "C_TRADITIONAL_KNOWLEDGE": 10,
+    "D_SECTION_3E": 8,
+    "E_ABS_GRATK": 10,
+    "F_FORMULATION_PRODUCT": 8,
+    "G_COMPARISON": 10,
+    "H_MULTI_DOMAIN": 8,
+    "I_AMBIGUOUS": 8,
+    "J_FALSE_PREMISE": 8,
+    "K_OUT_OF_CORPUS": 10,
+    "L_ADVERSARIAL": 10,
+    "P_PARAPHRASE": 30,
+    "Q_TYPOS_NATURAL_LANGUAGE": 10,
+    "R_LANGUAGE_ENGLISH": 2
+  },
+  "category_passed": {
+    "A_DIRECT_LEGAL": 14,
+    "B_SECTION_SPECIFIC": 9,
+    "C_TRADITIONAL_KNOWLEDGE": 8,
+    "D_SECTION_3E": 6,
+    "E_ABS_GRATK": 9,
+    "F_FORMULATION_PRODUCT": 4,
+    "G_COMPARISON": 7,
+    "H_MULTI_DOMAIN": 7,
+    "J_FALSE_PREMISE": 6,
+    "L_ADVERSARIAL": 2,
+    "P_PARAPHRASE": 25,
+    "Q_TYPOS_NATURAL_LANGUAGE": 7,
+    "R_LANGUAGE_ENGLISH": 1
+  },
+  "runtime_notes": {
+    "runtime_pipeline_verified": true,
+    "base_url": "http://127.0.0.1:8765",
+    "api_endpoint": "/api/v1/ask",
+    "startup_command": "python -m uvicorn app.api.main:app --host 127.0.0.1 --port 8765 --log-level warning"
+  },
+  "previous_baseline": {
+    "questions": 55,
+    "before_repair": "43/55",
+    "after_repair": "55/55",
+    "expected_document_hit_rate": 1.0,
+    "mrr": 0.9735,
+    "citation_integrity": 1.0,
+    "abstention_accuracy": 1.0
+  },
+  "regression": "REGRESSED",
+  "overall_rag_status": "C"
+}

@@ -7,7 +7,7 @@ import com.ipsakti.ip_sakti_backend.conversation.dto.CreateConversationRequest;
 import com.ipsakti.ip_sakti_backend.conversation.dto.ConversationMessageRequest;
 import com.ipsakti.ip_sakti_backend.conversation.dto.UpdateConversationRequest;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationRequest;
-import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationProvider;
 import com.ipsakti.ip_sakti_backend.question.model.Jurisdiction;
 import com.ipsakti.ip_sakti_backend.question.model.Language;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionRequest;
@@ -55,7 +55,7 @@ class FullSystemIntegrationTest {
     private RagClient ragClient;
 
     @MockitoBean
-    private BhashiniClient bhashiniClient;
+    private TranslationProvider translationProvider;
 
     @BeforeEach
     void setUp() {
@@ -68,20 +68,20 @@ class FullSystemIntegrationTest {
         ));
 
         // Default mock for translation service
-        when(bhashiniClient.translate(any(), any(), any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(translationProvider.translate(any(), any(), any())).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
     @DisplayName("Matrix 1-3: Multilingual Question Intelligence (EN, HI, TA)")
     void testMultilingualQuestions() throws Exception {
-        when(bhashiniClient.translate(eq("पेटेंट के क्या नियम हैं?"), eq(Language.HI), eq(Language.EN)))
+        when(translationProvider.translate(eq("पेटेंट के क्या नियम हैं?"), eq(Language.HI), eq(Language.EN)))
                 .thenReturn("What are the rules of patent?");
-        when(bhashiniClient.translate(any(), eq(Language.EN), eq(Language.HI)))
+        when(translationProvider.translate(any(), eq(Language.EN), eq(Language.HI)))
                 .thenReturn("भारत में पेटेंट के लिए नवीनता की आवश्यकता होती है।");
 
-        when(bhashiniClient.translate(eq("இந்தியாவில் காப்புரிமை பெறுவதற்கான விதிகள் என்ன?"), eq(Language.TA), eq(Language.EN)))
+        when(translationProvider.translate(eq("இந்தியாவில் காப்புரிமை பெறுவதற்கான விதிகள் என்ன?"), eq(Language.TA), eq(Language.EN)))
                 .thenReturn("What are the rules for getting a patent in India?");
-        when(bhashiniClient.translate(any(), eq(Language.EN), eq(Language.TA)))
+        when(translationProvider.translate(any(), eq(Language.EN), eq(Language.TA)))
                 .thenReturn("இந்தியாவில் காப்புரிமைக்கு புதுமை தேவைப்படுகிறது.");
 
         // 1. English

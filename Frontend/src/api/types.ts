@@ -1,4 +1,4 @@
-export type Language = 'en' | 'hi' | 'ta';
+export type Language = 'en' | 'hi' | 'ta' | 'te' | 'kn' | 'ml';
 export type Jurisdiction = 'INDIA' | 'INTERNATIONAL' | 'AUTO';
 export type AnswerType = 'rag_grounded' | 'general_fallback' | 'abstained';
 

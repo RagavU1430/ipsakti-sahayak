@@ -3,7 +3,9 @@ from __future__ import annotations
 import re
 from typing import Protocol
 
+from app.citations import evidence_supports_identifier
 from app.models import Evidence, QueryAnalysis
+from app.legal_aliases import document_hint_ids, document_hint_score, text_supports_identifier
 
 
 INTENT_TERMS: dict[str, tuple[str, ...]] = {
@@ -46,10 +48,11 @@ class LegalFeatureReranker:
         for item in candidates:
             text = item.text.lower()
             coverage = sum(token in text for token in query_tokens) / max(len(query_tokens), 1)
-            identifier = 1.0 if any(identifier.lower() in text for identifier in analysis.legal_identifiers) else 0.0
+            identifier = 1.0 if any(identifier.lower() in text or evidence_supports_identifier(identifier, [item]) or text_supports_identifier(identifier, item.text) for identifier in analysis.legal_identifiers) else 0.0
             verified = 1.0 if item.source_status == "VERIFIED" else 0.0
             intent = _intent_relevance(analysis, item)
             document = _document_relevance(analysis, item)
+            document_hint = document_hint_score(item.document_id, analysis.query)
             noise_penalty = _noise_penalty(analysis, item)
             item.reranker_score = max(
                 0.0,
@@ -59,11 +62,14 @@ class LegalFeatureReranker:
                 + 0.06 * verified
                 + 0.12 * intent
                 + 0.06 * document
+                + 0.18 * document_hint
                 - noise_penalty,
             )
         ranked = sorted(candidates, key=lambda item: item.reranker_score, reverse=True)
         if analysis.intent == "difference" and len(set(analysis.domains)) >= 2:
             return _balanced_difference_evidence(ranked, analysis.domains, final_count)
+        if analysis.intent == "difference":
+            return _balanced_document_evidence(ranked, document_hint_ids(analysis.query), final_count)
         return ranked[:final_count]
 
 
@@ -122,6 +128,22 @@ def _balanced_difference_evidence(ranked: list[Evidence], domains: list[str], fi
     desired = list(dict.fromkeys(domains))
     for domain in desired:
         match = next((item for item in ranked if item.domain == domain and item not in selected), None)
+        if match:
+            selected.append(match)
+    for item in ranked:
+        if len(selected) >= final_count:
+            break
+        if item not in selected:
+            selected.append(item)
+    return selected[:final_count]
+
+
+def _balanced_document_evidence(ranked: list[Evidence], document_ids: list[str], final_count: int) -> list[Evidence]:
+    if not document_ids:
+        return ranked[:final_count]
+    selected: list[Evidence] = []
+    for document_id in document_ids:
+        match = next((item for item in ranked if item.document_id == document_id and item not in selected), None)
         if match:
             selected.append(match)
     for item in ranked:

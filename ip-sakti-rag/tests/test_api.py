@@ -36,15 +36,15 @@ def test_api_v1_ask_grounded_contract() -> None:
     assert {"document", "document_id", "page", "section", "authority", "source_url", "chunk_id"} <= set(body["citations"][0])
 
 
-def test_api_v1_ask_general_fallback_contract() -> None:
+def test_api_v1_ask_out_of_corpus_abstains() -> None:
     response = TestClient(app).post("/api/v1/ask", json={"question": "What is the IP registration procedure on Mars?"})
     assert response.status_code == 200
     body = response.json()
-    assert body["abstained"] is False
-    assert body["confidence"] == 0.35
+    assert body["abstained"] is True
+    assert body["confidence"] == 0.18
     assert body["citations"] == []
     assert body["sources"] == []
-    assert "IP-SAKTI corpus first" in body["answer"]
+    assert "sufficient authoritative evidence" in body["answer"]
 
 
 def test_api_v1_ask_validation_errors() -> None:
@@ -80,3 +80,11 @@ def test_api_v1_ask_quarantined_source_abstains() -> None:
     })
     assert response.status_code == 200
     assert response.json()["abstained"] is True
+
+
+def test_api_v1_ask_ambiguous_question_abstains() -> None:
+    response = TestClient(app).post("/api/v1/ask", json={"question": "Can I patent this?"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["abstained"] is True
+    assert body["citations"] == []

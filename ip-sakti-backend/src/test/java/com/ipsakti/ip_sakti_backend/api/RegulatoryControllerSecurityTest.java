@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ipsakti.ip_sakti_backend.config.SecurityConfig;
-import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationProvider;
 import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
@@ -53,7 +53,7 @@ class RegulatoryControllerSecurityTest {
     private RagClient ragClient;
 
     @MockitoBean
-    private BhashiniClient bhashiniClient;
+    private TranslationProvider translationProvider;
 
     @Test
     void rejectsWithoutApiKeyInProdMode() throws Exception {

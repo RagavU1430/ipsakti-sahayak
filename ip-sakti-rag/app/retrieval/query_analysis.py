@@ -3,19 +3,20 @@ from __future__ import annotations
 import re
 
 from app.models import Jurisdiction, QueryAnalysis, QueryRequest
+from app.legal_aliases import document_hint_expansion, normalize_legal_query
 
 
 DOMAIN_TERMS: dict[str, tuple[str, ...]] = {
-    "PATENT": ("patent", "invention", "inventive", "novelty", "specification", "invented", "inventor", "machine", "new device", "new process"),
-    "TRADEMARK": ("trademark", "trade mark", "brand", "mark registration", "logo", "company name", "company logo", "business name"),
-    "GI": ("geographical indication", " gi ", "origin-linked", "regional product", "traditional product", "geographical identity", "place of origin", "from my region"),
+    "PATENT": ("patent", "invention", "inventive", "novelty", "specification", "invented", "inventor", "machine", "new device", "new process", "traditional knowledge", "admixture", "known ingredients", "known plant extract", "simply mixing", "formulation", "composition"),
+    "TRADEMARK": ("trademark", "trade mark", "brand", "mark registration", "logo", "company name", "company logo", "business name", "mark is registered", "distinctive label"),
+    "GI": ("geographical indication", " gi ", "origin-linked", "regional product", "regional agricultural product", "traditional product", "geographical identity", "place of origin", "from my region"),
     "COPYRIGHT": ("copyright", "literary work", "artistic work", "song", "music", "lyrics", "creative work", "original work", " author "),
     "DESIGN": (" design ", "designed", "industrial design", "design registration", "design protection", "designs act", "product shape", "shape", "configuration", "pattern", "ornament", "visual design"),
     "PLANT_VARIETY": ("plant variety", "plant varieties", "farmer rights", "farmer", "ppvfr", "seed variety", "seed", "crop variety", "new variety"),
-    "ABS": ("biodiversity", "biological diversity", "biological resource", "benefit sharing", "nba", "access and benefit", " abs "),
-    "FOOD": ("fssai", "food safety", "ayurveda aahara", "label", "food business", "nutraceutical", "dietary supplement", "health supplement"),
-    "AYURVEDA": ("ayurveda", "ayush", "traditional medicine", "classical formulation", "traditional use", "churna", "guggulu", "taila", "kwath", "avaleha"),
-    "INTERNATIONAL": ("wipo", "trips", "treaty", "convention", "pct", "madrid", "budapest", "gratk"),
+    "ABS": ("biodiversity", "biological diversity", "biological resource", "biological resources", "benefit sharing", "nba", "access and benefit", " abs ", "associated traditional knowledge", "plant extracts"),
+    "FOOD": ("fssai", "food safety", "ayurveda aahara", "label", "food business", "nutraceutical", "dietary supplement", "health supplement", "nutritional claims"),
+    "AYURVEDA": ("ayurveda", "ayush", "traditional medicine", "classical formulation", "traditional use", "churna", "guggulu", "taila", "kwath", "avaleha", "herbal product", "plant extracts"),
+    "INTERNATIONAL": ("wipo", "trips", "treaty", "convention", "pct", "madrid", "budapest", "gratk", "genetic resources and associated traditional knowledge"),
 }
 INTERNATIONAL_TERMS = set(DOMAIN_TERMS["INTERNATIONAL"])
 OUT_OF_SCOPE_TERMS = (
@@ -38,15 +39,33 @@ INTENT_TERMS: dict[str, tuple[str, ...]] = {
     "difference": ("difference", "differ", "compare"),
 }
 LEGAL_IDENTIFIER_RE = re.compile(
-    r"\b(?:section|rule|regulation|article)\s+\d+[A-Za-z]?(?:\([A-Za-z0-9]+\))?(?:\.\d+)*",
+    r"\b(?P<kind>sections?|rules?|regulations?|articles?)\s+(?P<numbers>\d+[A-Za-z]?(?:\([A-Za-z0-9]+\))?(?:\.\d+)*(?:\s*(?:&|and|,)\s*\d+[A-Za-z]?(?:\([A-Za-z0-9]+\))?(?:\.\d+)*)*)",
     re.IGNORECASE,
 )
 
 
+def _extract_legal_identifiers(query: str) -> list[str]:
+    identifiers: list[str] = []
+    for match in LEGAL_IDENTIFIER_RE.finditer(query):
+        kind = match.group("kind").rstrip("sS").capitalize()
+        numbers = re.split(r"\s*(?:&|and|,)\s*", match.group("numbers"))
+        for num in numbers:
+            num = num.strip()
+            if num:
+                identifiers.append(f"{kind} {num}")
+    return list(dict.fromkeys(identifiers))
+
+
 def analyze_query(request: QueryRequest) -> QueryAnalysis:
-    query = f" {request.query.lower()} "
+    normalized_request_query = normalize_legal_query(request.query)
+    query = f" {normalized_request_query.lower()} "
     domains = [domain for domain, terms in DOMAIN_TERMS.items() if any(term in query for term in terms)]
     domains = _refine_domains(query, domains)
+    legal_identifiers = _extract_legal_identifiers(normalized_request_query)
+    if any(term in query for term in ("admixture", "known ingredients", "known plant extract", "simply mixing", "mixing known")) and "Section 3(e)" not in legal_identifiers:
+        legal_identifiers.append("Section 3(e)")
+    if any(identifier.lower() in {"section 3(p)", "section 3(e)"} for identifier in legal_identifiers) and "PATENT" not in domains:
+        domains.insert(0, "PATENT")
     if request.domain:
         requested = request.domain.value
         domains = [requested] + [domain for domain in domains if domain != requested]
@@ -65,7 +84,11 @@ def analyze_query(request: QueryRequest) -> QueryAnalysis:
     out_of_scope = not domains and any(term in query for term in OUT_OF_SCOPE_TERMS)
     intent = _intent(query)
     speculative_subject = next((term for term in SPECULATIVE_SUBJECTS if term in query), None)
-    ambiguous = len(request.query.split()) < 2 or (not domains and not out_of_scope)
+    words = set(re.findall(r"[a-z]+", query))
+    vague_pronoun_question = len(words) <= 5 and bool(words & {"this", "it"}) and not any(
+        term in query for term in ("herbal", "traditional", "biological", "logo", "song", "section")
+    )
+    ambiguous = len(request.query.split()) < 2 or vague_pronoun_question or (not domains and not out_of_scope)
     retrieval_query = _retrieval_query(request.query, domains, intent)
     return QueryAnalysis(
         query=request.query,
@@ -73,7 +96,7 @@ def analyze_query(request: QueryRequest) -> QueryAnalysis:
         jurisdiction=jurisdiction,
         domains=domains,
         intent=intent,
-        legal_identifiers=[match.group(0) for match in LEGAL_IDENTIFIER_RE.finditer(request.query)],
+        legal_identifiers=legal_identifiers,
         language=request.language,
         requested_top_k=request.top_k,
         out_of_scope=out_of_scope,
@@ -95,7 +118,7 @@ def _refine_domains(query: str, domains: list[str]) -> list[str]:
 
 
 def _intent(query: str) -> str | None:
-    for intent in ("duration", "opposition", "purpose", "difference", "rights", "registration", "definition", "infringement"):
+    for intent in ("difference", "duration", "opposition", "purpose", "rights", "registration", "definition", "infringement"):
         terms = INTENT_TERMS[intent]
         if any(term in query for term in terms):
             return intent
@@ -103,14 +126,22 @@ def _intent(query: str) -> str | None:
 
 
 def _retrieval_query(query: str, domains: list[str], intent: str | None) -> str:
-    normalized = query.lower()
+    normalized_query = normalize_legal_query(query)
+    normalized = normalized_query.lower()
     expansions: list[str] = []
+    hint_expansion = document_hint_expansion(normalized_query)
+    if hint_expansion:
+        expansions.append(hint_expansion)
     if "TRADEMARK" in domains and intent == "registration":
         expansions.append("trade mark registration application section 18 accepted advertised registrar")
+    if "TRADEMARK" in domains and intent == "purpose":
+        expansions.append("trade marks act objective protect trade marks registration better protection prevention fraudulent use")
     if "TRADEMARK" in domains and intent in {"rights", "definition", "difference"}:
         expansions.append("registered trade mark exclusive right use proprietor infringement mark goods services")
     if "PATENT" in domains and any(term in normalized for term in ("patentability", "not invention", "excluded", "section 3")):
         expansions.append("section 3 what are not inventions patentability")
+    if "PATENT" in domains and any(term in normalized for term in ("admixture", "known ingredients", "known plant extract", "simply mixing", "mixing known")):
+        expansions.append("section 3(e) mere admixture aggregation known substances properties")
     if "PATENT" in domains and intent in {"definition", "rights", "duration", "registration", "difference"}:
         expansions.append("invention patent patentee exclusive right application term twenty years")
     if "COPYRIGHT" in domains and intent == "registration":
@@ -125,10 +156,12 @@ def _retrieval_query(query: str, domains: list[str], intent: str | None) -> str:
         expansions.append("geographical indication registration application registrar")
     if "GI" in domains and intent in {"definition", "rights", "difference"}:
         expansions.append("geographical indication registered proprietor authorised user infringement protection goods territory origin")
+    if "GI" in domains and "regional agricultural product" in normalized:
+        expansions.append("geographical indication agricultural goods regional origin registered proprietor authorised user")
     if "PLANT_VARIETY" in domains and intent in {"definition", "rights", "registration", "purpose", "difference"}:
         expansions.append("plant variety protection registration breeder farmer rights registered variety certificate exclusive right produce sell market distribute import export")
     if "ABS" in domains and intent in {"definition", "purpose", "rights"}:
         expansions.append("biological diversity conservation sustainable use fair equitable sharing benefits biological resources knowledge")
     if "INTERNATIONAL" in domains:
         expansions.append("treaty agreement intellectual property contracting parties protection")
-    return " ".join([query, *expansions])
+    return " ".join([normalized_query, *expansions])

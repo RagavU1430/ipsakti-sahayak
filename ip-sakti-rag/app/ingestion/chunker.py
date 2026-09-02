@@ -25,6 +25,19 @@ CLAUSE_RE = re.compile(r"^\s*\((?P<number>[a-z]{1,3})\)\s+", re.IGNORECASE)
 PARAGRAPH_RE = re.compile(r"^\s*(?P<number>\d+\.\d+(?:\.\d+)*)\s+")
 
 
+FOOTNOTE_START_RE = re.compile(
+    r"^\s*\d+\.\s+(?:Subs|Ins|Omit|Omitted|Renumbered|The\s+words|Certain\s+words|See|Vide|Added|Repealed|Section\s+\d+|Act\s+\d+)",
+    re.IGNORECASE,
+)
+HEADER_IGNORE_RE = re.compile(
+    r"^(?:Sec\s+II|THE GAZETTE|\d+\s+THE GAZETTE|\[PART|\d{1,2}\s+[A-Z]+,\s+\d{4})",
+    re.IGNORECASE,
+)
+GAZETTE_ACT_SECTION_RE = re.compile(
+    r"^(?:[A-Za-z\s,—–-]{0,40}\b)?(?P<number>\d+[A-Z]?)\.\s+(?:\((?P<subnum>\d+[A-Z]?)\)\s+|[A-Z])",
+)
+
+
 @dataclass
 class Piece:
     page: int | None
@@ -54,6 +67,8 @@ def _blank_metadata() -> dict[str, str | None]:
 
 
 def _provision(line: str, document_type: str) -> tuple[str, str] | None:
+    if HEADER_IGNORE_RE.match(line):
+        return None
     if match := ARTICLE_RE.match(line):
         return "article_number", match.group("number")
     if document_type in {"ACT", "AMENDMENT_ACT"} and (match := EXPLICIT_SECTION_RE.match(line)):
@@ -62,9 +77,16 @@ def _provision(line: str, document_type: str) -> tuple[str, str] | None:
         return "rule_number", match.group("number")
     if document_type == "REGULATION" and (match := EXPLICIT_REGULATION_RE.match(line)):
         return "regulation_number", match.group("number")
+
+    if FOOTNOTE_START_RE.match(line):
+        return None
+
     match = NUMBERED_PROVISION_RE.match(line)
     if not match and document_type == "REGULATION":
         match = NUMBERED_SUBREGULATION_RE.match(line)
+    if not match and document_type in {"ACT", "AMENDMENT_ACT"}:
+        match = GAZETTE_ACT_SECTION_RE.match(line)
+
     if not match:
         return None
     number = match.group("number")

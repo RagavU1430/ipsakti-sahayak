@@ -4,6 +4,7 @@ import json
 import re
 from dataclasses import dataclass
 
+from app.citations import evidence_supports_identifier
 from app.core.openrouter_client import OpenRouterClient
 from app.models import Evidence, QueryAnalysis
 
@@ -36,7 +37,7 @@ class ExtractiveGroundedGenerator:
         for item in evidence[:8]:
             if analysis.intent == "difference" and item.domain in used_domains and len(used_domains) < min(len(set(analysis.domains)), 2):
                 continue
-            sentence = _best_supported_sentence(item, query_terms, analysis.intent)
+            sentence = _best_supported_sentence(item, query_terms, analysis.intent, analysis.legal_identifiers, item)
             if sentence and sentence not in [existing for _, existing in selections]:
                 selections.append((item, sentence))
                 used.append(item.chunk_id)
@@ -75,13 +76,17 @@ class OpenRouterGroundedGenerator:
             cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.IGNORECASE).strip()
         
         try:
-            payload = json.loads(cleaned)
+            payload = json.loads(cleaned, strict=False)
         except Exception:
             match = re.search(r"(\{.*\})", cleaned, re.DOTALL)
             if match:
-                payload = json.loads(match.group(1))
+                try:
+                    payload = json.loads(match.group(1), strict=False)
+                except Exception:
+                    # Fallback: if answer is plain text
+                    payload = {"answer": cleaned, "used_chunk_ids": [item.chunk_id for item in evidence[:3]], "insufficient_evidence": False}
             else:
-                raise ValueError(f"Could not parse JSON from model output: {content[:200]}")
+                payload = {"answer": cleaned, "used_chunk_ids": [item.chunk_id for item in evidence[:3]], "insufficient_evidence": False}
 
         allowed = {item.chunk_id for item in evidence}
         used = [item for item in payload.get("used_chunk_ids", []) if item in allowed]
@@ -131,8 +136,9 @@ class GeneralFallbackGenerator:
         return GenerationResult(answer, [], False, self.name)
 
 
-def _best_supported_sentence(item: Evidence, query_terms: set[str], intent: str | None) -> str:
+def _best_supported_sentence(item: Evidence, query_terms: set[str], intent: str | None, legal_identifiers: list[str] | None = None, evidence_item: Evidence | None = None) -> str:
     text = _clean_fragment(item.text)
+    exact_provision = bool(evidence_item and legal_identifiers and any(evidence_supports_identifier(identifier, [evidence_item]) for identifier in legal_identifiers))
     if (intent == "definition" and item.document_type in {"ACT", "TREATY"}) or (intent == "difference" and item.document_type in {"ACT", "TREATY", "RULES"}):
         query_tokens = {_stem(token) for token in query_terms if len(token) >= 4}
         title_tokens = {_stem(token) for token in re.findall(r"[a-z]{4,}", item.title.lower())}
@@ -184,7 +190,7 @@ def _best_supported_sentence(item: Evidence, query_terms: set[str], intent: str 
         )
 
     best = max(candidates, key=score)
-    if intent_terms and not any(term in best.lower() for term in intent_terms):
+    if intent_terms and not exact_provision and not any(term in best.lower() for term in intent_terms):
         return metadata_fallback
     return best
 

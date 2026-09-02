@@ -1,0 +1,266 @@
+[
+  {
+    "id": "ML_EN_01",
+    "language": "en",
+    "category": "patent",
+    "question": "What does Section 3(p) of the Patents Act say about traditional knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"],
+    "intent": "patent"
+  },
+  {
+    "id": "ML_EN_02",
+    "language": "en",
+    "category": "trademark",
+    "question": "What are the requirements for registering a trademark in India under Section 18 of the Trade Marks Act?",
+    "expected_documents": ["IND-TM-ACT-1999"],
+    "expected_sections": ["Section 18"],
+    "intent": "trademark"
+  },
+  {
+    "id": "ML_EN_03",
+    "language": "en",
+    "category": "traditional_knowledge",
+    "question": "How does Section 3(p) affect patent claims based on traditional medicinal knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"],
+    "intent": "traditional_knowledge"
+  },
+  {
+    "id": "ML_EN_04",
+    "language": "en",
+    "category": "formulation",
+    "question": "A herbal product containing plant extracts is intended for therapeutic use. What IP or regulatory evidence is relevant?",
+    "expected_documents": ["IND-PAT-ACT-1970", "IND-BD-ACT-2002"],
+    "intent": "formulation"
+  },
+  {
+    "id": "ML_EN_05",
+    "language": "en",
+    "category": "out_of_corpus",
+    "question": "What is the weather in Chennai?",
+    "expected_documents": [],
+    "expect_abstain": true,
+    "intent": "out_of_corpus"
+  },
+  {
+    "id": "ML_HI_01",
+    "language": "hi",
+    "category": "patent",
+    "original_question": "पेटेंट अधिनियम की धारा 3(p) पारंपरिक ज्ञान के बारे में क्या कहती है?",
+    "canonical_english": "What does Section 3(p) of the Patents Act say about traditional knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_HI_02",
+    "language": "hi",
+    "category": "trademark",
+    "original_question": "भारत में व्यापार चिह्न अधिनियम की धारा 18 के तहत ट्रेडमार्क पंजीकरण की आवश्यकताएं क्या हैं?",
+    "canonical_english": "What are the requirements for registering a trademark in India under Section 18 of the Trade Marks Act?",
+    "expected_documents": ["IND-TM-ACT-1999"],
+    "expected_sections": ["Section 18"]
+  },
+  {
+    "id": "ML_HI_03",
+    "language": "hi",
+    "category": "traditional_knowledge",
+    "original_question": "धारा 3(p) पारंपरिक औषधीय ज्ञान पर आधारित पेटेंट दावों को कैसे प्रभावित करती है?",
+    "canonical_english": "How does Section 3(p) affect patent claims based on traditional medicinal knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_HI_04",
+    "language": "hi",
+    "category": "formulation",
+    "original_question": "एक हर्बल उत्पाद जिसमें पौधों के अर्क हैं, चिकित्सीय उपयोग के लिए है। कौन से बौद्धिक संपदा या नियामक साक्ष्य प्रासंगिक हैं?",
+    "canonical_english": "A herbal product containing plant extracts is intended for therapeutic use. What IP or regulatory evidence is relevant?",
+    "expected_documents": ["IND-PAT-ACT-1970", "IND-BD-ACT-2002"]
+  },
+  {
+    "id": "ML_HI_05",
+    "language": "hi",
+    "category": "out_of_corpus",
+    "original_question": "चेन्नई में मौसम कैसा है?",
+    "canonical_english": "What is the weather in Chennai?",
+    "expected_documents": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "ML_TA_01",
+    "language": "ta",
+    "category": "patent",
+    "original_question": "காப்புரிமைச் சட்டம் பிரிவு 3(p) பாரம்பரிய அறிவைப் பற்றி என்ன கூறுகிறது?",
+    "canonical_english": "What does Section 3(p) of the Patents Act say about traditional knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_TA_02",
+    "language": "ta",
+    "category": "trademark",
+    "original_question": "இந்தியாவில் வர்த்தக முத்திரைச் சட்டம் பிரிவு 18 இன் கீழ் வர்த்தக முத்திரை பதிவு செய்வதற்கான தேவைகள் என்ன?",
+    "canonical_english": "What are the requirements for registering a trademark in India under Section 18 of the Trade Marks Act?",
+    "expected_documents": ["IND-TM-ACT-1999"],
+    "expected_sections": ["Section 18"]
+  },
+  {
+    "id": "ML_TA_03",
+    "language": "ta",
+    "category": "traditional_knowledge",
+    "original_question": "பிரிவு 3(p) பாரம்பரிய மருத்துவ அறிவை அடிப்படையாகக் கொண்ட காப்புரிமை கோரிக்கைகளை எவ்வாறு பாதிக்கிறது?",
+    "canonical_english": "How does Section 3(p) affect patent claims based on traditional medicinal knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_TA_04",
+    "language": "ta",
+    "category": "formulation",
+    "original_question": "தாவர சாறுகளைக் கொண்ட மூலிகை தயாரிப்பு சிகிச்சை பயன்பாட்டிற்காக உள்ளது. எந்த அறிவுசார் சொத்து அல்லது ஒழுங்குமுறை சான்றுகள் பொருத்தமானவை?",
+    "canonical_english": "A herbal product containing plant extracts is intended for therapeutic use. What IP or regulatory evidence is relevant?",
+    "expected_documents": ["IND-PAT-ACT-1970", "IND-BD-ACT-2002"]
+  },
+  {
+    "id": "ML_TA_05",
+    "language": "ta",
+    "category": "out_of_corpus",
+    "original_question": "சென்னையில் வானிலை எப்படி இருக்கிறது?",
+    "canonical_english": "What is the weather in Chennai?",
+    "expected_documents": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "ML_TE_01",
+    "language": "te",
+    "category": "patent",
+    "original_question": "పేటెంట్ల చట్టం సెక్షన్ 3(p) సాంప్రదాయ జ్ఞానం గురించి ఏమి చెబుతుంది?",
+    "canonical_english": "What does Section 3(p) of the Patents Act say about traditional knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_TE_02",
+    "language": "te",
+    "category": "trademark",
+    "original_question": "భారతదేశంలో ట్రేడ్ మార్కుల చట్టం సెక్షన్ 18 కింద ట్రేడ్ మార్క్ నమోదు అవసరాలు ఏమిటి?",
+    "canonical_english": "What are the requirements for registering a trademark in India under Section 18 of the Trade Marks Act?",
+    "expected_documents": ["IND-TM-ACT-1999"],
+    "expected_sections": ["Section 18"]
+  },
+  {
+    "id": "ML_TE_03",
+    "language": "te",
+    "category": "traditional_knowledge",
+    "original_question": "సెక్షన్ 3(p) సాంప్రదాయ వైద్య జ్ఞానం ఆధారంగా పేటెంట్ క్లెయిమ్‌లను ఎలా ప్రభావితం చేస్తుంది?",
+    "canonical_english": "How does Section 3(p) affect patent claims based on traditional medicinal knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_TE_04",
+    "language": "te",
+    "category": "formulation",
+    "original_question": "మొక్కల సారాలను కలిగి ఉన్న మూలికా ఉత్పత్తి చికిత్సా ఉపయోగం కోసం ఉద్దేశించబడింది. ఏ మేధో సంపత్తి లేదా నియంత్రణ ఆధారాలు సంబంధితంగా ఉంటాయి?",
+    "canonical_english": "A herbal product containing plant extracts is intended for therapeutic use. What IP or regulatory evidence is relevant?",
+    "expected_documents": ["IND-PAT-ACT-1970", "IND-BD-ACT-2002"]
+  },
+  {
+    "id": "ML_TE_05",
+    "language": "te",
+    "category": "out_of_corpus",
+    "original_question": "చెన్నైలో వాతావరణం ఎలా ఉంది?",
+    "canonical_english": "What is the weather in Chennai?",
+    "expected_documents": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "ML_KN_01",
+    "language": "kn",
+    "category": "patent",
+    "original_question": "ಪೇಟೆಂಟ್ ಕಾಯಿದೆಯ ಸೆಕ್ಷನ್ 3(p) ಸಾಂಪ್ರದಾಯಿಕ ಜ್ಞಾನದ ಬಗ್ಗೆ ಏನು ಹೇಳುತ್ತದೆ?",
+    "canonical_english": "What does Section 3(p) of the Patents Act say about traditional knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_KN_02",
+    "language": "kn",
+    "category": "trademark",
+    "original_question": "ಭಾರತದಲ್ಲಿ ಟ್ರೇಡ್ ಮಾರ್ಕ್ಸ್ ಕಾಯಿದೆಯ ಸೆಕ್ಷನ್ 18 ರ ಅಡಿಯಲ್ಲಿ ಟ್ರೇಡ್ ಮಾರ್ಕ್ ನೋಂದಣಿಗೆ ಬೇಕಾದ ಅವಶ್ಯಕತೆಗಳು ಯಾವುವು?",
+    "canonical_english": "What are the requirements for registering a trademark in India under Section 18 of the Trade Marks Act?",
+    "expected_documents": ["IND-TM-ACT-1999"],
+    "expected_sections": ["Section 18"]
+  },
+  {
+    "id": "ML_KN_03",
+    "language": "kn",
+    "category": "traditional_knowledge",
+    "original_question": "ಸೆಕ್ಷನ್ 3(p) ಸಾಂಪ್ರದಾಯಿಕ ವೈದ್ಯಕೀಯ ಜ್ಞಾನದ ಆಧಾರದ ಮೇಲೆ ಪೇಟೆಂಟ್ ಹಕ್ಕುಗಳನ್ನು ಹೇಗೆ ಪ್ರಭಾವಿಸುತ್ತದೆ?",
+    "canonical_english": "How does Section 3(p) affect patent claims based on traditional medicinal knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_KN_04",
+    "language": "kn",
+    "category": "formulation",
+    "original_question": "ಸಸ್ಯದ ಸಾರಗಳನ್ನು ಒಳಗೊಂಡಿರುವ ಗಿಡಮೂಲಿಕೆ ಉತ್ಪನ್ನವು ಚಿಕಿತ್ಸಕ ಬಳಕೆಗೆ ಉದ್ದೇಶಿಸಲಾಗಿದೆ. ಯಾವ ಬೌದ್ಧಿಕ ಆಸ್ತಿ ಅಥವಾ ನಿಯಂತ್ರಕ ಸಾಕ್ಷ್ಯ ಪ್ರಸ್ತುತವಾಗಿದೆ?",
+    "canonical_english": "A herbal product containing plant extracts is intended for therapeutic use. What IP or regulatory evidence is relevant?",
+    "expected_documents": ["IND-PAT-ACT-1970", "IND-BD-ACT-2002"]
+  },
+  {
+    "id": "ML_KN_05",
+    "language": "kn",
+    "category": "out_of_corpus",
+    "original_question": "ಚೆನ್ನೈನಲ್ಲಿ ಹವಾಮಾನ ಹೇಗಿದೆ?",
+    "canonical_english": "What is the weather in Chennai?",
+    "expected_documents": [],
+    "expect_abstain": true
+  },
+  {
+    "id": "ML_ML_01",
+    "language": "ml",
+    "category": "patent",
+    "original_question": "പേറ്റന്റ് ആക്ടിലെ സെക്ഷൻ 3(p) പരമ്പരാഗത അറിവിനെക്കുറിച്ച് എന്താണ് പറയുന്നത്?",
+    "canonical_english": "What does Section 3(p) of the Patents Act say about traditional knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_ML_02",
+    "language": "ml",
+    "category": "trademark",
+    "original_question": "ഇന്ത്യയിൽ ട്രേഡ് മാർക്ക് ആക്ടിലെ സെക്ഷൻ 18 പ്രകാരം ട്രേഡ് മാർക്ക് രജിസ്ട്രേഷന് ആവശ്യമായ കാര്യങ്ങൾ എന്തൊക്കെയാണ്?",
+    "canonical_english": "What are the requirements for registering a trademark in India under Section 18 of the Trade Marks Act?",
+    "expected_documents": ["IND-TM-ACT-1999"],
+    "expected_sections": ["Section 18"]
+  },
+  {
+    "id": "ML_ML_03",
+    "language": "ml",
+    "category": "traditional_knowledge",
+    "original_question": "സെക്ഷൻ 3(p) പരമ്പരാഗത വൈദ്യ അറിവിനെ അടിസ്ഥാനമാക്കിയുള്ള പേറ്റന്റ് ക്ലെയിമുകളെ എങ്ങനെ ബാധിക്കുന്നു?",
+    "canonical_english": "How does Section 3(p) affect patent claims based on traditional medicinal knowledge?",
+    "expected_documents": ["IND-PAT-ACT-1970"],
+    "expected_sections": ["Section 3(p)"]
+  },
+  {
+    "id": "ML_ML_04",
+    "language": "ml",
+    "category": "formulation",
+    "original_question": "സസ്യ സത്തுகൾ അടങ്ങിയ ഒരു ഔഷധ ഉൽപ്പന്നം ചികിത്സാ ഉപയോഗത്തിന് ഉദ്ദേശിച്ചുള്ളതാണ്. ഏത് ബൗദ്ധിക സ്വത്ത് അല്ലെങ്കിൽ നിയന്ത്രണ തെളിവുകളാണ് പ്രസക്തമായത്?",
+    "canonical_english": "A herbal product containing plant extracts is intended for therapeutic use. What IP or regulatory evidence is relevant?",
+    "expected_documents": ["IND-PAT-ACT-1970", "IND-BD-ACT-2002"]
+  },
+  {
+    "id": "ML_ML_05",
+    "language": "ml",
+    "category": "out_of_corpus",
+    "original_question": "ചെന്നൈയിലെ കാലാവസ്ഥ എങ്ങനെയുണ്ട്?",
+    "canonical_english": "What is the weather in Chennai?",
+    "expected_documents": [],
+    "expect_abstain": true
+  }
+]

@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 from app.models import Evidence, QueryAnalysis
+from app.legal_aliases import document_hint_score, text_supports_identifier
 
 
 def _normalize(rows: list[dict[str, Any]], field: str) -> dict[str, float]:
@@ -39,8 +40,9 @@ class HybridRetriever:
             if row.get("jurisdiction") == analysis.jurisdiction.value or analysis.jurisdiction.value == "BOTH":
                 metadata += 0.3
             identifiers = analysis.legal_identifiers
-            if identifiers and any(identifier.lower() in row.get("text", "").lower() for identifier in identifiers):
+            if identifiers and any(identifier.lower() in row.get("text", "").lower() or text_supports_identifier(identifier, row.get("text", "")) for identifier in identifiers):
                 metadata += 0.2
+            metadata += 0.8 * document_hint_score(row.get("document_id", ""), analysis.query)
             row["vector_score"] = vector_scores.get(chunk_id, 0.0)
             row["lexical_score"] = lexical_scores.get(chunk_id, 0.0)
             row["fusion_score"] = 0.55 * row["vector_score"] + 0.35 * row["lexical_score"] + 0.10 * metadata

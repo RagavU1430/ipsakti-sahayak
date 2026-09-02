@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from app.models import Citation, Evidence
+from app.legal_aliases import text_supports_identifier
 
 
 PROVISION_MENTION_RE = re.compile(
@@ -44,14 +45,21 @@ def validate_citations(answer: str, citations: list[Citation], evidence: list[Ev
         if item is None or item.document_id != citation.document_id or item.source_url != citation.source_url:
             errors.append(f"citation {citation.chunk_id} is not attached to retrieved evidence")
     available = {_citation_key(citation) for citation in citations}
+    available_base = {(kind, re.sub(r"\(.*?\)", "", num).strip().lower()) for kind, num in available if num}
     cited_evidence = [evidence_by_id[citation.chunk_id] for citation in citations if citation.chunk_id in evidence_by_id]
     for mention in PROVISION_MENTION_RE.finditer(answer):
         key = (mention.group("kind").lower(), mention.group("number").lower())
+        base_num = re.sub(r"\(.*?\)", "", mention.group("number")).strip().lower()
         literal_support = any(
             re.search(rf"(?<!\w){re.escape(mention.group(0))}(?!\w)", item.text, re.IGNORECASE)
+            or text_supports_identifier(mention.group(0), item.text)
+            or (item.section and item.section.lower() == base_num)
+            or (item.rule_number and item.rule_number.lower() == base_num)
+            or (item.regulation_number and item.regulation_number.lower() == base_num)
+            or (item.article_number and item.article_number.lower() == base_num)
             for item in cited_evidence
         )
-        if key not in available and not literal_support:
+        if key not in available and (mention.group("kind").lower(), base_num) not in available_base and not literal_support:
             errors.append(f"unsupported provision mentioned in answer: {mention.group(0)}")
     return not errors, errors
 
@@ -61,7 +69,17 @@ def evidence_supports_identifier(identifier: str, evidence: list[Evidence]) -> b
     if not match:
         return True
     kind, number = match.group("kind").lower(), match.group("number").lower()
-    return any((kind, number) == _evidence_key(item) for item in evidence)
+    base_num = re.sub(r"\(.*?\)", "", number).strip()
+    has_subclause = base_num != number
+    return any(
+        (kind, number) == _evidence_key(item)
+        or (not has_subclause and kind == "section" and item.section and item.section.lower() == base_num)
+        or (not has_subclause and kind == "rule" and item.rule_number and item.rule_number.lower() == base_num)
+        or (not has_subclause and kind == "regulation" and item.regulation_number and item.regulation_number.lower() == base_num)
+        or (not has_subclause and kind == "article" and item.article_number and item.article_number.lower() == base_num)
+        or text_supports_identifier(identifier, item.text)
+        for item in evidence
+    )
 
 
 def _combined(number: str | None, child: str | None) -> str | None:

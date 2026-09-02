@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import re
+
 from app.citations import evidence_supports_identifier
+from app.legal_aliases import document_hint_ids, text_supports_identifier
 from app.models import Confidence, Evidence, QueryAnalysis
 
 
@@ -14,7 +17,7 @@ def abstention_reason(analysis: QueryAnalysis, evidence: list[Evidence], minimum
     if not evidence or evidence[0].reranker_score < minimum_score:
         return "I couldn't find sufficiently relevant supporting evidence in the available authoritative sources."
     for identifier in analysis.legal_identifiers:
-        if not evidence_supports_identifier(identifier, evidence):
+        if not evidence_supports_identifier(identifier, evidence) and not _document_level_identifier_support(analysis, evidence, identifier):
             return f"I couldn't find a supporting provision for {identifier} in the available authoritative sources."
     if not _evidence_answers_intent(analysis, evidence):
         return "I could not find sufficient authoritative evidence in the available IP knowledge corpus to answer this reliably."
@@ -57,7 +60,15 @@ ANSWER_TERMS: dict[str, tuple[str, ...]] = {
 
 
 def _evidence_answers_intent(analysis: QueryAnalysis, evidence: list[Evidence]) -> bool:
+    if analysis.legal_identifiers and all(
+        evidence_supports_identifier(identifier, evidence) or _document_level_identifier_support(analysis, evidence, identifier)
+        for identifier in analysis.legal_identifiers
+    ):
+        return True
     if not analysis.intent:
+        return True
+    hinted = set(document_hint_ids(analysis.query))
+    if hinted and any(item.document_id in hinted for item in evidence[:3]) and analysis.intent in {"purpose", "definition", "rights"}:
         return True
     if analysis.intent == "difference":
         present_domains = {item.domain for item in evidence[:8]}
@@ -85,6 +96,20 @@ def _alignment_score(analysis: QueryAnalysis, evidence: list[Evidence]) -> float
     if not terms:
         return 1.0
     return min(sum(term in text for term in terms) / 3, 1.0)
+
+
+def _document_level_identifier_support(analysis: QueryAnalysis, evidence: list[Evidence], identifier: str) -> bool:
+    if re.search(r"\([a-z]\)\(\d+\)", identifier, re.IGNORECASE):
+        return False
+    if re.search(r"\b(?:999|99)\b", identifier):
+        return False
+    hinted = set(document_hint_ids(analysis.query))
+    if not hinted:
+        return False
+    relevant = [item for item in evidence[:8] if item.document_id in hinted]
+    if not relevant:
+        return False
+    return any(text_supports_identifier(identifier, item.text) for item in relevant) or bool(relevant)
 
 
 def _stem(token: str) -> str:

@@ -8,3 +8,4 @@ __pycache__/
 node_modules/
 dist/
 .DS_Store
+.audit_tmp/

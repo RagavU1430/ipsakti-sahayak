@@ -22,8 +22,8 @@ public class GlobalExceptionHandler {
                 .body(ApiErrorResponse.of("RAG service error", ex.getCode(), ex.getMessage()));
     }
 
-    @ExceptionHandler(BhashiniClientException.class)
-    public ResponseEntity<ApiErrorResponse> handleBhashiniClientException(BhashiniClientException ex) {
+    @ExceptionHandler(TranslationException.class)
+    public ResponseEntity<ApiErrorResponse> handleTranslationException(TranslationException ex) {
         return ResponseEntity
                 .status(ex.getStatus())
                 .body(ApiErrorResponse.of("Translation service error", ex.getCode(), ex.getMessage()));

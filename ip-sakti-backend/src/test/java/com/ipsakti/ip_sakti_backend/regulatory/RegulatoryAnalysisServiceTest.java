@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationProvider;
 import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.model.Jurisdiction;
 import com.ipsakti.ip_sakti_backend.question.model.Language;
@@ -33,13 +33,13 @@ import org.mockito.Mockito;
 class RegulatoryAnalysisServiceTest {
 
     private RagClient ragClient;
-    private BhashiniClient bhashiniClient;
+    private TranslationProvider translationProvider;
     private RegulatoryAnalysisService service;
 
     @BeforeEach
     void setUp() {
         ragClient = Mockito.mock(RagClient.class);
-        bhashiniClient = Mockito.mock(BhashiniClient.class);
+        translationProvider = Mockito.mock(TranslationProvider.class);
         RegulatoryEvidenceMapper mapper = new RegulatoryEvidenceMapper();
         RegulatoryJurisdictionRouter router = new RegulatoryJurisdictionRouter();
         service = new RegulatoryAnalysisService(
@@ -48,7 +48,7 @@ class RegulatoryAnalysisServiceTest {
                 new Section3eAnalysisService(ragClient, router),
                 new AbsAnalysisService(ragClient, mapper, router),
                 new GratkAnalysisService(ragClient, mapper, router),
-                new TranslationService(bhashiniClient)
+                new TranslationService(translationProvider)
         );
         when(ragClient.ask(any())).thenReturn(grounded());
     }
@@ -185,9 +185,9 @@ class RegulatoryAnalysisServiceTest {
 
     @Test
     void translatesHindiRegulatoryInputAndUserFacingOutputWithoutChangingLegalMetadata() {
-        when(bhashiniClient.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.HI), eq(Language.EN)))
+        when(translationProvider.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.HI), eq(Language.EN)))
                 .thenReturn("Ayurvedic product plant traditional use India");
-        when(bhashiniClient.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.EN), eq(Language.HI)))
+        when(translationProvider.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.EN), eq(Language.HI)))
                 .thenAnswer(invocation -> "HI:" + invocation.getArgument(0));
 
         RegulatoryAnalysisResponse response = service.analyze(new RegulatoryAnalysisRequest(

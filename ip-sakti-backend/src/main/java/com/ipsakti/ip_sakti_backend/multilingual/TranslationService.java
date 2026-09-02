@@ -1,7 +1,7 @@
 package com.ipsakti.ip_sakti_backend.multilingual;
 
+import com.ipsakti.ip_sakti_backend.exception.TranslationException;
 import com.ipsakti.ip_sakti_backend.question.model.Language;
-import com.ipsakti.ip_sakti_backend.exception.BhashiniClientException;
 import java.time.Duration;
 import java.util.List;
 import org.slf4j.Logger;
@@ -14,10 +14,10 @@ public class TranslationService {
     private static final Logger log = LoggerFactory.getLogger(TranslationService.class);
     private static final Language CANONICAL_LANGUAGE = Language.EN;
 
-    private final BhashiniClient bhashiniClient;
+    private final TranslationProvider translationProvider;
 
-    public TranslationService(BhashiniClient bhashiniClient) {
-        this.bhashiniClient = bhashiniClient;
+    public TranslationService(TranslationProvider translationProvider) {
+        this.translationProvider = translationProvider;
     }
 
     public TranslatedText toCanonical(String text, Language requestedLanguage, String requestId) {
@@ -28,12 +28,13 @@ public class TranslationService {
         }
 
         long started = System.nanoTime();
-        String translated = bhashiniClient.translate(text, requested, CANONICAL_LANGUAGE);
+        String translated = translationProvider.translate(text, requested, CANONICAL_LANGUAGE);
         if (translated == null || translated.isBlank()) {
-            throw BhashiniClientException.malformedResponse();
+            throw TranslationException.malformedResponse();
         }
         log.info(
-                "translation_to_canonical requestId={} requestedLanguage={} detectedLanguage={} processingLanguage={} latencyMs={}",
+                "translation_to_canonical provider={} requestId={} requestedLanguage={} detectedLanguage={} processingLanguage={} latencyMs={}",
+                translationProvider.providerName(),
                 requestId,
                 requested,
                 detected,
@@ -49,12 +50,13 @@ public class TranslationService {
         }
 
         long started = System.nanoTime();
-        String translated = bhashiniClient.translate(text, CANONICAL_LANGUAGE, metadata.requestedLanguage());
+        String translated = translationProvider.translate(text, CANONICAL_LANGUAGE, metadata.requestedLanguage());
         if (translated == null || translated.isBlank()) {
-            throw BhashiniClientException.malformedResponse();
+            throw TranslationException.malformedResponse();
         }
         log.info(
-                "translation_from_canonical requestId={} requestedLanguage={} detectedLanguage={} processingLanguage={} latencyMs={}",
+                "translation_from_canonical provider={} requestId={} requestedLanguage={} detectedLanguage={} processingLanguage={} latencyMs={}",
+                translationProvider.providerName(),
                 requestId,
                 metadata.requestedLanguage(),
                 metadata.detectedLanguage(),
@@ -69,7 +71,7 @@ public class TranslationService {
             return values == null ? List.of() : values;
         }
         return values.stream()
-                .map(value -> bhashiniClient.translate(value, sourceLanguage, CANONICAL_LANGUAGE))
+                .map(value -> translationProvider.translate(value, sourceLanguage, CANONICAL_LANGUAGE))
                 .toList();
     }
 
@@ -86,10 +88,12 @@ public class TranslationService {
         if (text == null || text.isBlank()) {
             return CANONICAL_LANGUAGE;
         }
-        return text.codePoints().anyMatch(codePoint -> codePoint >= 0x0B80 && codePoint <= 0x0BFF)
-                ? Language.TA
-                : text.codePoints().anyMatch(codePoint -> codePoint >= 0x0900 && codePoint <= 0x097F)
-                ? Language.HI
-                : Language.EN;
+        // Tamil 0B80-0BFF, Telugu 0C00-0C7F, Kannada 0C80-0CBF, Malayalam 0D00-0D7F, Devanagari 0900-097F (Hindi)
+        if (text.codePoints().anyMatch(cp -> cp >= 0x0B80 && cp <= 0x0BFF)) return Language.TA;
+        if (text.codePoints().anyMatch(cp -> cp >= 0x0C00 && cp <= 0x0C7F)) return Language.TE;
+        if (text.codePoints().anyMatch(cp -> cp >= 0x0C80 && cp <= 0x0CBF)) return Language.KN;
+        if (text.codePoints().anyMatch(cp -> cp >= 0x0D00 && cp <= 0x0D7F)) return Language.ML;
+        if (text.codePoints().anyMatch(cp -> cp >= 0x0900 && cp <= 0x097F)) return Language.HI;
+        return Language.EN;
     }
 }

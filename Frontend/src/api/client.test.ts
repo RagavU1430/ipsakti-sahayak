@@ -21,8 +21,8 @@ describe('api client', () => {
 
   it('maps backend error bodies to friendly ApiError values', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
-      code: 'BHASHINI_NOT_CONFIGURED',
-      detail: 'Bhashini translation is not configured for non-English requests.',
+      code: 'TRANSLATION_UNAVAILABLE',
+      detail: 'Translation service is not configured for non-English requests.',
     }), {
       status: 503,
       headers: { 'Content-Type': 'application/json' },
@@ -30,8 +30,8 @@ describe('api client', () => {
 
     await expect(request('/api/v1/questions')).rejects.toMatchObject({
       status: 503,
-      code: 'BHASHINI_NOT_CONFIGURED',
-      detail: 'Bhashini translation is not configured for non-English requests.',
+      code: 'TRANSLATION_UNAVAILABLE',
+      detail: 'Translation service is not configured for non-English requests.',
     } satisfies Partial<ApiError>);
   });
 });

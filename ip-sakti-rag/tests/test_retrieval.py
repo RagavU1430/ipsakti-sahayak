@@ -55,3 +55,18 @@ def test_exact_identifier_survives_reranking(service) -> None:
 def test_domain_filter_excludes_unrelated_corpus(service) -> None:
     rows = service.retriever.retrieve(analyze_query(QueryRequest(query="Explain copyright in literary works in India")))
     assert rows and {row.domain for row in rows} == {"COPYRIGHT"}
+
+
+def test_legal_aliases_prioritize_exact_documents(service) -> None:
+    gratk = analyze_query(QueryRequest(query="What does Article 3 of the WIPO GRATK Treaty address?"))
+    gratk_rows = service.retriever.retrieve(gratk)
+    assert gratk_rows[0].document_id == "INT-WIPO-GRATK-2024"
+    trademark = analyze_query(QueryRequest(query="What does Section 18 of the Trade Marks Act address?"))
+    trademark_rows = service.retriever.retrieve(trademark)
+    assert trademark_rows[0].document_id == "IND-TM-ACT-1999"
+
+
+def test_comparison_reranking_preserves_document_diversity(service) -> None:
+    analysis = analyze_query(QueryRequest(query="What is the difference between trademark opposition and trademark infringement?"))
+    ranked = service.reranker.rerank(analysis, service.retriever.retrieve(analysis), 8)
+    assert {"IND-TM-ACT-1999", "IND-TM-RULES-2017"} <= {row.document_id for row in ranked}

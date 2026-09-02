@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationProvider;
 import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.classification.JurisdictionResolver;
 import com.ipsakti.ip_sakti_backend.question.classification.QuestionIntentClassifier;
@@ -30,18 +30,18 @@ import org.mockito.Mockito;
 class QuestionServiceTest {
 
     private RagClient ragClient;
-    private BhashiniClient bhashiniClient;
+    private TranslationProvider translationProvider;
     private QuestionService questionService;
 
     @BeforeEach
     void setUp() {
         ragClient = Mockito.mock(RagClient.class);
-        bhashiniClient = Mockito.mock(BhashiniClient.class);
+        translationProvider = Mockito.mock(TranslationProvider.class);
         questionService = new QuestionService(
                 ragClient,
                 new QuestionIntentClassifier(),
                 new JurisdictionResolver(),
-                new TranslationService(bhashiniClient)
+                new TranslationService(translationProvider)
         );
     }
 
@@ -151,9 +151,9 @@ class QuestionServiceTest {
 
     @Test
     void translatesTamilQuestionToCanonicalRagAndTranslatesAnswerBack() {
-        when(bhashiniClient.translate(eq("இந்தியாவில் வர்த்தக முத்திரையை பதிவு செய்ய என்ன தேவைகள்?"), eq(Language.TA), eq(Language.EN)))
+        when(translationProvider.translate(eq("இந்தியாவில் வர்த்தக முத்திரையை பதிவு செய்ய என்ன தேவைகள்?"), eq(Language.TA), eq(Language.EN)))
                 .thenReturn("What are the requirements for registering a trademark in India?");
-        when(bhashiniClient.translate(eq("Grounded answer"), eq(Language.EN), eq(Language.TA)))
+        when(translationProvider.translate(eq("Grounded answer"), eq(Language.EN), eq(Language.TA)))
                 .thenReturn("மொழிபெயர்க்கப்பட்ட பதில்");
         when(ragClient.ask(any())).thenReturn(new RagAskResponse(
                 "Grounded answer",
@@ -184,9 +184,9 @@ class QuestionServiceTest {
 
     @Test
     void translatesHindiAbstentionWithoutChangingAbstentionState() {
-        when(bhashiniClient.translate(eq("पेटेंट के बाहर का प्रश्न"), eq(Language.HI), eq(Language.EN)))
+        when(translationProvider.translate(eq("पेटेंट के बाहर का प्रश्न"), eq(Language.HI), eq(Language.EN)))
                 .thenReturn("Question outside patent scope");
-        when(bhashiniClient.translate(eq("I could not find sufficient authoritative evidence."), eq(Language.EN), eq(Language.HI)))
+        when(translationProvider.translate(eq("I could not find sufficient authoritative evidence."), eq(Language.EN), eq(Language.HI)))
                 .thenReturn("पर्याप्त प्रमाण नहीं मिला।");
         when(ragClient.ask(any())).thenReturn(new RagAskResponse(
                 "I could not find sufficient authoritative evidence.",

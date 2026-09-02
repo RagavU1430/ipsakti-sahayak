@@ -12,7 +12,7 @@ import com.ipsakti.ip_sakti_backend.formulation.model.FormulationClassification;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationRequest;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationResponse;
 import com.ipsakti.ip_sakti_backend.formulation.model.FormulationStatus;
-import com.ipsakti.ip_sakti_backend.multilingual.BhashiniClient;
+import com.ipsakti.ip_sakti_backend.multilingual.TranslationProvider;
 import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.model.Language;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
@@ -27,19 +27,19 @@ import org.mockito.Mockito;
 class FormulationClassificationServiceTest {
 
     private RagClient ragClient;
-    private BhashiniClient bhashiniClient;
+    private TranslationProvider translationProvider;
     private FormulationClassificationService service;
 
     @BeforeEach
     void setUp() {
         ragClient = Mockito.mock(RagClient.class);
-        bhashiniClient = Mockito.mock(BhashiniClient.class);
+        translationProvider = Mockito.mock(TranslationProvider.class);
         service = new FormulationClassificationService(
                 ragClient,
                 new FormulationRuleEngine(),
                 new FormulationClarificationService(),
                 new RegulatoryRouteService(),
-                new TranslationService(bhashiniClient)
+                new TranslationService(translationProvider)
         );
         when(ragClient.ask(any())).thenReturn(groundedRagResponse());
     }
@@ -281,9 +281,9 @@ class FormulationClassificationServiceTest {
 
     @Test
     void translatesTamilFormulationInputAndReasonWhilePreservingCategoryAndCitations() {
-        when(bhashiniClient.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.TA), eq(Language.EN)))
+        when(translationProvider.translate(org.mockito.ArgumentMatchers.anyString(), eq(Language.TA), eq(Language.EN)))
                 .thenReturn("Herbal Cream skin beauty glow");
-        when(bhashiniClient.translate(org.mockito.ArgumentMatchers.contains("COSMETIC"), eq(Language.EN), eq(Language.TA)))
+        when(translationProvider.translate(org.mockito.ArgumentMatchers.contains("COSMETIC"), eq(Language.EN), eq(Language.TA)))
                 .thenReturn("தமிழில் வகைப்பாடு காரணம் COSMETIC");
 
         FormulationResponse response = service.classify(new FormulationRequest(

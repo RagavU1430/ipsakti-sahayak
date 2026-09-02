@@ -5,7 +5,7 @@ export function ErrorNotice({ error }: { error: unknown }) {
   const code = error instanceof ApiError ? error.code : undefined;
   return (
     <div className="notice error" role="alert">
-      <strong>{code === 'BHASHINI_NOT_CONFIGURED' ? 'Translation is not configured' : 'Request could not be completed'}</strong>
+      <strong>{code === 'TRANSLATION_UNAVAILABLE' || code?.startsWith('TRANSLATION_') ? 'Translation is not configured' : 'Request could not be completed'}</strong>
       <p>{message}</p>
       {code ? <small>Reference: {code}</small> : null}
     </div>
