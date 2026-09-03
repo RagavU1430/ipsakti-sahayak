@@ -10,9 +10,11 @@ import { HistoryPage } from './pages/HistoryPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegulatoryPage } from './pages/RegulatoryPage';
+import { TkOverlapPage } from './pages/TkOverlapPage';
 
 const navItems = [
   { to: '/ask', label: 'Ask IP' },
+  { to: '/tk', label: 'TK Overlap' },
   { to: '/formulations', label: 'Formulation' },
   { to: '/regulatory', label: 'Regulatory' },
   { to: '/history', label: 'History' },
@@ -63,6 +65,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/ask" element={<AskPage auth={auth} signedIn={signedIn} />} />
+          <Route path="/tk" element={<TkOverlapPage auth={auth} />} />
           <Route path="/formulations" element={<FormulationPage auth={auth} />} />
           <Route path="/regulatory" element={<RegulatoryPage auth={auth} />} />
           <Route path="/history" element={<Protected signedIn={signedIn}><HistoryPage auth={auth} /></Protected>} />
@@ -85,6 +88,7 @@ export function App() {
           <div className="footer-links">
             <NavLink to="/about">About</NavLink>
             <NavLink to="/ask">Ask IP</NavLink>
+            <NavLink to="/tk">TK Overlap</NavLink>
             <NavLink to="/regulatory">Regulatory</NavLink>
           </div>
         </div>

@@ -11,7 +11,7 @@ export function AboutPage() {
           <li>Indian patents, trademarks, copyright, designs, GI and plant variety questions.</li>
           <li>Traditional knowledge and biodiversity-related regulatory review.</li>
           <li>Formulation classification support for the five configured categories.</li>
-          <li>Multilingual requests in English, Hindi and Tamil when backend translation is configured.</li>
+          <li>Multilingual requests in English, Hindi, Tamil, Telugu, Kannada and Malayalam when backend translation is configured.</li>
         </ul>
         <h2>Important limitation</h2>
         <p>This product provides evidence-backed information, not legal advice. For filings, disputes, or commercial decisions, consult a qualified professional.</p>

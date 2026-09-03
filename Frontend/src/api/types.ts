@@ -129,6 +129,56 @@ export interface RegulatoryAnalysisResponse {
   processing_language?: Language;
 }
 
+export type TkOverlapClassification =
+  | 'NO_TK_OVERLAP_FOUND'
+  | 'POTENTIAL_TK_OVERLAP'
+  | 'STRONG_TK_OVERLAP'
+  | 'INSUFFICIENT_EVIDENCE';
+
+export type TkOverlapType =
+  | 'INGREDIENT_OVERLAP'
+  | 'TRADITIONAL_USE_OVERLAP'
+  | 'FORMULATION_OVERLAP'
+  | 'PREPARATION_METHOD_OVERLAP'
+  | 'PROCESS_OVERLAP'
+  | 'KNOWLEDGE_DOMAIN_OVERLAP'
+  | 'GEOGRAPHIC_OR_COMMUNITY_OVERLAP'
+  | 'BIOLOGICAL_RESOURCE_OVERLAP';
+
+export interface TkEvidenceItem {
+  document?: string;
+  documentId?: string;
+  document_id?: string;
+  page?: number;
+  section?: string;
+  authority?: string;
+  sourceUrl?: string;
+  source_url?: string;
+  chunkId?: string;
+  chunk_id?: string;
+  score?: number;
+}
+
+export interface TkOverlapRequest {
+  description: string;
+  language?: Language;
+}
+
+export interface TkOverlapResponse {
+  classification: TkOverlapClassification;
+  confidence: number;
+  overlap_types: TkOverlapType[];
+  explanation: string;
+  evidence: TkEvidenceItem[];
+  recommendation: string;
+  citations: Citation[];
+  sources: Source[];
+  abstained: boolean;
+  language: Language;
+  detected_language?: Language;
+  processing_language?: Language;
+}
+
 export interface ConversationSummary {
   id: string;
   title: string;

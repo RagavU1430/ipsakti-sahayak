@@ -54,7 +54,8 @@ class PropertiesBindingTest {
                         "gemini.enabled=true",
                         "gemini.base-url=https://example.invalid/gemini",
                         "gemini.api-key=test-gemini-key",
-                        "gemini.model=gemini-2.0-flash"
+                        "gemini.model=gemini-2.5-flash",
+                        "gemini.fallback-models=gemini-2.5-flash,gemini-2.5-pro"
                 )
                 .run(context -> {
                     JwtProperties jwtProperties = context.getBean(JwtProperties.class);
@@ -66,7 +67,8 @@ class PropertiesBindingTest {
                     assertThat(geminiProperties.isEnabled()).isTrue();
                     assertThat(geminiProperties.getBaseUrl()).isEqualTo("https://example.invalid/gemini");
                     assertThat(geminiProperties.getApiKey()).isEqualTo("test-gemini-key");
-                    assertThat(geminiProperties.getModel()).isEqualTo("gemini-2.0-flash");
+                    assertThat(geminiProperties.getModel()).isEqualTo("gemini-2.5-flash");
+                    assertThat(geminiProperties.modelCandidates()).containsExactly("gemini-2.5-flash", "gemini-2.5-pro");
                 });
     }
 

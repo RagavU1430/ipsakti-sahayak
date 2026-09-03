@@ -9,6 +9,7 @@ public class SpaForwardController {
     @GetMapping(value = {
             "/",
             "/ask",
+            "/tk",
             "/formulations",
             "/regulatory",
             "/history",

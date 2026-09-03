@@ -68,6 +68,7 @@ public class SecurityConfig {
                                     "/*.ico",
                                     "/manifest.json",
                                     "/ask",
+                                    "/tk",
                                     "/formulations",
                                     "/regulatory",
                                     "/history",
@@ -96,6 +97,7 @@ public class SecurityConfig {
                             "/*.ico",
                             "/manifest.json",
                             "/ask",
+                            "/tk",
                             "/formulations",
                             "/regulatory",
                             "/history",
@@ -106,6 +108,7 @@ public class SecurityConfig {
                             "/api/v1/ask",
                             "/api/v1/questions",
                             "/api/v1/questions/health",
+                            "/api/v1/tk/overlap",
                             "/api/v1/formulations/classify",
                             "/api/v1/regulatory/analyze"
                     ).permitAll()

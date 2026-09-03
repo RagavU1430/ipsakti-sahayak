@@ -41,7 +41,8 @@ app:
 gemini:
   enabled: ${GEMINI_ENABLED:true}
   api-key: ${GEMINI_API_KEY:}
-  model: ${GEMINI_MODEL:gemini-2.0-flash}
+  model: ${GEMINI_MODEL:gemini-2.5-flash}
+  fallback-models: ${GEMINI_FALLBACK_MODELS:gemini-2.5-flash,gemini-2.5-flash-lite,gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-flash-lite-latest}
   base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
   connect-timeout: ${GEMINI_CONNECT_TIMEOUT:2s}
   read-timeout: ${GEMINI_READ_TIMEOUT:10s}

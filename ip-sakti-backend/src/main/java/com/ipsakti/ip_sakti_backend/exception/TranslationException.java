@@ -69,6 +69,14 @@ public class TranslationException extends RuntimeException {
         );
     }
 
+    public static TranslationException modelUnavailable(String model) {
+        return new TranslationException(
+                HttpStatus.BAD_GATEWAY,
+                "GEMINI_MODEL_UNAVAILABLE",
+                "The configured translation model is unavailable."
+        );
+    }
+
     public HttpStatus getStatus() {
         return status;
     }

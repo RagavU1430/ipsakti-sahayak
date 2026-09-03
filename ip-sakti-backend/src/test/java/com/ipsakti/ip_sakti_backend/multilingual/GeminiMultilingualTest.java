@@ -4,9 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+import com.ipsakti.ip_sakti_backend.config.GeminiProperties;
 import com.ipsakti.ip_sakti_backend.question.model.Language;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestClient;
 
 class GeminiMultilingualTest {
 
@@ -126,5 +134,58 @@ class GeminiMultilingualTest {
             TranslatedText result = service.toCanonical(term, Language.HI, "req");
             assertThat(result.canonicalText()).isEqualTo(term);
         }
+    }
+
+    @Test
+    void geminiModelCandidatesUsePrimaryThenDeduplicatedFallbacks() {
+        GeminiProperties properties = new GeminiProperties();
+        properties.setModel("models/gemini-2.5-flash");
+        properties.setFallbackModels("gemini-2.5-flash, gemini-2.5-pro, models/gemini-1.5-flash");
+
+        assertThat(properties.modelCandidates()).containsExactly(
+                "gemini-2.5-flash",
+                "gemini-2.5-pro",
+                "gemini-1.5-flash"
+        );
+    }
+
+    @Test
+    void geminiProviderFallsBackWhenPrimaryModelIsUnavailable() {
+        RestClient.Builder builder = RestClient.builder().baseUrl("https://gemini.test");
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+
+        GeminiProperties properties = new GeminiProperties();
+        properties.setApiKey("test-gemini-key");
+        properties.setBaseUrl("https://gemini.test");
+        properties.setModel("gemini-missing-model");
+        properties.setFallbackModels("gemini-2.5-flash");
+
+        GeminiTranslationProvider provider = new GeminiTranslationProvider(builder.build(), properties);
+
+        server.expect(requestTo("https://gemini.test/v1beta/models/gemini-missing-model:generateContent?key=test-gemini-key"))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body("{}"));
+        server.expect(requestTo("https://gemini.test/v1beta/models/gemini-2.5-flash:generateContent?key=test-gemini-key"))
+                .andRespond(withSuccess("""
+                        {
+                          "candidates": [
+                            {
+                              "content": {
+                                "parts": [
+                                  {
+                                    "text": "What is a patent?"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                        """, MediaType.APPLICATION_JSON));
+
+        String translated = provider.translate("पेटेंट क्या है?", Language.HI, Language.EN);
+
+        assertThat(translated).isEqualTo("What is a patent?");
+        server.verify();
     }
 }

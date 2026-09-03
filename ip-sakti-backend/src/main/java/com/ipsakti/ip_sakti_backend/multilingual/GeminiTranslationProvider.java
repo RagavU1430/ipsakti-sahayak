@@ -45,7 +45,7 @@ public class GeminiTranslationProvider implements TranslationProvider {
 
     @Override
     public String providerName() {
-        return "gemini-" + properties.getModel();
+        return "gemini-" + String.join(",", properties.modelCandidates());
     }
 
     @Override
@@ -176,6 +176,27 @@ public class GeminiTranslationProvider implements TranslationProvider {
     }
 
     private String callGemini(String prompt, Language source, Language target) {
+        List<String> candidates = properties.modelCandidates();
+        if (candidates.isEmpty()) {
+            throw TranslationException.notConfigured();
+        }
+        TranslationException lastFailure = null;
+        for (String model : candidates) {
+            try {
+                return callGeminiModel(prompt, source, target, model);
+            } catch (TranslationException ex) {
+                lastFailure = ex;
+                if (!shouldTryNextModel(ex)) {
+                    throw ex;
+                }
+                log.warn("gemini_model_fallback model={} sourceLanguage={} targetLanguage={} reason={}",
+                        model, source, target, ex.getCode());
+            }
+        }
+        throw lastFailure == null ? TranslationException.translationUnavailable() : lastFailure;
+    }
+
+    private String callGeminiModel(String prompt, Language source, Language target, String model) {
         long started = System.nanoTime();
         int maxRetries = 1; // limited retry for transient failures only
         int attempt = 0;
@@ -188,7 +209,7 @@ public class GeminiTranslationProvider implements TranslationProvider {
                 );
 
                 // Gemini uses query param key, not header. Configure RestClient with baseUrl, do POST to /v1beta/models/{model}:generateContent?key=API
-                String path = "/v1beta/models/" + properties.getModel() + ":generateContent?key=" + properties.getApiKey();
+                String path = "/v1beta/models/" + model + ":generateContent?key=" + properties.getApiKey();
 
                 GeminiResponse response = restClient.post()
                         .uri(path)
@@ -212,26 +233,36 @@ public class GeminiTranslationProvider implements TranslationProvider {
                 translated = translated.trim();
                 long latency = Duration.ofNanos(System.nanoTime() - started).toMillis();
                 log.info("gemini_translation_success sourceLanguage={} targetLanguage={} model={} latencyMs={} attempt={}",
-                        source, target, properties.getModel(), latency, attempt);
+                        source, target, model, latency, attempt);
                 return translated;
 
             } catch (RestClientResponseException ex) {
                 int status = ex.getStatusCode().value();
                 long latency = Duration.ofNanos(System.nanoTime() - started).toMillis();
-                // Do not retry on client errors (400, 401, 403, 404)
-                if (status == 400 || status == 401 || status == 403 || status == 404) {
-                    log.warn("gemini_client_error status={} sourceLanguage={} targetLanguage={} latencyMs={} body={}",
-                            status, source, target, latency, ex.getResponseBodyAsString());
-                    throw TranslationException.notConfigured(); // map to controlled error
+                // Invalid auth/config must fail closed. Missing model can safely fall through to the next configured candidate.
+                if (status == 401 || status == 403) {
+                    log.warn("gemini_auth_or_permission_error status={} sourceLanguage={} targetLanguage={} model={} latencyMs={}",
+                            status, source, target, model, latency);
+                    throw TranslationException.notConfigured();
+                }
+                if (status == 400) {
+                    log.warn("gemini_bad_request status={} sourceLanguage={} targetLanguage={} model={} latencyMs={}",
+                            status, source, target, model, latency);
+                    throw TranslationException.unexpectedStatus(status);
+                }
+                if (status == 404) {
+                    log.warn("gemini_model_not_found status={} sourceLanguage={} targetLanguage={} model={} latencyMs={}",
+                            status, source, target, model, latency);
+                    throw TranslationException.modelUnavailable(model);
                 }
                 if (status == 429 && attempt <= maxRetries) {
-                    log.warn("gemini_rate_limited sourceLanguage={} targetLanguage={} latencyMs={} retrying",
-                            source, target, latency);
+                    log.warn("gemini_rate_limited sourceLanguage={} targetLanguage={} model={} latencyMs={} retrying",
+                            source, target, model, latency);
                     try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
                     continue;
                 }
-                log.warn("gemini_unexpected_http_status status={} sourceLanguage={} targetLanguage={} latencyMs={}",
-                        status, source, target, latency);
+                log.warn("gemini_unexpected_http_status status={} sourceLanguage={} targetLanguage={} model={} latencyMs={}",
+                        status, source, target, model, latency);
                 if (attempt <= maxRetries && (status == 500 || status == 502 || status == 503)) {
                     try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
                     continue;
@@ -240,18 +271,18 @@ public class GeminiTranslationProvider implements TranslationProvider {
             } catch (ResourceAccessException ex) {
                 long latency = Duration.ofNanos(System.nanoTime() - started).toMillis();
                 if (isTimeout(ex) && attempt <= maxRetries) {
-                    log.warn("gemini_timeout sourceLanguage={} targetLanguage={} latencyMs={} retrying",
-                            source, target, latency);
+                    log.warn("gemini_timeout sourceLanguage={} targetLanguage={} model={} latencyMs={} retrying",
+                            source, target, model, latency);
                     try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
                     continue;
                 }
                 if (isTimeout(ex)) {
-                    log.warn("gemini_timeout sourceLanguage={} targetLanguage={} latencyMs={}",
-                            source, target, latency);
+                    log.warn("gemini_timeout sourceLanguage={} targetLanguage={} model={} latencyMs={}",
+                            source, target, model, latency);
                     throw TranslationException.timeout();
                 }
-                log.warn("gemini_unavailable sourceLanguage={} targetLanguage={} latencyMs={}",
-                        source, target, latency);
+                log.warn("gemini_unavailable sourceLanguage={} targetLanguage={} model={} latencyMs={}",
+                        source, target, model, latency);
                 if (attempt <= maxRetries) {
                     try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
                     continue;
@@ -260,11 +291,19 @@ public class GeminiTranslationProvider implements TranslationProvider {
             } catch (TranslationException ex) {
                 throw ex;
             } catch (RestClientException ex) {
-                log.warn("gemini_malformed_response sourceLanguage={} targetLanguage={} error={}",
-                        source, target, ex.getMessage());
+                log.warn("gemini_malformed_response sourceLanguage={} targetLanguage={} model={} error={}",
+                        source, target, model, ex.getMessage());
                 throw TranslationException.malformedResponse();
             }
         }
+    }
+
+    private boolean shouldTryNextModel(TranslationException ex) {
+        return "GEMINI_MODEL_UNAVAILABLE".equals(ex.getCode())
+                || "TRANSLATION_UNEXPECTED_STATUS".equals(ex.getCode())
+                || "TRANSLATION_TIMEOUT".equals(ex.getCode())
+                || "TRANSLATION_UNAVAILABLE".equals(ex.getCode())
+                || "TRANSLATION_MALFORMED_RESPONSE".equals(ex.getCode());
     }
 
     private boolean isTimeout(Throwable throwable) {
