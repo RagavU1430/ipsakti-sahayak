@@ -1,17 +1,17 @@
 import { Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, Suspense } from 'react';
 import { clearSession, isSignedIn, readSession, saveSession, type Session } from './api/auth';
 import { AboutPage } from './pages/AboutPage';
 import { AccountPage } from './pages/AccountPage';
 import { AskPage } from './pages/AskPage';
 import { ConversationDetailPage } from './pages/ConversationDetailPage';
-import { FormulationPage } from './pages/FormulationPage';
+const FormulationPage = React.lazy(() => import("./pages/FormulationPage"));
 import { HistoryPage } from './pages/HistoryPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegulatoryPage } from './pages/RegulatoryPage';
 import { TkOverlapPage } from './pages/TkOverlapPage';
-import { VoiceChatOverlay } from './components/VoiceChatOverlay';
+const VoiceChatOverlay = React.lazy(() => import("./components/VoiceChatOverlay"));
 import { FeedbackModal } from './components/FeedbackModal';
 import { KeyboardHelpOverlay } from './components/KeyboardHelpOverlay';
 
@@ -169,11 +169,13 @@ export function App() {
           </div>
         </header>
 
-        <VoiceChatOverlay
-          isOpen={isGlobalVoiceOpen}
-          onClose={() => setIsGlobalVoiceOpen(false)}
-          auth={auth}
-        />
+        <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-dim)' }}>Loading component...</div>}>
+          <VoiceChatOverlay
+            isOpen={isGlobalVoiceOpen}
+            onClose={() => setIsGlobalVoiceOpen(false)}
+            auth={auth}
+          />
+        </Suspense>
 
         <KeyboardHelpOverlay
           isOpen={showKeyboardHelp}

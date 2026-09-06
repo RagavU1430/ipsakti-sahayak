@@ -1,6 +1,7 @@
+import React from 'react';
 import type { Citation, Source } from '../api/types';
 
-export function EvidenceList({ citations = [], sources = [] }: { citations?: Citation[]; sources?: Source[] }) {
+export const EvidenceList = React.memo(function EvidenceList({ citations = [], sources = [] }: { citations?: Citation[]; sources?: Source[] }) {
   const normalizedCitations = citations.map((citation) => ({
     ...citation,
     documentId: citation.documentId || citation.document_id,

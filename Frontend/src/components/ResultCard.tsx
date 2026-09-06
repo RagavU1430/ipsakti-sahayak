@@ -1,9 +1,10 @@
+import React from 'react';
 import type { QuestionResponse } from '../api/types';
 import { EvidenceList, formatConfidence } from './Evidence';
 import { FormattedText } from './FormattedText';
 import { AudioPlayerBar } from './AudioPlayerBar';
 
-export function QuestionResult({ result }: { result: QuestionResponse }) {
+export const QuestionResult = React.memo(function QuestionResult({ result }: { result: QuestionResponse }) {
   const isAbstained = result.abstained;
   const isFallback = result.route === 'GENERAL' || result.answerType === 'general_fallback';
   const isEvidenceRoute = result.route === 'RAG' || (!result.route && !isFallback);
