@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import logoImg from '../assets/logo.png';
 
 export function HomePage() {
   return (
@@ -9,7 +10,7 @@ export function HomePage() {
       <section className="hero home-hero">
         <div className="home-hero-glow" aria-hidden="true" />
         <div className="home-hero-mark" aria-hidden="true">
-          <span className="material-symbols-outlined">spa</span>
+          <img src={logoImg} alt="IP-SAKTI Sahayak Logo" className="home-hero-logo-img" />
         </div>
         <div className="home-hero-content">
           <div className="home-badge">

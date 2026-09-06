@@ -1,3 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+/* Material Symbols Icon Font Core Definition */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+  user-select: none;
+  overflow: hidden;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 /* Light Theme (Default) */
 :root {
   --primary: #00288e;
@@ -2041,11 +2067,23 @@ textarea:focus {
   justify-content: space-between;
   gap: 8px;
   width: 100%;
+  min-width: 0;
 }
 
 .sidebar-header-row .new-query-button {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  overflow: hidden;
+}
+
+.new-query-button span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ChatGPT style sidebar toggle button */
@@ -2055,6 +2093,8 @@ textarea:focus {
   justify-content: center;
   width: 36px;
   height: 36px;
+  min-width: 36px;
+  max-width: 36px;
   border-radius: 9px;
   border: 1px solid var(--sidebar-border, rgba(20, 55, 120, 0.18));
   background: rgba(255, 255, 255, 0.85);
@@ -2062,6 +2102,7 @@ textarea:focus {
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
+  overflow: hidden;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
@@ -2086,10 +2127,14 @@ textarea:focus {
 .sidebar-toggle-btn.topbar-toggle {
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  max-width: 32px;
   border-radius: 8px;
   border: 1px solid var(--outline-variant, rgba(0, 0, 0, 0.12));
   background: transparent;
   color: var(--on-surface-variant, #4b5563);
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .sidebar-toggle-btn.topbar-toggle:hover {
@@ -2161,6 +2206,28 @@ textarea:focus {
 .new-query-button .ayurvedic-logo {
   color: #f8c24f;
   font-variation-settings: 'FILL' 1, 'wght' 650, 'GRAD' 0, 'opsz' 24;
+}
+
+.brand-logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  background: #ffffff;
+  padding: 1px;
+}
+
+.new-query-button .sidebar-logo-img {
+  width: 28px;
+  height: 28px;
+  margin-right: 4px;
+}
+
+.portal-brand .topbar-logo-img {
+  width: 28px;
+  height: 28px;
 }
 
 .sidebar-menu-button {
@@ -4492,17 +4559,31 @@ textarea:focus {
 
 .home-hero-mark {
   position: absolute;
-  top: 22px;
-  right: 28px;
+  top: 20px;
+  right: 26px;
   display: grid;
-  width: 54px;
-  height: 54px;
+  width: 68px;
+  height: 68px;
   place-items: center;
-  border: 1px solid rgba(211, 162, 52, 0.28);
-  border-radius: 18px;
-  background: rgba(255, 248, 221, 0.66);
-  color: #b47b16;
-  transform: rotate(8deg);
+  border: 1px solid rgba(211, 162, 52, 0.35);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 24px rgba(18, 59, 130, 0.14);
+  padding: 4px;
+  transform: rotate(4deg);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.home-hero-mark:hover {
+  transform: rotate(0deg) scale(1.08);
+  box-shadow: 0 12px 30px rgba(18, 59, 130, 0.22);
+}
+
+.home-hero-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 16px;
 }
 
 .home-hero-mark .material-symbols-outlined {

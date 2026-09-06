@@ -17,6 +17,7 @@ import { KeyboardHelpOverlay } from './components/KeyboardHelpOverlay';
 
 import { useTheme } from './hooks/useTheme';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import logoImg from './assets/logo.png';
 
 const navItems = [
   { to: '/ask', label: 'Ask Query', icon: 'add' },
@@ -91,7 +92,7 @@ export function App() {
         <div className="gov-sidebar-inner">
           <div className="sidebar-header-row">
             <NavLink className="new-query-button" to="/ask">
-              <span className="material-symbols-outlined ayurvedic-logo" aria-hidden="true">spa</span>
+              <img src={logoImg} alt="IP-SAKTI Sahayak Logo" className="brand-logo-img sidebar-logo-img" />
               <span>IP-SAKTI Sahayak</span>
             </NavLink>
             <button
@@ -152,7 +153,7 @@ export function App() {
               </span>
             </button>
             <NavLink className="portal-brand" to="/" aria-label="IP-SAKTI Sahayak home">
-              <span className="material-symbols-outlined">account_balance</span>
+              <img src={logoImg} alt="IP-SAKTI Sahayak Logo" className="brand-logo-img topbar-logo-img" />
               <span>IP-SAKTI Sahayak</span>
             </NavLink>
           </div>
