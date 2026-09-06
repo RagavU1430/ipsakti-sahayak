@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IP-SAKTI Sahayak — The Living Law Intelligence Engine</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&family=Space+Grotesk:wght@300;400;600;700&display=swap');
+
+    :root {
+      --void: #030303;
+      --ink: #0a0a0a;
+      --ash: #121212;
+      --surface: #161616;
+      --elevated: #1c1c1c;
+      --line: rgba(255,255,255,0.06);
+      --text: #e8e6e3;
+      --text-dim: rgba(232,230,227,0.55);
+      --text-faint: rgba(232,230,227,0.25);
+      --gold: #c5a065;
+      --gold-dim: rgba(197,160,101,0.15);
+      --crimson: #b85c4a;
+      --teal: #4a9085;
+      --violet: #6b5ca8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--void);
+      color: var(--text);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* Canvas grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    /* Hero typography */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 6rem 2rem 4rem;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .hero-bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+      -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: -20%;
+      left: 50%;
+      width: 800px;
+      height: 800px;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(197,160,101,0.12) 0%, rgba(197,160,101,0) 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-content { position: relative; z-index: 2; max-width: 1000px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      border: 1px solid var(--line);
+      border-radius: 9999px;
+      padding: 0.4rem 1rem 0.4rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(197,160,101,0.04);
+      margin-bottom: 2rem;
+    }
+
+    .hero-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); box-shadow: 0 0 8px var(--gold);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--gold); }
+      50% { opacity: 0.5; box-shadow: 0 0 2px var(--gold); }
+    }
+
+    h1.hero-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(3.2rem, 8vw, 6.5rem);
+      line-height: 0.92;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(160deg, #fdfbf7 30%, var(--gold) 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.4rem;
+    }
+
+    h1.hero-title span {
+      display: block;
+      font-size: 0.35em;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      -webkit-text-fill-color: var(--text-dim);
+      margin-top: 0.2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      max-width: 560px;
+      margin: 0 auto 3rem;
+      font-weight: 300;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    a.cta-btn {
+      display: inline-block;
+      padding: 0.85rem 2.2rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      transition: all 0.35s ease;
+      border: 1px solid var(--line);
+    }
+
+    a.cta-btn.primary {
+      background: var(--gold);
+      color: var(--void);
+      border-color: var(--gold);
+    }
+    a.cta-btn.primary:hover {
+      background: #d9bc7a; border-color: #d9bc7a;
+      box-shadow: 0 0 30px rgba(197,160,101,0.35);
+      transform: translateY(-2px);
+    }
+
+    a.cta-btn.secondary {
+      background: transparent;
+      color: var(--text);
+    }
+    a.cta-btn.secondary:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.14);
+      transform: translateY(-2px);
+    }
+
+    /* Section styling */
+    section {
+      position: relative;
+      padding: 7rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    section .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+
+    section h2 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+    }
+
+    section h2.highlight span {
+      background: linear-gradient(90deg, var(--gold), #d9bc7a);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    section p.lead {
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      max-width: 640px;
+      line-height: 1.7;
+    }
+
+    /* Architecture grid */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .arch-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 2.2rem 2rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 100%);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .arch-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--crimson), var(--teal), var(--violet));
+      opacity: 0.5;
+    }
+    .arch-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(197,160,101,0.25);
+    }
+
+    .arch-card h3 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1.3rem;
+      margin-bottom: 0.3rem;
+    }
+    .arch-card .tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      background: var(--gold-dim);
+      color: var(--gold);
+    }
+    .arch-card p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; }
+    .arch-card ul { margin-top: 1rem; padding-left: 1.1rem; list-style: none; }
+    .arch-card ul li { color: var(--text-faint); font-size: 0.85rem; margin: 0.3rem 0; position: relative; padding-left: 0.9rem; }
+    .arch-card ul li::before { content: '→'; position: absolute; left: 0; color: var(--gold); font-family: monospace; font-size: 0.75rem; }
+
+    /* Pipeline timeline */
+    .pipeline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2.5rem;
+    }
+    .pipe-step {
+      flex: 1 1 160px;
+      max-width: 260px;
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.5rem 1.2rem;
+      text-align: center;
+      transition: border-color 0.3s ease;
+    }
+    .pipe-step:hover { border-color: rgba(197,160,101,0.3); }
+    .pipe-step h4 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+    .pipe-step .num {
+      position: absolute; top: -10px; right: 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-faint);
+    }
+    .pipe-step p { font-size: 0.8rem; color: var(--text-dim); }
+
+    /* Stats banner */
+    .stats-banner {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2rem;
+      border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+      padding: 3rem 2rem; margin: 0 2rem; background: var(--surface);
+      text-align: center;
+    }
+    .stats-banner .stat h3 { font-family: 'Cinzel Decorative', serif; font-size: 2.2rem; color: var(--gold); letter-spacing: -0.02em; }
+    .stats-banner .stat p { font-size: 0.8rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.2rem; }
+
+    /* Feature rows (two-col) */
+    .feature-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-top: 3rem;
+    }
+    @media (max-width: 900px) { .feature-row { grid-template-columns: 1fr; gap: 2rem; } }
+    .feature-row h3 { font-family: 'Cinzel Decorative', serif; font-size: 1.6rem; margin-bottom: 0.8rem; }
+    .feature-row p { color: var(--text-dim); }
+    .feature-row ul.tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .feature-row ul.tags li { list-style: none; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.2rem 0.6rem; border: 1px solid var(--line); border-radius: 4px; color: var(--text-dim); }
+
+    /* Divider */
+    .divider {
+      height: 1px; max-width: 200px; margin: 0 auto; background: linear-gradient(90deg, transparent, var(--line), transparent);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center; padding: 5rem 2rem; color: var(--text-faint); font-size: 0.8rem;
+      border-top: 1px solid var(--line); margin-top: 4rem;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <section class="hero" aria-label="Hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><span class="dot"></span> Live System — v3.2.0</div>
+      <h1 class="hero-title" aria-label="IP-SAKTI Sahayak">
+        IP-SAKTI<br>Sahayak
+        <span>Intellectual Property Intelligence</span>
+      </h1>
+      <p class="hero-subtitle">
+        A three-layer cognitive architecture that reads the law, remembers every clause, speaks it back with citations, and knows when to stay silent.
+      </p>
+      <div class="hero-cta-row">
+        <a href="#overview" class="cta-btn primary">Enter the System</a>
+        <a href="#pipeline" class="cta-btn secondary">Pipeline</a>
+        <a href="#metrics" class="cta-btn secondary">Metrics</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="overview" aria-label="Overview">
+    <span class="section-label">Overview</span>
+    <h2>Not Just a Chatbot.<br>A <span class="highlight">Legal Intelligence Engine</span>.</h2>
+    <p class="lead">
+      IP-SAKTI Sahayak is a Retrieval-Augmented Generation pipeline engineered specifically for Indian Intellectual Property law. It does not guess. It retrieves verified statutes, reranks them with 9 legal signals, grounds every answer in evidence, validates citations, and abstains when the corpus is silent.
+    </p>
+  </section>
+
+  <div class="stats-banner" aria-label="System metrics">
+    <div class="stat"><h3>55/55</h3><p>Runtime Eval Pass</p></div>
+    <div class="stat"><h3>0.97</h3><p>MRR Score</p></div>
+    <div class="stat"><h3>1.00</h3><p>Citation Integrity</p></div>
+    <div class="stat"><h3>1.00</h3><p>Abstention Accuracy</p></div>
+  </div>
+
+  <section id="architecture" aria-label="Architecture">
+    <span class="section-label">Architecture</span>
+    <h2>Three Layers.<br><span class="highlight">One Mind.</span></h2>
+    <div class="arch-grid" aria-label="Component cards">
+      <article class="arch-card">
+        <span class="tag">React 19 + TypeScript</span>
+        <h3>Frontend</h3>
+        <p>A single-page application with conversation memory, voice assistant, formulation analysis, regulatory tracking, and live citation rendering.</p>
+        <ul>
+          <li>Voice chat with STT / TTS</li>
+          <li>Live evidence cards with source links</li>
+          <li>Formulation readiness assessments</li>
+          <li>Multilingual query routing</li>
+        </ul>
+      </article>
+      <article class="arch-card">
+        <span class="tag">Spring Boot 4.1.1 + Java 25</span>
+        <h3>Backend</h3>
+        <p>The orchestration layer. Handles authentication, translation, conversation state, query routing, and the RAG service protocol.</p>
+        <ul>
+          <li>JWT authentication & security filters</li>
+          <li>Intelligent query routing engine</li>
+          <li>Gemini multilingual translation</li>
+          <li>Formulation classification rules</li>
+        </ul>
+      </article>
+      <article class="arch-card">
+        <span class="tag">FastAPI + Python 3.12</span>
+        <h3>RAG Engine</h3>
+        <p>The brain. Hybrid retrieval, legal reranking, grounded generation, citation validation, confidence scoring, and guardrails.</p>
+        <ul>
+          <li>Hybrid vector + lexical retrieval</li>
+          <li>9-signal legal reranker</li>
+          <li>Grounded LLM + extractive fallback</li>
+          <li>Abstention, quarantine & exfiltration blocks</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section id="pipeline" aria-label="Pipeline">
+    <span class="section-label">Pipeline</span>
+    <h2>The Path from<br><span class="highlight">Question → Law → Answer</span></h2>
+    <p class="lead">Every query travels through 7 deterministic stages before an answer reaches the user.</p>
+    <div class="pipeline" aria-label="Pipeline stages">
+      <article class="pipe-step"><span class="num">01</span><h4>Query Analysis</h4><p>Domain detection, intent, legal identifiers, jurisdiction</p></article>
+      <article class="pipe-step"><span class="num">02</span><h4>Hybrid Retrieval</h4><p>Vector (0.55) + BM25 (0.35) + Metadata (0.10)</p></article>
+      <article class="pipe-step"><span class="num">03</span><h4>Legal Rerank</h4><p>9 weighted signals — document hints, section matches, semantic overlap</p></article>
+      <article class="pipe-step"><span class="num">04</span><h4>Grounded Gen</h4><p>LLM or deterministic extractive fallback</p></article>
+      <article class="pipe-step"><span class="num">05</span><h4>Citation Check</h4><p>Every citation validated against evidence chunks</p></article>
+      <article class="pipe-step"><span class="num">06</span><h4>Confidence</h4><p>6-factor formula — evidence count, citation density, reranker score</p></article>
+      <article class="pipe-step"><span class="num">07</span><h4>Abstention</h4><p>Refuses to answer when evidence is insufficient</p></article>
+    </div>
+  </section>
+
+  <section id="features" aria-label="Features">
+    <span class="section-label">Capabilities</span>
+    <h2>Built for<br><span class="highlight">Real Legal Work</span></h2>
+    <div class="feature-row">
+      <div>
+        <h3>Intelligent Routing</h3>
+        <p>The backend does not blindly call RAG. It classifies every query: RAG for verified law, general for broad questions, formulation for product readiness.</p>
+        <ul class="tags">
+          <li>General Questions</li><li>Formulation Readiness</li><li>IP-SAKTI RAG</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Voice Intelligence</h3>
+        <p>Speak your query in any language. The system translates via Gemini, routes intelligently, and responds with both voice and text.</p>
+        <ul class="tags">
+          <li>Speech-to-Text</li><li>Text-to-Speech</li><li>Voice Chat Overlay</li>
+        </ul>
+      </div>
+    </div>
+    <div class="feature-row" style="margin-top: 4rem;">
+      <div>
+        <h3>Legal Guardrails</h3>
+        <p>The system blocks adversarial prompts, quarantines invalid sources (Ayurveda Aahara 2022 regulation), and refuses to invent citations.</p>
+        <ul class="tags">
+          <li>Exfiltration Block</li><li>Quarantine Checks</li><li>Citation Integrity 1.0</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Multilingual Legal Intelligence</h3>
+        <p>Queries in Hindi, English, or mixed language are translated, analyzed, and answered with citations to the verified Indian and international corpus.</p>
+        <ul class="tags">
+          <li>Gemini Translation</li><li>Domain Routing</li><li>34 Language Support</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section id="metrics" aria-label="Metrics">
+    <span class="section-label">Performance</span>
+    <h2>Numbers That<br><span class="highlight">Prove It Works</span></h2>
+    <div class="stats-banner" aria-label="Detailed metrics">
+      <div class="stat"><h3>25</h3><p>Verified Documents</p></div>
+      <div class="stat"><h3>7,019</h3><p>Chunks in Corpus</p></div>
+      <div class="stat"><h3>0.55</h3><p>Vector Weight</p></div>
+      <div class="stat"><h3>1.0</h3><p>Citation Integrity</p></div>
+      <div class="stat"><h3>1.0</h3><p>Abstention Accuracy</p></div>
+      <div class="stat"><h3>0.18</h3><p>Abstention Confidence</p></div>
+    </div>
+  </section>
+
+  <section id="tech" aria-label="Tech Stack">
+    <span class="section-label">Stack</span>
+    <h2>The Tools Behind<br><span class="highlight">The Intelligence</span></h2>
+    <div class="arch-grid" aria-label="Tech cards">
+      <article class="arch-card">
+        <span class="tag">Python 3.12</span>
+        <h3>RAG Engine</h3>
+        <p>FastAPI, Pydantic 2.11, OpenRouter embeddings, Supabase RPC, BM25, TF-IDF, cosine similarity.</p>
+      </article>
+      <article class="arch-card">
+        <span class="tag">Java 25 / Spring Boot 4.1.1</span>
+        <h3>Backend</h3>
+        <p>JPA, Security filters, JWT auth, REST controllers, conversation services, routing engine.</p>
+      </article>
+      <article class="arch-card">
+        <span class="tag">React 19 + TypeScript 5.9</span>
+        <h3>Frontend</h3>
+        <p>Vite, React Router 7, Tailwind-style custom CSS, Voice API integration.</p>
+      </article>
+      <article class="arch-card">
+        <span class="tag">Testing</span>
+        <h3>Test Coverage</h3>
+        <p>33+ RAG unit tests, 55-question runtime eval, deep-test repair reports, security audits.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="start" aria-label="Quick Start">
+    <span class="section-label">Quick Start</span>
+    <h2>Launch in<br><span class="highlight">Three Steps</span></h2>
+    <div class="pipeline" aria-label="Quick start steps">
+      <article class="pipe-step"><span class="num">01</span><h4>Clone</h4><p>git clone https://github.com/RagavU1430/ipsakti-sahayak.git</p></article>
+      <article class="pipe-step"><span class="num">02</span><h4>Env</h4><p>Configure .env with OpenRouter, Supabase, and Gemini keys</p></article>
+      <article class="pipe-step"><span class="num">03</span><h4>Run</h4><p>start_all.bat (Windows) or docker-compose up</p></article>
+    </div>
+    <p style="text-align:center; color: var(--text-faint); margin-top: 2rem; font-size: 0.85rem;">Requires: Python 3.12, Java 25, Node 20+, Supabase instance, OpenRouter API access</p>
+  </section>
+
+  <footer>
+    <p>IP-SAKTI Sahayak &mdash; A Cognitive Law Intelligence Project</p>
+    <p style="margin-top: 0.3rem; color: var(--text-faint); font-size: 0.75rem;">Built for Indian Intellectual Property Law &mdash; Verified. Grounded. Silent When Uncertain.</p>
+    <p style="margin-top: 1rem;">
+      <a href="#">GitHub</a> &nbsp;|&nbsp; <a href="#">Live Demo</a> &nbsp;|&nbsp; <a href="#">Documentation</a>
+    </p>
+  </footer>
+
+</body>
+</html>
