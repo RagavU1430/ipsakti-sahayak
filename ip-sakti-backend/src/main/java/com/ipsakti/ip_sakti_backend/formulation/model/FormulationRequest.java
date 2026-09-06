@@ -19,8 +19,34 @@ public record FormulationRequest(
         @Size(max = 120) String country,
         @Size(max = 160) String existingLicense,
         @Size(max = 160) String knownClassification,
-        Language language
+        Language language,
+        @Size(max = 25) List<@NotBlank @Size(max = 120) String> ingredientRatios,
+        @Size(max = 300) String sourceOfIngredients,
+        @Size(max = 160) String manufacturer,
+        @Size(max = 120) String countryOfManufacture,
+        List<ProvidedDocument> documents
 ) {
+    public FormulationRequest(
+            String productName,
+            List<String> ingredients,
+            String dosageForm,
+            String intendedUse,
+            List<String> claims,
+            String manufacturingMethod,
+            String classicalReference,
+            Boolean traditionalUse,
+            Boolean commercialIntent,
+            String targetMarket,
+            String country,
+            String existingLicense,
+            String knownClassification,
+            Language language
+    ) {
+        this(productName, ingredients, dosageForm, intendedUse, claims, manufacturingMethod, classicalReference,
+                traditionalUse, commercialIntent, targetMarket, country, existingLicense, knownClassification, language,
+                List.of(), null, null, country, List.of());
+    }
+
     public FormulationRequest(
             String productName,
             List<String> ingredients,
@@ -52,6 +78,11 @@ public record FormulationRequest(
         country = normalizeNullable(country);
         existingLicense = normalizeNullable(existingLicense);
         knownClassification = normalizeNullable(knownClassification);
+        ingredientRatios = normalizeList(ingredientRatios);
+        sourceOfIngredients = normalizeNullable(sourceOfIngredients);
+        manufacturer = normalizeNullable(manufacturer);
+        countryOfManufacture = normalizeNullable(countryOfManufacture);
+        documents = documents == null ? List.of() : List.copyOf(documents);
     }
 
     private static String normalizeRequired(String value) {

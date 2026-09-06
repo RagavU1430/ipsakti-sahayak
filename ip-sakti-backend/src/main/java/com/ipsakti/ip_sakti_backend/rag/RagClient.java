@@ -1,5 +1,6 @@
 package com.ipsakti.ip_sakti_backend.rag;
 
+import com.ipsakti.ip_sakti_backend.config.RagProperties;
 import com.ipsakti.ip_sakti_backend.exception.RagClientException;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskRequest;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
@@ -8,6 +9,7 @@ import java.net.SocketTimeoutException;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -22,21 +24,29 @@ public class RagClient {
     private static final Logger log = LoggerFactory.getLogger(RagClient.class);
 
     private final RestClient ragRestClient;
+    private final RagProperties properties;
 
     public RagClient(@Qualifier("ragRestClient") RestClient ragRestClient) {
+        this(ragRestClient, new RagProperties());
+    }
+
+    @Autowired
+    public RagClient(@Qualifier("ragRestClient") RestClient ragRestClient, RagProperties properties) {
         this.ragRestClient = ragRestClient;
+        this.properties = properties;
     }
 
     public RagAskResponse ask(RagAskRequest request) {
         long started = System.nanoTime();
-        log.info("rag_request_initiated questionLength={}", request.question().length());
+        RagAskRequest outboundRequest = withDefaultTopK(request);
+        log.info("rag_request_initiated questionLength={} topK={}", outboundRequest.question().length(), outboundRequest.topK());
         try {
             RagAskResponse response = ragRestClient
                     .post()
                     .uri("/api/v1/ask")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
-                    .body(request)
+                    .body(outboundRequest)
                     .retrieve()
                     .body(RagAskResponse.class);
 
@@ -73,6 +83,30 @@ public class RagClient {
             log.warn("rag_malformed_response latencyMs={}", Duration.ofNanos(System.nanoTime() - started).toMillis());
             throw RagClientException.malformedResponse();
         }
+    }
+
+    public boolean checkHealth() {
+        try {
+            var response = ragRestClient.get()
+                    .uri("/health")
+                    .retrieve()
+                    .toBodilessEntity();
+            return response.getStatusCode().is2xxSuccessful();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private RagAskRequest withDefaultTopK(RagAskRequest request) {
+        if (request.topK() != null) {
+            return request;
+        }
+        return new RagAskRequest(
+                request.question(),
+                request.domain(),
+                request.jurisdiction(),
+                properties.getDefaultTopK()
+        );
     }
 
     private boolean isTimeout(Throwable throwable) {

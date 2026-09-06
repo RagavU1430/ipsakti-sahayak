@@ -52,6 +52,28 @@ def test_exact_identifier_survives_reranking(service) -> None:
     assert LegalFeatureReranker.learned is False
 
 
+def test_definition_queries_prioritize_authoritative_definition_chunks(service) -> None:
+    patent = analyze_query(QueryRequest(query="What is a patent?", domain="PATENT"))
+    patent_ranked = service.reranker.rerank(patent, service.retriever.retrieve(patent), 8)
+    assert any(row.document_id == "IND-PAT-ACT-1970" and "patent" in row.text.lower() and "means" in row.text.lower() for row in patent_ranked[:3])
+
+    gi = analyze_query(QueryRequest(query="What is a GI?", domain="GI"))
+    gi_ranked = service.reranker.rerank(gi, service.retriever.retrieve(gi), 8)
+    assert any(row.document_id == "IND-GI-ACT-1999" and '"geographical indication"' in row.text.lower() for row in gi_ranked[:3])
+
+
+def test_tk_and_tkdl_queries_preserve_cross_domain_evidence(service) -> None:
+    tk = analyze_query(QueryRequest(query="What is traditional knowledge?", domain="PATENT"))
+    tk_ranked = service.reranker.rerank(tk, service.retriever.retrieve(tk), 8)
+    assert {"PATENT", "ABS"} <= {row.domain for row in tk_ranked}
+    assert any("traditional knowledge" in row.text.lower() for row in tk_ranked[:3])
+
+    tkdl = analyze_query(QueryRequest(query="What is TKDL?", domain="PATENT"))
+    tkdl_ranked = service.reranker.rerank(tkdl, service.retriever.retrieve(tkdl), 8)
+    assert any("traditional knowledge digital library" in row.text.lower() or "tkdl" in row.text.lower() for row in tkdl_ranked[:3])
+    assert any(row.domain == "AYURVEDA" for row in tkdl_ranked)
+
+
 def test_domain_filter_excludes_unrelated_corpus(service) -> None:
     rows = service.retriever.retrieve(analyze_query(QueryRequest(query="Explain copyright in literary works in India")))
     assert rows and {row.domain for row in rows} == {"COPYRIGHT"}

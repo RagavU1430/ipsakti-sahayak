@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:ipsaktitestdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+app:
+  security:
+    mode: dev
+    allowed-origins: http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
+
+rag:
+  base-url: http://localhost:8000
+  connect-timeout: 5s
+  read-timeout: 60s
+
+gemini:
+  enabled: false
+  api-key: test-key
+  model: gemini-2.5-flash
+  base-url: https://generativelanguage.googleapis.com
+
+voice:
+  enabled: true
+  provider: gemini
+  max-audio-bytes: 10485760
+  max-duration-seconds: 60
+  request-timeout: 30s

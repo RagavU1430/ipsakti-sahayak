@@ -30,7 +30,7 @@ class RagClientTest {
 
         server.expect(requestTo("http://rag.test/api/v1/ask"))
                 .andExpect(method(HttpMethod.POST))
-                .andExpect(content().json("{\"question\":\"What is a trademark?\"}"))
+                .andExpect(content().json("{\"question\":\"What is a trademark?\",\"top_k\":8}"))
                 .andRespond(withSuccess("""
                         {
                           "answer": "Grounded answer",

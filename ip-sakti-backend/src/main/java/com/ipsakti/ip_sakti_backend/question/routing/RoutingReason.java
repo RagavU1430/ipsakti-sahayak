@@ -1,0 +1,13 @@
+package com.ipsakti.ip_sakti_backend.question.routing;
+
+public enum RoutingReason {
+    CASUAL_CONVERSATION,
+    GENERAL_KNOWLEDGE,
+    GENERAL_TASK,
+    LEGAL_HIGH_RISK_OVERRIDE,
+    DOMAIN_AUTHORITY_REQUIRED,
+    DOCUMENT_REFERENCE,
+    CONVERSATION_CONTEXT,
+    NEEDS_CLARIFICATION,
+    UNSUPPORTED_REQUEST
+}

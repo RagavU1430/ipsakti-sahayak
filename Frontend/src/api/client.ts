@@ -32,6 +32,8 @@ export async function request<T>(path: string, options: RequestInit = {}, auth: 
   }
   if (auth.devUserId) {
     headers.set('X-Dev-User-Id', auth.devUserId);
+  } else if (!auth.token) {
+    headers.set('X-Dev-User-Id', 'demo-user');
   }
 
   let response: Response;

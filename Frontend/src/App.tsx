@@ -11,19 +11,23 @@ import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegulatoryPage } from './pages/RegulatoryPage';
 import { TkOverlapPage } from './pages/TkOverlapPage';
+import { VoiceChatOverlay } from './components/VoiceChatOverlay';
+import { FeedbackModal } from './components/FeedbackModal';
 
 const navItems = [
-  { to: '/ask', label: 'Ask IP' },
-  { to: '/tk', label: 'TK Overlap' },
-  { to: '/formulations', label: 'Formulation' },
-  { to: '/regulatory', label: 'Regulatory' },
-  { to: '/history', label: 'History' },
-  { to: '/about', label: 'About' },
+  { to: '/ask', label: 'Ask Query', icon: 'add' },
+  { to: '/tk', label: 'TK Overlap', icon: 'eco' },
+  { to: '/formulations', label: 'Formulation', icon: 'science' },
+  { to: '/regulatory', label: 'Regulatory', icon: 'policy' },
+  { to: '/history', label: 'History', icon: 'history' },
+  { to: '/about', label: 'About', icon: 'info' },
 ];
 
 export function App() {
   const [session, setSession] = useState<Session>(() => readSession());
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isGlobalVoiceOpen, setIsGlobalVoiceOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const location = useLocation();
   const signedIn = isSignedIn(session);
 
@@ -42,57 +46,105 @@ export function App() {
   }
 
   return (
-    <div className="app-shell">
-      <header className="site-header">
-        <NavLink className="brand" to="/" aria-label="IP-SAKTI Sahayak home">
-          <span className="material-symbols-outlined">account_balance</span>
-          <span>IP-SAKTI Sahayak</span>
+    <div className="app-shell nyaya-shell">
+      <aside className="gov-sidebar" aria-label="Service navigation">
+        <NavLink className="new-query-button" to="/ask">
+          <span className="material-symbols-outlined">add</span>
+          புதிய கேள்வி
         </NavLink>
-        <button className="menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen}>
+
+        <button className="menu-button sidebar-menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen}>
           <span className="material-symbols-outlined">menu</span>
+          Menu
         </button>
-        <nav className={menuOpen ? 'site-nav open' : 'site-nav'} aria-label="Primary navigation">
+
+        <nav className={menuOpen ? 'portal-nav open' : 'portal-nav'} aria-label="Primary navigation">
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to}>
+              <span className="material-symbols-outlined">{item.icon}</span>
               {item.label}
             </NavLink>
           ))}
-          {signedIn ? <NavLink to="/account">Account</NavLink> : <NavLink className="button primary" style={{ minHeight: '36px', padding: '6px 16px' }} to="/login">Login</NavLink>}
+          {signedIn ? (
+            <NavLink to="/account">
+              <span className="material-symbols-outlined">account_circle</span>
+              Account
+            </NavLink>
+          ) : (
+            <NavLink to="/login">
+              <span className="material-symbols-outlined">login</span>
+              Login
+            </NavLink>
+          )}
         </nav>
-      </header>
 
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/ask" element={<AskPage auth={auth} signedIn={signedIn} />} />
-          <Route path="/tk" element={<TkOverlapPage auth={auth} />} />
-          <Route path="/formulations" element={<FormulationPage auth={auth} />} />
-          <Route path="/regulatory" element={<RegulatoryPage auth={auth} />} />
-          <Route path="/history" element={<Protected signedIn={signedIn}><HistoryPage auth={auth} /></Protected>} />
-          <Route path="/history/:id" element={<Protected signedIn={signedIn}><ConversationDetailPage auth={auth} /></Protected>} />
-          <Route path="/login" element={<LoginPage onLogin={handleLogin} signedIn={signedIn} />} />
-          <Route path="/account" element={<Protected signedIn={signedIn}><AccountPage session={session} onLogout={handleLogout} /></Protected>} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
+        <section className="justice-help-card" aria-label="Legal help resources">
+          <div className="justice-title">⚖️ நீதி மற்றும் நேர்மை</div>
+          <a href="https://doj.gov.in/" target="_blank" rel="noreferrer">Department of Justice</a>
+          <a href="https://www.tele-law.in/" target="_blank" rel="noreferrer">Tele-Law Portal</a>
+          <span>(Toll Free No-14454)</span>
+          <div className="hit-counter" aria-label="Number of hits">
+            <strong>Number of Hits</strong>
+            <div>
+              {'42252'.split('').map((digit, index) => <span key={`${digit}-${index}`}>{digit}</span>)}
+            </div>
+          </div>
+        </section>
 
-      <footer className="site-footer">
-        <div className="site-footer-content">
-          <div>
-            <div className="footer-brand">IP-SAKTI Sahayak</div>
-            <p className="footer-copy">
-              IP-SAKTI Sahayak provides evidence-backed information and is not a substitute for professional legal advice.
-            </p>
+        <button type="button" className="feedback-pill" onClick={() => setIsFeedbackOpen(true)} title="Send feedback or suggestions">
+          Feedback ★
+        </button>
+      </aside>
+
+      <section className="portal-workspace">
+        <header className="portal-topbar">
+          <NavLink className="portal-brand" to="/" aria-label="IP-SAKTI Sahayak home">
+            <span className="material-symbols-outlined">account_balance</span>
+            <span>IP-SAKTI Sahayak</span>
+          </NavLink>
+          <div className="topbar-actions">
+            <button
+              type="button"
+              className="live-voice-launch-btn compact"
+              onClick={() => setIsGlobalVoiceOpen(true)}
+              title="Launch Live Conversational Voice Assistant"
+            >
+              <span className="live-voice-pulse-dot" />
+              <span className="material-symbols-outlined">graphic_eq</span>
+              <span>Live Voice</span>
+            </button>
+            <NavLink className="home-pill" to="/">Home</NavLink>
           </div>
-          <div className="footer-links">
-            <NavLink to="/about">About</NavLink>
-            <NavLink to="/ask">Ask IP</NavLink>
-            <NavLink to="/tk">TK Overlap</NavLink>
-            <NavLink to="/regulatory">Regulatory</NavLink>
-          </div>
-        </div>
-      </footer>
+        </header>
+
+        <VoiceChatOverlay
+          isOpen={isGlobalVoiceOpen}
+          onClose={() => setIsGlobalVoiceOpen(false)}
+          auth={auth}
+        />
+
+        <FeedbackModal
+          isOpen={isFeedbackOpen}
+          onClose={() => setIsFeedbackOpen(false)}
+        />
+
+        <main className="portal-main">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/ask" element={<AskPage auth={auth} signedIn={signedIn} />} />
+            <Route path="/tk" element={<TkOverlapPage auth={auth} />} />
+            <Route path="/formulations" element={<FormulationPage auth={auth} />} />
+            <Route path="/formulation" element={<FormulationPage auth={auth} />} />
+            <Route path="/regulatory" element={<RegulatoryPage auth={auth} />} />
+            <Route path="/history" element={<Protected signedIn={signedIn}><HistoryPage auth={auth} /></Protected>} />
+            <Route path="/history/:id" element={<Protected signedIn={signedIn}><ConversationDetailPage auth={auth} /></Protected>} />
+            <Route path="/login" element={<LoginPage onLogin={handleLogin} signedIn={signedIn} />} />
+            <Route path="/account" element={<Protected signedIn={signedIn}><AccountPage session={session} onLogout={handleLogout} /></Protected>} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </section>
     </div>
   );
 }

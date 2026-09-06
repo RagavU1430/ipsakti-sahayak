@@ -1,11 +1,44 @@
+# Python caches
+.pytest_cache/
+**/.pytest_cache/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Environment variables & secrets
 .env
 .env.*
 !.env.example
-__pycache__/
-*.pyc
-.pytest_cache/
+ip-sakti-backend/.env
+ip-sakti-rag/.env
+
+# Virtual environments
 .venv/
+**/.venv/
+venv/
+**/venv/
+
+# Build/cache
 node_modules/
+**/node_modules/
 dist/
-.DS_Store
-.audit_tmp/
+**/dist/
+build/
+**/build/
+target/
+**/target/
+
+# Test/coverage
+.coverage
+coverage/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Local run logs (never commit)
+*.log
+**/*.log

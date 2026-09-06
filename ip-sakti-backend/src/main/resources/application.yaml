@@ -2,19 +2,32 @@ spring:
   application:
     name: ip-sakti-backend
 
+  servlet:
+    multipart:
+      max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:10MB}
+      max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:11MB}
+
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:ipsaktidb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH}
-    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres?sslmode=require}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres.enkutrmzkeeuehklpwde}
     password: ${SPRING_DATASOURCE_PASSWORD:${SUPABASE_DB_PASSWORD:}}
-    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 60000
+      connection-timeout: 20000
+      keepalive-time: 15000
 
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
     show-sql: ${SPRING_JPA_SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: ${SPRING_JPA_FORMAT_SQL:false}
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 # Supabase API keys (loaded from environment variables)
 supabase:
@@ -25,14 +38,15 @@ supabase:
 # RAG microservice connection
 rag:
   base-url: ${RAG_BASE_URL:http://localhost:8000}
-  connect-timeout: ${RAG_CONNECT_TIMEOUT:2s}
-  read-timeout: ${RAG_READ_TIMEOUT:20s}
+  connect-timeout: ${RAG_CONNECT_TIMEOUT:5s}
+  read-timeout: ${RAG_READ_TIMEOUT:60s}
+  default-top-k: ${RAG_TOP_K:8}
 
 app:
   security:
     mode: ${BACKEND_SECURITY_MODE:dev}
     api-key: ${BACKEND_API_KEY:}
-    allowed-origins: ${BACKEND_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+    allowed-origins: ${BACKEND_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000}
   jwt:
     issuer: ${BACKEND_JWT_ISSUER:ip-sakti-sahayak}
     secret: ${BACKEND_JWT_SECRET:}
@@ -46,6 +60,13 @@ gemini:
   base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
   connect-timeout: ${GEMINI_CONNECT_TIMEOUT:2s}
   read-timeout: ${GEMINI_READ_TIMEOUT:10s}
+
+voice:
+  enabled: ${VOICE_ENABLED:true}
+  max-audio-bytes: ${VOICE_MAX_AUDIO_BYTES:10485760}
+  request-timeout: ${VOICE_REQUEST_TIMEOUT:90s}
+  tts-model: ${GEMINI_TTS_MODEL:gemini-3.1-flash-tts-preview}
+  tts-voice: ${GEMINI_TTS_VOICE:Kore}
 
 server:
   port: ${SERVER_PORT:8080}

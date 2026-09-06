@@ -1,5 +1,6 @@
 package com.ipsakti.ip_sakti_backend.config;
 
+import com.ipsakti.ip_sakti_backend.voice.config.VoiceProperties;
 import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
         JwtProperties.class,
         RagProperties.class,
         SupabaseProperties.class,
-        SecurityProperties.class
+        SecurityProperties.class,
+        VoiceProperties.class
 })
 public class SecurityConfig {
 
@@ -70,12 +72,15 @@ public class SecurityConfig {
                                     "/ask",
                                     "/tk",
                                     "/formulations",
+                                    "/formulation",
                                     "/regulatory",
                                     "/history",
                                     "/history/**",
                                     "/login",
                                     "/account",
-                                    "/about"
+                                    "/about",
+                                    "/voice",
+                                    "/api/v1/voice/**"
                             ).permitAll()
                             .anyRequest().authenticated());
         } else {
@@ -99,20 +104,23 @@ public class SecurityConfig {
                             "/ask",
                             "/tk",
                             "/formulations",
+                            "/formulation",
                             "/regulatory",
                             "/history",
                             "/history/**",
                             "/login",
                             "/account",
                             "/about",
+                            "/voice",
                             "/api/v1/ask",
                             "/api/v1/questions",
-                            "/api/v1/questions/health",
-                            "/api/v1/tk/overlap",
-                            "/api/v1/formulations/classify",
-                            "/api/v1/regulatory/analyze"
+                            "/api/v1/questions/**",
+                            "/api/v1/voice/**",
+                            "/api/v1/tk/**",
+                            "/api/v1/formulations/**",
+                            "/api/v1/regulatory/**"
                     ).permitAll()
-                    .requestMatchers("/api/v1/conversations/**").authenticated()
+                    .requestMatchers("/api/v1/conversations", "/api/v1/conversations/**").authenticated()
                     .anyRequest().denyAll());
         }
 
@@ -123,9 +131,19 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource(SecurityProperties securityProperties) {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(securityProperties.getAllowedOrigins());
-        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-API-Key"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of(
+                "Content-Type",
+                "Authorization",
+                "X-API-Key",
+                "X-Dev-User-Id",
+                "X-User-Id",
+                "Accept",
+                "Origin",
+                "X-Requested-With"));
+        configuration.setExposedHeaders(List.of("Content-Type", "Authorization"));
         configuration.setAllowCredentials(false);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

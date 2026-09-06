@@ -69,6 +69,7 @@ class FullSystemIntegrationTest {
 
         // Default mock for translation service
         when(translationProvider.translate(any(), any(), any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(ragClient.checkHealth()).thenReturn(true);
     }
 
     @Test

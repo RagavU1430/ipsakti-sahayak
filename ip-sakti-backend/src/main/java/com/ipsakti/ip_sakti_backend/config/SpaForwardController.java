@@ -11,12 +11,14 @@ public class SpaForwardController {
             "/ask",
             "/tk",
             "/formulations",
+            "/formulation",
             "/regulatory",
             "/history",
             "/history/**",
             "/login",
             "/account",
-            "/about"
+            "/about",
+            "/voice"
     })
     public String forwardSpaRoutes() {
         return "forward:/index.html";

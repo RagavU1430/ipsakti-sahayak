@@ -26,6 +26,8 @@ public class FormulationRuleEngine {
         addIf(scores, FormulationClassification.CLASSICAL_DRUG, 1,
                 Boolean.TRUE.equals(request.traditionalUse()) || containsAny(text, "traditional", "classical", "churna",
                         "arishta", "asava", "avaleha", "ghrita", "taila", "kwath", "ayurved", "herbal", "herb", "bhasma", "vati", "rasayana", "ayush", "decoction", "powder"));
+        addIf(scores, FormulationClassification.CLASSICAL_DRUG, 2,
+                hasText(request.knownClassification()) && containsAny(request.knownClassification().toLowerCase(), "classical"));
 
         addIf(scores, FormulationClassification.PATENT_PROPRIETARY, 2,
                 containsAny(text, "proprietary", "modified", "novel", "synergy", "synergistic", "bioavailability", "nano", "liposomal",
@@ -34,6 +36,8 @@ public class FormulationRuleEngine {
         addIf(scores, FormulationClassification.PATENT_PROPRIETARY, 1,
                 containsAny(text, "patent", "ip protection", "commercial launch", "brand", "new process", "enhanced", "combination",
                         "blend", "extract blend", "active formulation", "joint care", "pain relief", "anti-inflammatory"));
+        addIf(scores, FormulationClassification.PATENT_PROPRIETARY, 2,
+                hasText(request.knownClassification()) && containsAny(request.knownClassification().toLowerCase(), "proprietary", "patent"));
 
         addIf(scores, FormulationClassification.PHYTOPHARMACEUTICAL_NEW_DRUG, 2,
                 containsAny(text, "standardized extract", "standardized fraction", "active constituent", "active marker", "marker compound",
@@ -42,6 +46,8 @@ public class FormulationRuleEngine {
         addIf(scores, FormulationClassification.PHYTOPHARMACEUTICAL_NEW_DRUG, 1,
                 containsAny(text, "plant derived active", "botanical extract", "therapeutic drug development", "isolated compound",
                         "fraction", "bioactive", "marker", "extract", "nanoparticle"));
+        addIf(scores, FormulationClassification.PHYTOPHARMACEUTICAL_NEW_DRUG, 2,
+                hasText(request.knownClassification()) && containsAny(request.knownClassification().toLowerCase(), "phytopharmaceutical", "botanical drug"));
 
         addIf(scores, FormulationClassification.AYURVEDA_AAHAR_NUTRACEUTICAL, 2,
                 containsAny(text, "food", "nutraceutical", "ayurveda aahar", "aahara", "dietary", "nutrition", "beverage", "tea",
@@ -49,6 +55,8 @@ public class FormulationRuleEngine {
         addIf(scores, FormulationClassification.AYURVEDA_AAHAR_NUTRACEUTICAL, 1,
                 containsAny(text, "supports", "wellness", "general health", "digestive support", "immunity support", "daily consumption",
                         "vitality", "health drink", "daily health", "dietary use", "refreshing", "nutritious", "digestion", "immunity"));
+        addIf(scores, FormulationClassification.AYURVEDA_AAHAR_NUTRACEUTICAL, 2,
+                hasText(request.knownClassification()) && containsAny(request.knownClassification().toLowerCase(), "aahar", "food", "nutraceutical"));
 
         addIf(scores, FormulationClassification.COSMETIC, 2,
                 containsAny(text, "cosmetic", "skin", "hair", "beauty", "appearance", "personal care", "topical", "face cream",
@@ -57,6 +65,8 @@ public class FormulationRuleEngine {
         addIf(scores, FormulationClassification.COSMETIC, 1,
                 containsAny(text, "glow", "fragrance", "cleansing", "moisturizing", "anti-dandruff", "brighten", "radiance",
                         "smoothness", "complexion", "shine", "gel"));
+        addIf(scores, FormulationClassification.COSMETIC, 2,
+                hasText(request.knownClassification()) && containsAny(request.knownClassification().toLowerCase(), "cosmetic", "personal care"));
 
         List<String> conflicts = conflicts(scores, text, request);
         List<String> missing = missingInformation(request);

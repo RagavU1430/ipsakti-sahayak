@@ -208,7 +208,6 @@ public class GeminiTranslationProvider implements TranslationProvider {
                         new GenerationConfig(0.1, 4000)
                 );
 
-                // Gemini uses query param key, not header. Configure RestClient with baseUrl, do POST to /v1beta/models/{model}:generateContent?key=API
                 String path = "/v1beta/models/" + model + ":generateContent?key=" + properties.getApiKey();
 
                 GeminiResponse response = restClient.post()

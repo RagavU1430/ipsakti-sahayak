@@ -1,28 +1,51 @@
 import type { QuestionResponse } from '../api/types';
 import { EvidenceList, formatConfidence } from './Evidence';
+import { FormattedText } from './FormattedText';
+import { AudioPlayerBar } from './AudioPlayerBar';
 
 export function QuestionResult({ result }: { result: QuestionResponse }) {
-  const indicator =
-    result.abstained ? 'Insufficient authoritative evidence' :
-    result.answerType === 'general_fallback' ? 'General information' :
-    'Evidence-backed answer';
+  const isAbstained = result.abstained;
+  const isFallback = result.route === 'GENERAL' || result.answerType === 'general_fallback';
+  const isEvidenceRoute = result.route === 'RAG' || (!result.route && !isFallback);
 
   return (
-    <section className="result-card" aria-label="Answer">
-      <div className={`trust-indicator ${result.abstained ? 'warning' : result.answerType === 'general_fallback' ? 'neutral' : 'success'}`}>
-        <span aria-hidden="true">{result.abstained ? '!' : result.answerType === 'general_fallback' ? 'i' : '✓'}</span>
-        {indicator}
+    <section className="reply-bubble-wrapper" aria-label="Answer">
+      {/* Avatar badge */}
+      <div className="reply-avatar">
+        <span>⚖️</span>
       </div>
-      <div className="result-section answer-block">
-        <h2>Answer</h2>
-        <div className="answer-text" style={{ whiteSpace: 'pre-line' }}>{result.answer}</div>
+
+      {/* Chat bubble */}
+      <div className={`reply-bubble ${isAbstained ? 'abstained' : isFallback ? 'fallback' : ''}`}>
+        {/* Trust badge row */}
+        <div className="reply-trust-row">
+          <span className={`reply-trust-badge ${isAbstained ? 'warning' : isFallback ? 'neutral' : 'success'}`}>
+            {isAbstained ? '⚠️ Insufficient evidence' : isFallback ? 'ℹ️ General information' : '✅ Evidence-backed'}
+          </span>
+          {typeof result.confidence === 'number' ? (
+            <span className="reply-confidence">{formatConfidence(result.confidence)}</span>
+          ) : null}
+        </div>
+
+        {/* Answer text */}
+        <FormattedText className="reply-answer-text" content={result.answer} />
+
+        {/* Meta pills */}
+        <div className="reply-meta-pills">
+          <span className="reply-meta-pill">📍 {result.jurisdiction}</span>
+          <span className="reply-meta-pill">🌐 {result.language?.toUpperCase()}</span>
+        </div>
+
+        {/* Audio player */}
+        <AudioPlayerBar
+          text={result.answer}
+          language={result.language}
+          label="Answer audio playback"
+        />
+
+        {/* Citations & Evidence */}
+        {isEvidenceRoute ? <EvidenceList citations={result.citations} sources={result.sources} /> : null}
       </div>
-      <div className="meta-row">
-        <span><strong>Confidence</strong> {formatConfidence(result.confidence)}</span>
-        <span><strong>Jurisdiction</strong> {result.jurisdiction}</span>
-        <span><strong>Language</strong> {result.language}</span>
-      </div>
-      <EvidenceList citations={result.citations} sources={result.sources} />
     </section>
   );
 }

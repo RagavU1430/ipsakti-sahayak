@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from app.models import Jurisdiction, QueryAnalysis
-from app.legal_aliases import document_hint_score, text_supports_identifier
+from app.legal_aliases import document_hint_ids, document_hint_score, text_supports_identifier
 
 
 TOKEN_RE = re.compile(r"[a-z0-9]+(?:\([a-z0-9]+\))?", re.IGNORECASE)
@@ -32,7 +32,7 @@ class LocalCorpusStore:
 
     def _eligible(self, chunk: dict[str, Any], analysis: QueryAnalysis) -> bool:
         jurisdiction_ok = analysis.jurisdiction == Jurisdiction.BOTH or chunk["jurisdiction"] == analysis.jurisdiction.value
-        domain_ok = not analysis.domains or chunk["domain"] in analysis.domains or (
+        domain_ok = not analysis.domains or "IP" in analysis.domains or chunk["domain"] in analysis.domains or (
             analysis.jurisdiction == Jurisdiction.INTERNATIONAL and chunk["domain"] == "INTERNATIONAL"
         )
         return jurisdiction_ok and domain_ok
@@ -59,7 +59,7 @@ class LocalCorpusStore:
             score += _title_intent_boost(chunk, analysis, lexical=True)
             if score:
                 results.append({**chunk, "lexical_score": score})
-        return sorted(results, key=lambda item: item["lexical_score"], reverse=True)[:count]
+        return _include_hinted_documents(results, self.chunks, analysis, "lexical_score", count)
 
     def vector_search(self, analysis: QueryAnalysis, count: int) -> list[dict[str, Any]]:
         # Hashed TF-IDF cosine provides a deterministic local vector signal. The
@@ -88,7 +88,7 @@ class LocalCorpusStore:
             score += _title_intent_boost(chunk, analysis, lexical=False)
             if score:
                 results.append({**chunk, "vector_score": score})
-        return sorted(results, key=lambda item: item["vector_score"], reverse=True)[:count]
+        return _include_hinted_documents(results, self.chunks, analysis, "vector_score", count)
 
 
 def _identifier_match(chunk: dict[str, Any], analysis: QueryAnalysis) -> bool:
@@ -155,3 +155,41 @@ def _title_intent_boost(chunk: dict[str, Any], analysis: QueryAnalysis, *, lexic
     if analysis.intent == "purpose" and chunk.get("document_type") == "ACT":
         boost += 3.0 if lexical else 0.14
     return boost
+
+
+def _include_hinted_documents(
+    results: list[dict[str, Any]],
+    chunks: list[dict[str, Any]],
+    analysis: QueryAnalysis,
+    score_field: str,
+    count: int,
+) -> list[dict[str, Any]]:
+    """Guarantee an explicitly named source is available to the reranker.
+
+    A single treaty or a coarse Act chunk can have weak lexical/vector overlap
+    even when the user names it exactly. Dropping it before reranking makes the
+    system answer from a more generic but wrong source.
+    """
+    hinted = set(document_hint_ids(analysis.query))
+    if not hinted:
+        return sorted(results, key=lambda item: item[score_field], reverse=True)[:count]
+    by_id = {item["chunk_id"]: item for item in results}
+    for chunk in chunks:
+        if chunk.get("document_id") not in hinted or not _eligible_chunk(chunk, analysis):
+            continue
+        if chunk["chunk_id"] not in by_id:
+            row = {**chunk, score_field: 0.0}
+            if score_field == "lexical_score":
+                row[score_field] = 25.0
+            else:
+                row[score_field] = 1.0
+            by_id[row["chunk_id"]] = row
+    return sorted(by_id.values(), key=lambda item: item[score_field], reverse=True)[:count]
+
+
+def _eligible_chunk(chunk: dict[str, Any], analysis: QueryAnalysis) -> bool:
+    jurisdiction_ok = analysis.jurisdiction == Jurisdiction.BOTH or chunk["jurisdiction"] == analysis.jurisdiction.value
+    domain_ok = not analysis.domains or "IP" in analysis.domains or chunk["domain"] in analysis.domains or (
+        analysis.jurisdiction == Jurisdiction.INTERNATIONAL and chunk["domain"] == "INTERNATIONAL"
+    )
+    return jurisdiction_ok and domain_ok

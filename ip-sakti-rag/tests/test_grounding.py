@@ -72,6 +72,8 @@ def test_natural_language_queries_ground_to_expected_domains(service) -> None:
     assert not logo.abstained and logo.domain == "TRADEMARK"
     song = service.query(QueryRequest(query="I created an original song. What kind of IP protection applies?"))
     assert not song.abstained and song.domain == "COPYRIGHT"
+    broad_ip = service.query(QueryRequest(query="i want to know about the IP rules in India"))
+    assert not broad_ip.abstained and broad_ip.domain == "IP" and len(broad_ip.citations) > 0
 
 
 def test_exact_supported_query_and_nonexistent_section(service) -> None:

@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ipsakti.ip_sakti_backend.config.SecurityConfig;
+import com.ipsakti.ip_sakti_backend.formulation.AyurvedaProductReadinessService;
 import com.ipsakti.ip_sakti_backend.formulation.FormulationClassificationService;
 import com.ipsakti.ip_sakti_backend.formulation.classification.FormulationClarificationService;
 import com.ipsakti.ip_sakti_backend.formulation.classification.FormulationRuleEngine;
@@ -29,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({
         SecurityConfig.class,
         FormulationClassificationService.class,
+        AyurvedaProductReadinessService.class,
         FormulationRuleEngine.class,
         FormulationClarificationService.class,
         RegulatoryRouteService.class,

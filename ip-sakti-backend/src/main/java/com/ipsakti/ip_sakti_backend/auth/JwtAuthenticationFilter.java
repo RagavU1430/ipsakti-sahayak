@@ -65,14 +65,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             if (devUserId != null && !devUserId.isBlank()) {
-                UserEntity user = userService.getOrCreateUser(
-                        devUserId.trim(),
-                        devUserId.trim() + "@dev.local",
-                        "Dev User " + devUserId.trim()
-                );
-                UserPrincipal principal = UserPrincipal.of(user.getId(), user.getExternalAuthId(), user.getEmail());
-                SecurityContextHolder.getContext().setAuthentication(principal);
-                log.debug("dev_header_auth_success externalAuthId={} userId={}", user.getExternalAuthId(), user.getId());
+                try {
+                    UserEntity user = userService.getOrCreateUser(
+                            devUserId.trim(),
+                            devUserId.trim() + "@dev.local",
+                            "Dev User " + devUserId.trim()
+                    );
+                    UserPrincipal principal = UserPrincipal.of(user.getId(), user.getExternalAuthId(), user.getEmail());
+                    SecurityContextHolder.getContext().setAuthentication(principal);
+                    log.debug("dev_header_auth_success externalAuthId={} userId={}", user.getExternalAuthId(), user.getId());
+                } catch (Exception ex) {
+                    log.warn("dev_header_auth_db_fallback: unable to persist dev user in db ({}), using ephemeral principal", ex.getMessage());
+                    java.util.UUID fallbackId = java.util.UUID.nameUUIDFromBytes(devUserId.trim().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    UserPrincipal principal = UserPrincipal.of(fallbackId, devUserId.trim(), devUserId.trim() + "@dev.local");
+                    SecurityContextHolder.getContext().setAuthentication(principal);
+                }
             }
         }
 

@@ -4,6 +4,7 @@ import type { AuthHeaders } from '../api/client';
 import type { Language, TkOverlapResponse } from '../api/types';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { EvidenceList, formatConfidence } from '../components/Evidence';
+import { FormattedText } from '../components/FormattedText';
 import { LanguageSelect, TextArea } from '../components/FormControls';
 import { LoadingSteps } from '../components/LoadingSteps';
 
@@ -81,7 +82,7 @@ function TkOverlapResult({ result }: { result: TkOverlapResponse }) {
 
       <div className="result-section answer-block">
         <h2>Assessment</h2>
-        <div className="answer-text" style={{ whiteSpace: 'pre-line' }}>{result.explanation}</div>
+        <FormattedText className="answer-text" content={result.explanation} />
       </div>
 
       <div className="meta-row">

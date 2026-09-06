@@ -1,13 +1,17 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { QuestionResult } from './ResultCard';
 import type { QuestionResponse } from '../api/types';
 
 describe('QuestionResult', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it('shows grounded trust indicator and preserves citation metadata', () => {
     render(<QuestionResult result={response()} />);
 
-    expect(screen.getByText('Evidence-backed answer')).toBeInTheDocument();
+    expect(screen.getByText(/Evidence-backed/i)).toBeInTheDocument();
     expect(screen.getByText('Trade Marks Act, 1999')).toBeInTheDocument();
     expect(screen.getAllByText('IND-TM-ACT-1999')).toHaveLength(2);
     expect(screen.getByText('91%')).toBeInTheDocument();
@@ -17,7 +21,7 @@ describe('QuestionResult', () => {
     const abstained = { ...response(), answerType: 'abstained', abstained: true, citations: [], sources: [] } as QuestionResponse;
     render(<QuestionResult result={abstained} />);
 
-    expect(screen.getByText('Insufficient authoritative evidence')).toBeInTheDocument();
+    expect(screen.getByText(/Insufficient evidence/i)).toBeInTheDocument();
     expect(screen.getByText('No citations returned by the backend.')).toBeInTheDocument();
   });
 });

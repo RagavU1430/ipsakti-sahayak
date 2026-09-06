@@ -1,6 +1,8 @@
 package com.ipsakti.ip_sakti_backend.config;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +17,10 @@ public class RagProperties {
     private Duration connectTimeout = Duration.ofSeconds(2);
 
     private Duration readTimeout = Duration.ofSeconds(20);
+
+    @Min(1)
+    @Max(20)
+    private int defaultTopK = 8;
 
     public String getBaseUrl() {
         return baseUrl;
@@ -38,5 +44,13 @@ public class RagProperties {
 
     public void setReadTimeout(Duration readTimeout) {
         this.readTimeout = readTimeout;
+    }
+
+    public int getDefaultTopK() {
+        return defaultTopK;
+    }
+
+    public void setDefaultTopK(int defaultTopK) {
+        this.defaultTopK = defaultTopK;
     }
 }

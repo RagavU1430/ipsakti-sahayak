@@ -5,8 +5,12 @@ import { askInConversation, deleteConversation, getConversation } from '../api/c
 import type { ConversationDetail, Jurisdiction, Language } from '../api/types';
 import { ErrorNotice } from '../components/ErrorNotice';
 import { EvidenceList, formatConfidence } from '../components/Evidence';
+import { FormattedText } from '../components/FormattedText';
 import { JurisdictionSelect, LanguageSelect, TextArea } from '../components/FormControls';
 import { LoadingSteps } from '../components/LoadingSteps';
+import { MicButton } from '../components/VoiceAssistantControls';
+import { AudioPlayerBar } from '../components/AudioPlayerBar';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 
 export function ConversationDetailPage({ auth }: { auth: AuthHeaders }) {
   const { id } = useParams();
@@ -18,6 +22,11 @@ export function ConversationDetailPage({ auth }: { auth: AuthHeaders }) {
   const [error, setError] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+
+  const { isListening, toggleListening, error: speechError, clearError } = useSpeechRecognition({
+    language,
+    onTranscriptChange: (text) => setQuestion(text),
+  });
 
   useEffect(() => {
     if (!id) return;
@@ -69,12 +78,22 @@ export function ConversationDetailPage({ auth }: { auth: AuthHeaders }) {
             {conversation.messages.map((message) => (
               <article className={`message ${message.role}`} key={message.id}>
                 <p className="message-role">{message.role === 'user' ? 'User question' : 'Assistant answer'}</p>
-                <p>{message.content}</p>
+                <FormattedText content={message.content} />
                 {message.role === 'assistant' ? (
                   <>
-                    <div className="meta-row">
-                      <span><strong>Confidence</strong> {formatConfidence(message.confidence)}</span>
-                      <span><strong>Type</strong> {message.response_type || 'n/a'}</span>
+                    <div style={{ marginTop: '10px' }}>
+                      <AudioPlayerBar
+                        text={message.content}
+                        language={(message.language as Language) || language}
+                        label="Assistant message audio playback"
+                        auth={auth}
+                      />
+                    </div>
+                    <div className="meta-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: '16px' }}>
+                        <span><strong>Confidence</strong> {formatConfidence(message.confidence)}</span>
+                        <span><strong>Type</strong> {message.response_type || 'n/a'}</span>
+                      </div>
                     </div>
                     <EvidenceList citations={message.citations} sources={message.sources} />
                   </>
@@ -131,18 +150,28 @@ export function ConversationDetailPage({ auth }: { auth: AuthHeaders }) {
                   </label>
                 </div>
 
-                <button
-                  className={`claude-send-btn ${question.trim() ? 'active' : ''}`}
-                  disabled={sending || !question.trim()}
-                  type="submit"
-                  aria-label="Send question"
-                  title="Send (Enter)"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="19" x2="12" y2="5" />
-                    <polyline points="5 12 12 5 19 12" />
-                  </svg>
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <MicButton
+                    isListening={isListening}
+                    onToggle={toggleListening}
+                    disabled={sending}
+                    language={language}
+                    errorMessage={speechError}
+                    onClearError={clearError}
+                  />
+                  <button
+                    className={`claude-send-btn ${question.trim() ? 'active' : ''}`}
+                    disabled={sending || !question.trim()}
+                    type="submit"
+                    aria-label="Send question"
+                    title="Send (Enter)"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="19" x2="12" y2="5" />
+                      <polyline points="5 12 12 5 19 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
             <div className="claude-footer-hint">

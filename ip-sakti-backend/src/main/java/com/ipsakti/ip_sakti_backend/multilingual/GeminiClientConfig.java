@@ -1,6 +1,8 @@
 package com.ipsakti.ip_sakti_backend.multilingual;
 
 import com.ipsakti.ip_sakti_backend.config.GeminiProperties;
+import com.ipsakti.ip_sakti_backend.question.general.GeneralLlmProvider;
+import com.ipsakti.ip_sakti_backend.question.general.GeminiGeneralLlmProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -24,5 +26,10 @@ public class GeminiClientConfig {
     @Bean
     TranslationProvider geminiTranslationProvider(RestClient geminiRestClient, GeminiProperties properties) {
         return new GeminiTranslationProvider(geminiRestClient, properties);
+    }
+
+    @Bean
+    GeneralLlmProvider geminiGeneralLlmProvider(RestClient geminiRestClient, GeminiProperties properties) {
+        return new GeminiGeneralLlmProvider(geminiRestClient, properties);
     }
 }

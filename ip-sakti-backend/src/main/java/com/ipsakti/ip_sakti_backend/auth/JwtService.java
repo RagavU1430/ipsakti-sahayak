@@ -23,7 +23,7 @@ public class JwtService {
 
     private static final Logger log = LoggerFactory.getLogger(JwtService.class);
     private static final String HMAC_ALGORITHM = "HmacSHA256";
-    private static final String DEV_FALLBACK_SECRET = "ip-sakti-dev-jwt-signing-secret-key-32bytes-long!";
+    private static final long CLOCK_SKEW_SECONDS = 5;
 
     private final JwtProperties jwtProperties;
     private final SupabaseProperties supabaseProperties;
@@ -59,9 +59,28 @@ public class JwtService {
         String payloadB64 = parts[1];
         String signatureB64 = parts[2];
 
-        byte[] secretBytes = resolveSecretBytes();
+        // Defense-in-depth: reject alg=none and non-HS256
+        try {
+            byte[] headerBytes = Base64.getUrlDecoder().decode(headerB64);
+            Map<String, Object> header = objectMapper.readValue(headerBytes, new TypeReference<Map<String, Object>>() {});
+            Object alg = header.get("alg");
+            if (!"HS256".equals(alg)) {
+                log.debug("jwt_unsupported_alg alg={}", alg);
+                return Optional.empty();
+            }
+        } catch (Exception e) {
+            log.debug("jwt_header_parse_failed");
+            return Optional.empty();
+        }
+
+        byte[] secretBytes;
+        try {
+            secretBytes = resolveSecretBytes();
+        } catch (IllegalStateException e) {
+            log.warn("jwt_no_secret_configured");
+            return Optional.empty();
+        }
         if (!verifySignature(headerB64 + "." + payloadB64, signatureB64, secretBytes)) {
-            // Also check if signed by anon-key or fallback key if different
             byte[] anonSecretBytes = resolveAnonSecretBytes();
             if (anonSecretBytes == null || !verifySignature(headerB64 + "." + payloadB64, signatureB64, anonSecretBytes)) {
                 log.debug("jwt_signature_verification_failed");
@@ -73,22 +92,41 @@ public class JwtService {
             byte[] payloadBytes = Base64.getUrlDecoder().decode(payloadB64);
             Map<String, Object> claims = objectMapper.readValue(payloadBytes, new TypeReference<Map<String, Object>>() {});
 
-            // Validate expiration
+            // Validate expiration with clock skew
             if (claims.containsKey("exp")) {
-                long exp = ((Number) claims.get("exp")).longValue();
+                Object expObj = claims.get("exp");
+                if (!(expObj instanceof Number)) {
+                    log.debug("jwt_invalid_exp_type");
+                    return Optional.empty();
+                }
+                long exp = ((Number) expObj).longValue();
                 Instant expiration = Instant.ofEpochSecond(exp);
-                if (Instant.now().isAfter(expiration)) {
+                if (Instant.now().isAfter(expiration.plusSeconds(CLOCK_SKEW_SECONDS))) {
                     log.debug("jwt_token_expired exp={}", expiration);
                     return Optional.empty();
                 }
             }
 
-            // Validate not before
+            // Validate not before with clock skew
             if (claims.containsKey("nbf")) {
-                long nbf = ((Number) claims.get("nbf")).longValue();
+                Object nbfObj = claims.get("nbf");
+                if (!(nbfObj instanceof Number)) {
+                    log.debug("jwt_invalid_nbf_type");
+                    return Optional.empty();
+                }
+                long nbf = ((Number) nbfObj).longValue();
                 Instant notBefore = Instant.ofEpochSecond(nbf);
-                if (Instant.now().isBefore(notBefore)) {
+                if (Instant.now().isBefore(notBefore.minusSeconds(CLOCK_SKEW_SECONDS))) {
                     log.debug("jwt_token_not_yet_valid nbf={}", notBefore);
+                    return Optional.empty();
+                }
+            }
+
+            // Validate issuer
+            if (claims.containsKey("iss")) {
+                String iss = String.valueOf(claims.get("iss"));
+                if (!jwtProperties.getIssuer().equals(iss)) {
+                    log.debug("jwt_invalid_issuer iss={}", iss);
                     return Optional.empty();
                 }
             }
@@ -147,9 +185,10 @@ public class JwtService {
         }
         String serviceRoleKey = supabaseProperties.getServiceRoleKey();
         if (serviceRoleKey != null && !serviceRoleKey.isBlank()) {
+            log.warn("jwt_using_supabase_service_role_as_fallback - configure BACKEND_JWT_SECRET explicitly");
             return serviceRoleKey.getBytes(StandardCharsets.UTF_8);
         }
-        return DEV_FALLBACK_SECRET.getBytes(StandardCharsets.UTF_8);
+        throw new IllegalStateException("No JWT secret configured: set BACKEND_JWT_SECRET");
     }
 
     private byte[] resolveAnonSecretBytes() {
@@ -162,11 +201,10 @@ public class JwtService {
 
     private boolean verifySignature(String data, String signatureB64, byte[] secret) {
         try {
-            String expectedSignature = sign(data, secret);
-            return MessageDigest.isEqual(
-                    signatureB64.getBytes(StandardCharsets.UTF_8),
-                    expectedSignature.getBytes(StandardCharsets.UTF_8)
-            );
+            String expectedSignatureB64 = sign(data, secret);
+            byte[] provided = Base64.getUrlDecoder().decode(signatureB64);
+            byte[] expected = Base64.getUrlDecoder().decode(expectedSignatureB64);
+            return MessageDigest.isEqual(provided, expected);
         } catch (Exception e) {
             return false;
         }

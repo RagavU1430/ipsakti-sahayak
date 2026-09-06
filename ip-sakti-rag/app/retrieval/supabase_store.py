@@ -16,7 +16,7 @@ class SupabaseCorpusStore:
     def _filters(analysis: QueryAnalysis) -> dict[str, Any]:
         return {
             "jurisdiction": None if analysis.jurisdiction == Jurisdiction.BOTH else analysis.jurisdiction.value,
-            "domains": analysis.domains or None,
+            "domains": None if "IP" in (analysis.domains or []) else (analysis.domains or None),
             "language": analysis.language,
         }
 

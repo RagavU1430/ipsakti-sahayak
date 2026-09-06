@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>dotenv-java</name>
+  <description>Environment based config for the JVM</description>
+  <url>https://github.com/cdimascio/dotenv-java</url>
+
+
+  <groupId>io.github.cdimascio</groupId>
+  <artifactId>dotenv-java</artifactId>
+  <version>3.0.0</version>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+      <comments>A business-friendly OSS license</comments>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Carmine DiMascio OSS</name>
+    <url>https://github.com/cdimascio</url>
+  </organization>
+
+  <scm>
+    <connection>scm:github:https://github.com/cdimascio/dotenv-java</connection>
+    <developerConnection>scm:github:https://github.com/cdimascio/dotenv-java</developerConnection>
+    <tag>master</tag>
+    <url>https://github.com/cdimascio/dotenv-java</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>cdimascio</id>
+      <name>Carmine DiMascio</name>
+      <email>cdimascio@gmail.com</email>
+      <url>https://www.github.com/cdimascio</url>
+      <organization>Carmine DiMascio OSS</organization>
+      <organizationUrl>https://www.github.com/cdimascio</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>America/New_York</timezone>
+    </developer>
+  </developers>
+
+
+  <properties>
+    <main.class>io.github.cdimascio.dotenv.Dotenv</main.class>
+    <module.name>io.github.cdimascio.dotenv.java</module.name>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <maven.compiler.release>11</maven.compiler.release>
+
+    <javadoc.dir>docs/javadoc</javadoc.dir>
+
+    <junit.version>5.9.2</junit.version>
+
+    <maven.enforcer.plugin>3.3.0</maven.enforcer.plugin>
+    <maven.compiler.plugin>3.11.0</maven.compiler.plugin>
+    <maven.source.plugin>3.2.1</maven.source.plugin>
+    <maven.javadoc.plugin>3.5.0</maven.javadoc.plugin>
+    <maven.surefire.plugin>3.0.0</maven.surefire.plugin>
+    <maven.jacoco.plugin>0.8.10</maven.jacoco.plugin>
+    <maven.copy.rename.plugin>1.0.1</maven.copy.rename.plugin>
+    <maven.moditect.plugin>1.0.0.RC3</maven.moditect.plugin>
+
+    <bintray.subject>cdimascio</bintray.subject>
+    <bintray.repo>maven</bintray.repo>
+    <bintray.package>dotenv-java</bintray.package>
+  </properties>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jcenter</id>
+      <name>JCenter</name>
+      <url>https://jcenter.bintray.com/</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${maven.enforcer.plugin}</version>
+        <executions>
+          <execution>
+            <id>display-info</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>display-info</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>enforce-java</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>11</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin}</version>
+      </plugin>
+
+      <!-- add module-info -->
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+        <version>${maven.moditect.plugin}</version>
+        <executions>
+          <execution>
+            <id>add-module-info</id>
+            <phase>package</phase>
+            <goals>
+              <goal>add-module-info</goal>
+            </goals>
+            <configuration>
+              <module>
+                <moduleInfo>
+                  <name>${module.name}</name>
+                  <exports>
+                    !io.github.cdimascio.dotenv.internal*;
+                    *;
+                  </exports>
+                </moduleInfo>
+              </module>
+              <overwriteExistingFiles>true</overwriteExistingFiles>
+              <failOnWarning>false</failOnWarning>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- delete the javadoc dir -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>create-javadoc-dir</id>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <delete dir="${javadoc.dir}"/>
+                <mkdir dir="${javadoc.dir}"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- plugin for tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.plugin}</version>
+        <configuration>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+
+      <!-- build javadoc jar -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>${maven.source.plugin}</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- build the javadoc -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven.javadoc.plugin}</version>
+        <configuration>
+          <source>${compile.javadoc.source}</source>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- generate coverage report -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${maven.jacoco.plugin}</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- copy pom to target -->
+      <plugin>
+        <groupId>com.coderplus.maven.plugins</groupId>
+        <artifactId>copy-rename-maven-plugin</artifactId>
+        <version>${maven.copy.rename.plugin}</version>
+        <executions>
+          <execution>
+            <id>copy-file</id>
+            <phase>install</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <fileSets>
+                <fileSet>
+                  <sourceFile>${project.basedir}/pom.xml</sourceFile>
+                  <destinationFile>${project.build.directory}/${project.artifactId}-${project.version}.pom</destinationFile>
+                </fileSet>
+              </fileSets>
+            </configuration>
+          </execution>
+          <!--          <execution>-->
+          <!--            <id>rename-dir</id>-->
+          <!--            <phase>install</phase>-->
+          <!--            <goals>-->
+          <!--              <goal>rename</goal>-->
+          <!--            </goals>-->
+          <!--            <configuration>-->
+          <!--              <fileSets>-->
+          <!--                <fileSet>-->
+          <!--                  <sourceFile>${project.build.directory}/apidocs/</sourceFile>-->
+          <!--                  <destinationFile>${project.basedir}/docs/javadoc/</destinationFile>-->
+          <!--                </fileSet>-->
+          <!--              </fileSets>-->
+          <!--            </configuration>-->
+          <!--          </execution>-->
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.13</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <!--    <repository>-->
+    <!--          <id>github</id>-->
+    <!--          <name>Carmine M DiMascio</name>-->
+    <!--          <url>https://maven.pkg.github.com/cdimascio/dotenv-java</url>-->
+    <!--        </repository>-->
+  </distributionManagement>
+  <profiles>
+    <profile>
+      <id>release-sign-artifacts</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.0.1</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

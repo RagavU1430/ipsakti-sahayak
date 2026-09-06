@@ -3,6 +3,7 @@ import type { AuthHeaders } from '../api/client';
 import { analyzeRegulatory } from '../api/regulatory';
 import type { Jurisdiction, Language, RegulatoryAnalysisResponse } from '../api/types';
 import { ErrorNotice } from '../components/ErrorNotice';
+import { FormattedText } from '../components/FormattedText';
 import { CheckboxField, JurisdictionSelect, LanguageSelect, TextArea, TextField } from '../components/FormControls';
 import { EvidenceList, formatConfidence } from '../components/Evidence';
 import { LoadingSteps } from '../components/LoadingSteps';
@@ -156,7 +157,7 @@ function RegulatoryResult({ result }: { result: RegulatoryAnalysisResponse }) {
         </div>
 
         {/* Reason / Guidance */}
-        <p className="result-reason">{result.reason}</p>
+        <FormattedText className="result-reason" content={result.reason} />
 
         {/* Clarification Questions */}
         {result.questions?.length ? (
@@ -180,7 +181,7 @@ function RegulatoryResult({ result }: { result: RegulatoryAnalysisResponse }) {
                   {engine.status.replace(/_/g, ' ')}
                 </span>
               </div>
-              <p style={{ fontSize: '13px', margin: '0 0 8px', color: 'var(--on-surface)', lineHeight: 1.5 }}>{engine.reason}</p>
+              <FormattedText style={{ fontSize: '13px', margin: '0 0 8px', color: 'var(--on-surface)', lineHeight: 1.5 }} content={engine.reason} />
               {engine.considerations?.length ? (
                 <ul style={{ margin: '0 0 8px', paddingLeft: '18px', fontSize: '12.5px', color: 'var(--secondary)' }}>
                   {engine.considerations.map((item) => (

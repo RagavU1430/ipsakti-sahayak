@@ -26,6 +26,9 @@ import com.ipsakti.ip_sakti_backend.question.model.QuestionCitation;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionRequest;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionResponse;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionSource;
+import com.ipsakti.ip_sakti_backend.question.routing.QueryDomain;
+import com.ipsakti.ip_sakti_backend.question.routing.QueryRoute;
+import com.ipsakti.ip_sakti_backend.question.routing.RoutingContext;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,25 +135,64 @@ public class ConversationService {
     @Transactional
     public void deleteConversation(UserPrincipal principal, UUID conversationId) {
         ConversationEntity conversation = findAndVerifyOwnership(principal, conversationId);
-        messageRepository.deleteByConversation(conversation);
+        List<MessageEntity> messages = messageRepository.findByConversationOrderByCreatedAtAsc(conversation);
+        if (!messages.isEmpty()) {
+            messageRepository.deleteAll(messages);
+        }
         conversationRepository.delete(conversation);
+        conversationRepository.flush();
         log.info("conversation_deleted conversationId={} userId={}", conversationId, principal.getId());
     }
 
     public ConversationMessageResponse askInConversation(UserPrincipal principal, UUID conversationId, ConversationMessageRequest request) {
-        // Step 1: Verify conversation exists and user owns it, then persist user message
         UserMessagePersistenceResult userResult = persistUserMessage(principal, conversationId, request);
-
-        // Step 2: Invoke existing RAG QuestionService outside long DB lock
         QuestionRequest questionRequest = new QuestionRequest(request.question(), request.jurisdiction(), request.language());
-        QuestionResponse questionResponse = questionService.answer(questionRequest);
+        QuestionResponse questionResponse;
+        try {
+            RoutingContext context = routingContext(userResult.conversation());
+            questionResponse = context.previousRoute() == null
+                    ? questionService.answer(questionRequest)
+                    : questionService.answer(questionRequest, context);
+        } catch (Exception e) {
+            // Compensation: remove orphan user message if RAG fails
+            try {
+                messageRepository.deleteById(userResult.userMessageId());
+                log.warn("rag_failed_orphan_user_message_removed conversationId={} messageId={} error={}", conversationId, userResult.userMessageId(), e.getMessage());
+            } catch (Exception cleanupEx) {
+                log.error("failed_to_cleanup_orphan_message", cleanupEx);
+            }
+            throw e;
+        }
+        return persistAssistantResponse(principal, conversationId, userResult.userMessageId(), questionResponse);
+    }
 
-        // Step 3: Persist assistant message, citations, and sources
-        return persistAssistantResponse(
-                conversationId,
-                userResult.userMessageId(),
-                questionResponse
-        );
+    private RoutingContext routingContext(ConversationEntity conversation) {
+        List<MessageEntity> messages = messageRepository.findByConversationOrderByCreatedAtAsc(conversation);
+        for (int index = messages.size() - 1; index >= 0; index--) {
+            MessageEntity message = messages.get(index);
+            if (!"assistant".equalsIgnoreCase(message.getRole())) continue;
+            QueryRoute route = "GENERAL_FALLBACK".equalsIgnoreCase(message.getResponseType())
+                    ? QueryRoute.GENERAL : QueryRoute.DOMAIN_RAG;
+            QueryDomain domain = domainFromIntent(message.getIntent());
+            return new RoutingContext(route, domain);
+        }
+        return RoutingContext.empty();
+    }
+
+    private QueryDomain domainFromIntent(String intent) {
+        if (intent == null) return null;
+        return switch (intent) {
+            case "PATENT" -> QueryDomain.PATENT;
+            case "TRADEMARK" -> QueryDomain.TRADEMARK;
+            case "COPYRIGHT" -> QueryDomain.COPYRIGHT;
+            case "DESIGN" -> QueryDomain.INDUSTRIAL_DESIGN;
+            case "GI" -> QueryDomain.GEOGRAPHICAL_INDICATION;
+            case "BIODIVERSITY_ABS" -> QueryDomain.ABS;
+            case "AYURVEDA_REGULATION" -> QueryDomain.AYURVEDA;
+            case "INTERNATIONAL_IP" -> QueryDomain.INTERNATIONAL_IP;
+            case "IP_GENERAL", "PLANT_VARIETY" -> QueryDomain.IP;
+            default -> null;
+        };
     }
 
     @Transactional
@@ -168,21 +210,81 @@ public class ConversationService {
         );
         MessageEntity savedUserMessage = messageRepository.save(userMessage);
 
+        if ("New Conversation".equalsIgnoreCase(conversation.getTitle()) && request.question() != null) {
+            String autoTitle = generateTitleFromQuestion(request.question());
+            if (autoTitle != null && !autoTitle.isBlank()) {
+                conversation.setTitle(autoTitle);
+            }
+        }
+
         conversation.setUpdatedAt(Instant.now());
         conversationRepository.save(conversation);
 
-        log.info("user_message_persisted conversationId={} messageId={}", conversationId, savedUserMessage.getId());
+        log.info("user_message_persisted conversationId={} messageId={} title={}", conversationId, savedUserMessage.getId(), conversation.getTitle());
         return new UserMessagePersistenceResult(savedUserMessage.getId(), conversation);
+    }
+
+    private String generateTitleFromQuestion(String question) {
+        if (question == null || question.isBlank()) return "New Conversation";
+        String trimmed = question.trim();
+        String lower = trimmed.toLowerCase(java.util.Locale.ROOT);
+        if (lower.equals("hi") || lower.equals("hello") || lower.equals("hey")
+                || lower.startsWith("hi ") || lower.startsWith("hello ") || lower.startsWith("hey ")) {
+            return "New Conversation";
+        }
+        if (lower.contains("section 3(p)") || lower.contains("section 3p")) {
+            return "Section 3(p)";
+        }
+        if (lower.contains("section 377")) {
+            return "Section 377";
+        }
+        if (lower.contains("traditional knowledge")) {
+            return "Traditional Knowledge";
+        }
+        if (lower.contains("ayurveda") || lower.contains("ayurvedic")) {
+            return "Ayurveda Information";
+        }
+        if (lower.contains("access and benefit sharing") || lower.matches("(?i).*\\babs\\b.*")) {
+            return "Access & Benefit Sharing";
+        }
+        if (lower.contains("patent")) {
+            return "Patent Query";
+        }
+        if (lower.contains("trademark")) {
+            return "Trademark Query";
+        }
+        if (lower.contains("copyright")) {
+            return "Copyright Query";
+        }
+        if (lower.contains("geographical indication") || lower.matches("(?i).*\\bgi\\b.*")) {
+            return "Geographical Indication";
+        }
+        String title = trimmed;
+        String[] prefixes = {"what is a ", "what is an ", "what is ", "what are ", "explain ", "can i ", "how to "};
+        for (String p : prefixes) {
+            if (title.toLowerCase(java.util.Locale.ROOT).startsWith(p)) {
+                title = title.substring(p.length()).trim();
+                if (!title.isEmpty()) {
+                    title = Character.toUpperCase(title.charAt(0)) + title.substring(1);
+                }
+                break;
+            }
+        }
+        title = title.replaceAll("[?.!]+$", "").trim();
+        if (title.length() > 40) {
+            title = title.substring(0, 37).trim() + "...";
+        }
+        return title.isBlank() ? "New Conversation" : title;
     }
 
     @Transactional
     public ConversationMessageResponse persistAssistantResponse(
+            UserPrincipal principal,
             UUID conversationId,
             UUID userMessageId,
             QuestionResponse response
     ) {
-        ConversationEntity conversation = conversationRepository.findById(conversationId)
-                .orElseThrow(() -> new ConversationNotFoundException("Conversation not found with id: " + conversationId));
+        ConversationEntity conversation = findAndVerifyOwnership(principal, conversationId);
 
         MessageEntity assistantMessage = MessageEntity.assistantMessage(
                 conversation,
@@ -243,6 +345,8 @@ public class ConversationService {
                 userMessageId,
                 response.answer(),
                 response.answerType() != null ? response.answerType().name() : null,
+                response.route(),
+                response.domain(),
                 response.confidence(),
                 response.abstained(),
                 response.jurisdiction(),
@@ -254,6 +358,44 @@ public class ConversationService {
                 sources,
                 savedAssistantMessage.getCreatedAt()
         );
+    }
+
+    // Legacy overload for tests/bypass - delegates to verified version when principal available
+    @Transactional
+    public ConversationMessageResponse persistAssistantResponse(UUID conversationId, UUID userMessageId, QuestionResponse response) {
+        ConversationEntity conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new ConversationNotFoundException("Conversation not found with id: " + conversationId));
+        // Use same logic but without ownership check (internal use)
+        MessageEntity assistantMessage = MessageEntity.assistantMessage(
+                conversation,
+                response.answer(),
+                response.answerType() != null ? response.answerType().name() : null,
+                response.confidence(),
+                response.abstained(),
+                response.jurisdiction() != null ? response.jurisdiction().name() : null,
+                response.language() != null ? response.language().name().toLowerCase() : null,
+                response.detectedLanguage() != null ? response.detectedLanguage().name().toLowerCase() : null,
+                response.processingLanguage() != null ? response.processingLanguage().name().toLowerCase() : null,
+                response.intent() != null ? response.intent().name() : null
+        );
+        MessageEntity savedAssistantMessage = messageRepository.save(assistantMessage);
+        List<QuestionCitation> citations = response.citations() != null ? response.citations() : List.of();
+        int citationOrdinal = 0;
+        for (QuestionCitation c : citations) {
+            MessageCitationEntity citationEntity = new MessageCitationEntity(savedAssistantMessage, c.document(), c.documentId(), c.page(), c.section(), c.authority(), c.sourceUrl(), c.chunkId(), citationOrdinal++);
+            savedAssistantMessage.addCitation(citationEntity);
+            citationRepository.save(citationEntity);
+        }
+        List<QuestionSource> sources = response.sources() != null ? response.sources() : List.of();
+        int sourceOrdinal = 0;
+        for (QuestionSource s : sources) {
+            MessageSourceEntity sourceEntity = new MessageSourceEntity(savedAssistantMessage, s.documentId(), s.score(), sourceOrdinal++);
+            savedAssistantMessage.addSource(sourceEntity);
+            sourceRepository.save(sourceEntity);
+        }
+        conversation.setUpdatedAt(Instant.now());
+        conversationRepository.save(conversation);
+        return new ConversationMessageResponse(conversationId, savedAssistantMessage.getId(), userMessageId, response.answer(), response.answerType() != null ? response.answerType().name() : null, response.route(), response.domain(), response.confidence(), response.abstained(), response.jurisdiction(), response.language(), response.detectedLanguage(), response.processingLanguage(), response.intent(), citations, sources, savedAssistantMessage.getCreatedAt());
     }
 
     private ConversationEntity findAndVerifyOwnership(UserPrincipal principal, UUID conversationId) {

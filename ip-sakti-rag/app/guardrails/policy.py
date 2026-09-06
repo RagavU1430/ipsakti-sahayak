@@ -73,13 +73,7 @@ def _evidence_answers_intent(analysis: QueryAnalysis, evidence: list[Evidence]) 
     if analysis.intent == "difference":
         present_domains = {item.domain for item in evidence[:8]}
         return len(present_domains.intersection(set(analysis.domains))) >= min(len(set(analysis.domains)), 2)
-    if analysis.intent == "definition" and any(item.document_type == "TREATY" for item in evidence[:3]):
-        query_tokens = {_stem(token) for token in analysis.query.lower().replace("-", " ").split() if len(token) >= 4}
-        for item in evidence[:3]:
-            title_tokens = {_stem(token) for token in item.title.lower().replace("-", " ").split() if len(token) >= 4}
-            if query_tokens & title_tokens:
-                return True
-    if analysis.intent == "definition" and any(item.document_type == "ACT" for item in evidence[:3]):
+    if analysis.intent == "definition" and any(item.document_type in {"ACT", "RULES", "TREATY", "REGULATION", "MANUAL", "GUIDELINES", "REPORT"} for item in evidence[:3]):
         query_tokens = {_stem(token) for token in analysis.query.lower().replace("-", " ").split() if len(token) >= 4}
         for item in evidence[:3]:
             title_tokens = {_stem(token) for token in item.title.lower().replace("-", " ").split() if len(token) >= 4}
@@ -109,8 +103,11 @@ def _document_level_identifier_support(analysis: QueryAnalysis, evidence: list[E
     relevant = [item for item in evidence[:8] if item.document_id in hinted]
     if not relevant:
         return False
-    return any(text_supports_identifier(identifier, item.text) for item in relevant) or bool(relevant)
+    # Merely finding the named document is not proof that the requested
+    # provision is present. This matters for scraped treaty landing pages and
+    # navigation-only chunks that contain the title but not Article text.
+    return any(text_supports_identifier(identifier, item.text) for item in relevant)
 
 
 def _stem(token: str) -> str:
-    return token.strip(".,:;()[]{}").removesuffix("s")
+    return token.strip(".,:;()[]{}?!'\"").removesuffix("s")

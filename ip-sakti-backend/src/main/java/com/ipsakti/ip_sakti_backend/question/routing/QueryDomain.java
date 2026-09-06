@@ -1,0 +1,22 @@
+package com.ipsakti.ip_sakti_backend.question.routing;
+
+public enum QueryDomain {
+    IP,
+    PATENT,
+    TRADEMARK,
+    COPYRIGHT,
+    GEOGRAPHICAL_INDICATION,
+    INDUSTRIAL_DESIGN,
+    TRADE_SECRET,
+    AYURVEDA,
+    TRADITIONAL_KNOWLEDGE,
+    BIODIVERSITY,
+    ABS,
+    GRATK,
+    REGULATORY,
+    FORMULATION,
+    DOCUMENT_GROUNDED,
+    GOVERNMENT_POLICY,
+    INDIA_IP_LAW,
+    INTERNATIONAL_IP
+}

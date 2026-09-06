@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 import com.ipsakti.ip_sakti_backend.multilingual.TranslationProvider;
 import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
@@ -21,6 +22,8 @@ import com.ipsakti.ip_sakti_backend.rag.dto.RagAskRequest;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagCitation;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagSource;
+import com.ipsakti.ip_sakti_backend.question.general.GeneralLlmProvider;
+import com.ipsakti.ip_sakti_backend.question.routing.DefaultQueryRouter;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,16 +35,21 @@ class QuestionServiceTest {
     private RagClient ragClient;
     private TranslationProvider translationProvider;
     private QuestionService questionService;
+    private GeneralLlmProvider generalLlmProvider;
 
     @BeforeEach
     void setUp() {
         ragClient = Mockito.mock(RagClient.class);
         translationProvider = Mockito.mock(TranslationProvider.class);
+        generalLlmProvider = Mockito.mock(GeneralLlmProvider.class);
+        when(generalLlmProvider.providerName()).thenReturn("test-general");
         questionService = new QuestionService(
                 ragClient,
                 new QuestionIntentClassifier(),
                 new JurisdictionResolver(),
-                new TranslationService(translationProvider)
+                new TranslationService(translationProvider),
+                new DefaultQueryRouter(),
+                generalLlmProvider
         );
     }
 
@@ -86,7 +94,7 @@ class QuestionServiceTest {
     }
 
     @Test
-    void preservesAbstentionWithoutReplacingAnswerOrConfidence() {
+    void ordinaryQuestionUsesGeneralProviderWithoutRag() {
         when(ragClient.ask(any())).thenReturn(new RagAskResponse(
                 "I could not find sufficient authoritative evidence.",
                 0.18,
@@ -95,19 +103,21 @@ class QuestionServiceTest {
                 List.of()
         ));
 
+        when(generalLlmProvider.answer("What is the capital of Mars?")).thenReturn("Mars has no capital city.");
         QuestionResponse response = questionService.answer(new QuestionRequest(
                 "What is the capital of Mars?",
                 Jurisdiction.AUTO,
                 Language.EN
         ));
 
-        assertThat(response.answerType()).isEqualTo(AnswerType.ABSTAINED);
-        assertThat(response.answer()).isEqualTo("I could not find sufficient authoritative evidence.");
-        assertThat(response.confidence()).isEqualTo(0.18);
-        assertThat(response.abstained()).isTrue();
+        assertThat(response.answerType()).isEqualTo(AnswerType.GENERAL_FALLBACK);
+        assertThat(response.answer()).isEqualTo("Mars has no capital city.");
+        assertThat(response.confidence()).isNull();
+        assertThat(response.abstained()).isFalse();
         assertThat(response.language()).isEqualTo(Language.EN);
         assertThat(response.citations()).isEmpty();
         assertThat(response.sources()).isEmpty();
+        verify(ragClient, never()).ask(any());
     }
 
     @Test
@@ -120,6 +130,7 @@ class QuestionServiceTest {
                 List.of()
         ));
 
+        when(generalLlmProvider.answer("What is machine learning?")).thenReturn("General answer");
         QuestionResponse response = questionService.answer(new QuestionRequest(
                 "What is machine learning?",
                 Jurisdiction.AUTO,
@@ -129,6 +140,8 @@ class QuestionServiceTest {
         assertThat(response.answerType()).isEqualTo(AnswerType.GENERAL_FALLBACK);
         assertThat(response.intent()).isEqualTo(QuestionIntent.GENERAL);
         assertThat(response.language()).isEqualTo(Language.EN);
+        assertThat(response.confidence()).isNull();
+        verify(ragClient, never()).ask(any());
     }
 
     @Test
@@ -197,15 +210,108 @@ class QuestionServiceTest {
         ));
 
         QuestionResponse response = questionService.answer(new QuestionRequest(
-                "पेटेंट के बाहर का प्रश्न",
+                "What is machine learning?",
                 Jurisdiction.AUTO,
-                Language.HI
+                Language.EN
         ));
 
-        assertThat(response.answer()).isEqualTo("पर्याप्त प्रमाण नहीं मिला।");
-        assertThat(response.abstained()).isTrue();
-        assertThat(response.confidence()).isEqualTo(0.18);
-        assertThat(response.citations()).isEmpty();
-        assertThat(response.sources()).isEmpty();
+        assertThat(response.answerType()).isEqualTo(AnswerType.GENERAL_FALLBACK);
+        assertThat(response.intent()).isEqualTo(QuestionIntent.GENERAL);
+        assertThat(response.language()).isEqualTo(Language.EN);
+        assertThat(response.confidence()).isNull();
+        verify(ragClient, never()).ask(any());
+    }
+
+
+    @Test
+    void test_guardrail_upgrades_general_to_domain_rag() {
+        when(generalLlmProvider.answer("What is statutory legal protection under section 377?"))
+                .thenReturn("This question requires authoritative domain evidence and must be routed to RAG.");
+        when(ragClient.ask(any())).thenReturn(new RagAskResponse(
+                "Section 377 legal definition and authoritative details",
+                0.88,
+                false,
+                List.of(new RagCitation("IPC Act", "IND-IPC-377", 4, "Section 377", "Supreme Court of India", "https://example.invalid/377", "chunk-377")),
+                List.of(new RagSource("IND-IPC-377", 0.90))
+        ));
+
+        QuestionResponse response = questionService.answer(new QuestionRequest(
+                "What is statutory legal protection under section 377?",
+                Jurisdiction.INDIA,
+                Language.EN
+        ));
+
+        assertThat(response.route()).isEqualTo("DOMAIN_RAG");
+        assertThat(response.answer()).isEqualTo("Section 377 legal definition and authoritative details");
+        assertThat(response.confidence()).isEqualTo(0.88);
+        assertThat(response.citations()).hasSize(1);
+        assertThat(response.citations().getFirst().documentId()).isEqualTo("IND-IPC-377");
+        verify(ragClient).ask(any());
+    }
+
+    @Test
+    void testSection377RoutesToDomainRag() {
+        when(ragClient.ask(any())).thenReturn(new RagAskResponse(
+                "Section 377 answer grounded in evidence",
+                0.92,
+                false,
+                List.of(new RagCitation("Statute Document", "DOC-377", 1, "Section 377", "Authority", "https://example.invalid", "chunk-1")),
+                List.of(new RagSource("DOC-377", 0.93))
+        ));
+
+        QuestionResponse response = questionService.answer(new QuestionRequest(
+                "What is section 377 in India?",
+                Jurisdiction.INDIA,
+                Language.EN
+        ));
+
+        assertThat(response.route()).isEqualTo("DOMAIN_RAG");
+        assertThat(response.answer()).isEqualTo("Section 377 answer grounded in evidence");
+        verify(ragClient).ask(any());
+    }
+
+    @Test
+    void testSection3pAndSpokenVariants() {
+        when(ragClient.ask(any())).thenReturn(new RagAskResponse(
+                "Section 3(p) excludes traditional knowledge from patentability.",
+                0.96,
+                false,
+                List.of(new RagCitation("Patents Act, 1970", "IND-PAT-ACT-1970", 3, "Section 3(p)", "IPO", "https://example.invalid", "chunk-3p")),
+                List.of(new RagSource("IND-PAT-ACT-1970", 0.97))
+        ));
+
+        List<String> variants = List.of(
+                "What is Section 3(p) of the Indian Patents Act?",
+                "What is Section 3P?",
+                "What is section three p?",
+                "What is section 3 p?"
+        );
+
+        for (String q : variants) {
+            QuestionResponse response = questionService.answer(new QuestionRequest(q, Jurisdiction.INDIA, Language.EN));
+            assertThat(response.route()).isEqualTo("DOMAIN_RAG");
+            assertThat(response.answer()).contains("Section 3(p)");
+        }
+    }
+
+    @Test
+    void testNegativeGeneralQuestionsRemainGeneral() {
+        when(generalLlmProvider.answer(any())).thenReturn("General answer");
+
+        List<String> generalQuestions = List.of(
+                "Hi",
+                "Hello",
+                "How are you?",
+                "What is Python?",
+                "Explain machine learning",
+                "What is an API?"
+        );
+
+        for (String q : generalQuestions) {
+            QuestionResponse response = questionService.answer(new QuestionRequest(q, Jurisdiction.AUTO, Language.EN));
+            assertThat(response.route()).isEqualTo("GENERAL");
+            assertThat(response.answerType()).isEqualTo(AnswerType.GENERAL_FALLBACK);
+            verify(ragClient, never()).ask(any());
+        }
     }
 }

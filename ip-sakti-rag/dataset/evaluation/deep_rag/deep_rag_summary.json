@@ -1,41 +1,41 @@
 {
-  "generated_at": "2026-09-03T02:43:58.663866+00:00",
+  "generated_at": "2026-09-05T13:29:34.820701+00:00",
   "endpoint": "/api/v1/ask",
   "question_count": 162,
-  "passed_count": 120,
-  "failed_count": 42,
-  "pass_rate": 0.7407407407407407,
+  "passed_count": 159,
+  "failed_count": 3,
+  "pass_rate": 0.9814814814814815,
   "retrieval": {
     "recall_at_k": 1.0,
-    "mrr": 0.9893617021276596
+    "mrr": 0.9835858585858587
   },
   "grounding": {
     "groundedness": 1.0,
     "citation_integrity": 1.0
   },
   "abstention": {
-    "tp": 31,
-    "tn": 89,
-    "fp": 36,
-    "fn": 5,
-    "accuracy": 0.7407407407407407,
-    "false_abstention_rate": 0.2222222222222222,
-    "unsafe_answer_rate": 0.030864197530864196
+    "tp": 29,
+    "tn": 125,
+    "fp": 1,
+    "fn": 7,
+    "accuracy": 0.9506172839506173,
+    "false_abstention_rate": 0.006172839506172839,
+    "unsafe_answer_rate": 0.043209876543209874
   },
   "confidence": {
-    "incorrect": 0.1975,
+    "correct": 0.7866,
+    "incorrect": 0.18,
     "abstained": 0.18,
-    "correct": 0.7357,
     "unsupported": 0.18
   },
-  "answer_quality_average": 1.4814814814814814,
+  "answer_quality_average": 1.8950617283950617,
   "latency_ms": {
-    "min": 3.39,
-    "max": 28490921.378,
-    "mean": 182965.08,
-    "median": 6736.292,
-    "p95": 15430.493,
-    "p99": 30944.103
+    "min": 2.336,
+    "max": 4947.6,
+    "mean": 2093.783,
+    "median": 2092.169,
+    "p95": 4031.924,
+    "p99": 4324.046
   },
   "dataset_before": {
     "dataset/canonical/documents.jsonl": "6d9b657a2fb84f6414dd7f28c7cc7550c4fe25681e6200242d38889da6ddb7f1",
@@ -70,29 +70,27 @@
     "R_LANGUAGE_ENGLISH": 2
   },
   "category_passed": {
-    "A_DIRECT_LEGAL": 11,
-    "B_SECTION_SPECIFIC": 12,
-    "C_TRADITIONAL_KNOWLEDGE": 8,
+    "A_DIRECT_LEGAL": 15,
+    "B_SECTION_SPECIFIC": 14,
+    "C_TRADITIONAL_KNOWLEDGE": 10,
     "D_SECTION_3E": 8,
-    "E_ABS_GRATK": 3,
-    "F_FORMULATION_PRODUCT": 3,
-    "G_COMPARISON": 7,
-    "H_MULTI_DOMAIN": 5,
+    "E_ABS_GRATK": 10,
+    "F_FORMULATION_PRODUCT": 8,
+    "G_COMPARISON": 10,
+    "H_MULTI_DOMAIN": 8,
     "I_AMBIGUOUS": 7,
-    "J_FALSE_PREMISE": 4,
+    "J_FALSE_PREMISE": 7,
     "K_OUT_OF_CORPUS": 10,
     "L_ADVERSARIAL": 10,
-    "P_PARAPHRASE": 25,
-    "Q_TYPOS_NATURAL_LANGUAGE": 5,
+    "P_PARAPHRASE": 30,
+    "Q_TYPOS_NATURAL_LANGUAGE": 10,
     "R_LANGUAGE_ENGLISH": 2
   },
   "runtime_notes": {
-    "runtime_pipeline_verified": false,
+    "runtime_pipeline_verified": true,
     "base_url": "http://127.0.0.1:8765",
     "api_endpoint": "/api/v1/ask",
-    "startup_command": "python -m uvicorn app.api.main:app --host 127.0.0.1 --port 8765 --log-level warning",
-    "runtime_error_count_before_stop": 1,
-    "first_runtime_error": "possible hallucination or false-premise acceptance"
+    "startup_command": "python -m uvicorn app.api.main:app --host 127.0.0.1 --port 8765 --log-level warning"
   },
   "previous_baseline": {
     "questions": 55,
@@ -104,5 +102,5 @@
     "abstention_accuracy": 1.0
   },
   "regression": "IMPROVED",
-  "overall_rag_status": "D"
+  "overall_rag_status": "C"
 }

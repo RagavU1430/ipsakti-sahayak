@@ -133,7 +133,19 @@ DOCUMENT_ALIASES: dict[str, tuple[str, ...]] = {
     "INT-TRIPS-1994": ("trips", "trips agreement", "wto trips"),
     "IND-FSS-AA-ORDER-2025": ("ayurveda aahara", "ayurveda-based food", "nutritional claims"),
     "IND-AYUSH-INDIA-2024": ("ayush in india", "ayurveda-based food", "nutritional claims"),
-    "IND-AYUSH-AR-2024-25": ("ministry of ayush annual report", "therapeutic use", "herbal product"),
+    "IND-AYUSH-2024": (
+        "ayush in india",
+        "tkdl",
+        "traditional knowledge digital library",
+        "traditional knowledge research database",
+    ),
+    "IND-AYUSH-AR-2024-25": (
+        "ministry of ayush annual report",
+        "therapeutic use",
+        "herbal product",
+        "tkdl",
+        "traditional knowledge digital library",
+    ),
 }
 
 
@@ -162,6 +174,24 @@ def document_hint_ids(query: str) -> list[str]:
         hints.append("IND-BD-ACT-2002")
     if "article" in normalized and "gratk" in normalized:
         hints.append("INT-WIPO-GRATK-2024")
+    if "gratk" in normalized or "genetic resources" in normalized or "associated traditional knowledge" in normalized:
+        hints.append("INT-WIPO-GRATK-2024")
+    if re.search(r"\babs\b", normalized) or "benefit sharing" in normalized or "biological resource" in normalized:
+        hints.extend(["IND-BD-ACT-2002", "IND-BD-RULES-2024"])
+    if "trademark" in normalized or "trade mark" in normalized:
+        hints.append("IND-TM-ACT-1999")
+    if "rules" in normalized and ("trademark" in normalized or "trade mark" in normalized):
+        hints.append("IND-TM-RULES-2017")
+    if "geographical indication" in normalized or re.search(r"\bgi\b", normalized):
+        hints.append("IND-GI-ACT-1999")
+    if "plant variety" in normalized or "plant protection" in normalized:
+        hints.append("IND-PPV-ACT-2001")
+    if re.search(r"\bpatent\b", normalized) or "invention" in normalized:
+        hints.append("IND-PAT-ACT-1970")
+    if "traditional knowledge" in normalized and any(term in normalized for term in ("compare", "difference", "protection")):
+        hints.append("INT-WIPO-GRATK-2024")
+    if "worldwide" in normalized and "patent" in normalized:
+        hints.extend(["INT-WIPO-PCT", "INT-WIPO-PARIS"])
     if "herbal product" in normalized or "plant extracts" in normalized:
         hints.extend(["IND-PAT-ACT-1970", "IND-BD-ACT-2002", "IND-AYUSH-AR-2024-25"])
     if "community traditional knowledge" in normalized:

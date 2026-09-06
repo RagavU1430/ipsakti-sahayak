@@ -1,0 +1,302 @@
+{
+  "info": {
+    "name": "IP-SAKTI Sahayak API Collection",
+    "_postman_id": "ipsakti-sahayak-v1",
+    "description": "Complete Postman collection for all IP-SAKTI Sahayak backend endpoints: RAG question answering, TKDL overlap analysis, ASU formulation classification, BDA/Section 3(p) regulatory review, and conversation thread lifecycle.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080",
+      "type": "string"
+    },
+    {
+      "key": "ragUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "demo-user",
+      "type": "string"
+    },
+    {
+      "key": "conversationId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Checks",
+      "item": [
+        {
+          "name": "Backend Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "questions", "health"]
+            },
+            "description": "Checks health of Spring Boot question service."
+          }
+        },
+        {
+          "name": "FastAPI RAG Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ragUrl}}/health",
+              "host": ["{{ragUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Checks health of Python FastAPI RAG embedding and retrieval service."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Ask IP Question (RAG)",
+      "item": [
+        {
+          "name": "Ask Question - English (Section 3p)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Can I patent an Ayurvedic herbal formulation in India under Section 3(p)?\",\n  \"jurisdiction\": \"INDIA\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "questions"]
+            }
+          }
+        },
+        {
+          "name": "Ask Question - Hindi (हिन्दी)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"क्या मैं भारत में आयुर्वेदिक हर्बल फॉर्मूलेशन का पेटेंट करा सकता हूँ?\",\n  \"jurisdiction\": \"INDIA\",\n  \"language\": \"hi\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/questions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "questions"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Traditional Knowledge (TKDL Overlap)",
+      "item": [
+        {
+          "name": "Analyze TK Overlap",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"A topical formulation comprising Curcuma longa and Zingiber officinale rhizome extracts combined with synthetic lipid nanoparticles for transdermal delivery in joint inflammation.\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tk/overlap",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tk", "overlap"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Formulation Classification",
+      "item": [
+        {
+          "name": "Classify Formulation (ASU / Classical)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Triphala Ophthalmic Solution\",\n  \"ingredients\": [\n    \"Emblica officinalis\",\n    \"Terminalia bellirica\",\n    \"Terminalia chebula\"\n  ],\n  \"dosageForm\": \"Eye Drops\",\n  \"intendedUse\": \"Relief of ocular fatigue and dryness\",\n  \"claims\": [\n    \"Classical triphala synergy in novel aqueous vehicle\"\n  ],\n  \"traditionalUse\": true,\n  \"commercialIntent\": true,\n  \"targetMarket\": \"INDIA\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/formulations/classify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "formulations", "classify"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Regulatory Review (Section 3p & BDA ABS)",
+      "item": [
+        {
+          "name": "Analyze Regulatory Compliance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Ashwagandha Cognitive Formula\",\n  \"ingredients\": [\n    \"Withania somnifera root extract\",\n    \"Bacopa monnieri leaf extract\"\n  ],\n  \"dosageForm\": \"Capsule\",\n  \"intendedUse\": \"Neuroprotection\",\n  \"claims\": [\n    \"Synergistic cognitive enhancement\"\n  ],\n  \"traditionalKnowledge\": true,\n  \"biologicalResources\": true,\n  \"resourceOrigin\": \"Madhya Pradesh, India\",\n  \"targetMarket\": \"INDIA\",\n  \"jurisdiction\": \"INDIA\",\n  \"formulationNovelty\": true,\n  \"knownIngredients\": true,\n  \"synergisticEffectClaimed\": true,\n  \"geneticResources\": false,\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/regulatory/analyze",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "regulatory", "analyze"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Conversations Lifecycle",
+      "item": [
+        {
+          "name": "List User Conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Dev-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversations?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create New Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set('conversationId', jsonData.id);",
+                  "    console.log('Stored conversationId: ' + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Dev-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Patenting AYUSH Innovations Discussion\",\n  \"jurisdiction\": \"INDIA\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "conversations"]
+            }
+          }
+        },
+        {
+          "name": "Get Conversation Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Dev-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversations/{{conversationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "conversations", "{{conversationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Post Message in Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Dev-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"What approval is required from the National Biodiversity Authority (NBA) before filing a patent?\",\n  \"jurisdiction\": \"INDIA\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversations/{{conversationId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "conversations", "{{conversationId}}", "messages"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

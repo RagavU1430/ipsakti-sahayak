@@ -57,6 +57,6 @@ export function formatScore(score?: number) {
   return typeof score === 'number' ? score.toFixed(2) : 'n/a';
 }
 
-export function formatConfidence(confidence?: number) {
+export function formatConfidence(confidence?: number | null) {
   return typeof confidence === 'number' ? `${Math.round(confidence * 100)}%` : 'n/a';
 }

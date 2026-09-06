@@ -138,6 +138,9 @@ class GeneralFallbackGenerator:
 
 def _best_supported_sentence(item: Evidence, query_terms: set[str], intent: str | None, legal_identifiers: list[str] | None = None, evidence_item: Evidence | None = None) -> str:
     text = _clean_fragment(item.text)
+    topic_sentence = _exact_topic_sentence(text, query_terms)
+    if topic_sentence:
+        return topic_sentence
     exact_provision = bool(evidence_item and legal_identifiers and any(evidence_supports_identifier(identifier, [evidence_item]) for identifier in legal_identifiers))
     if (intent == "definition" and item.document_type in {"ACT", "TREATY"}) or (intent == "difference" and item.document_type in {"ACT", "TREATY", "RULES"}):
         query_tokens = {_stem(token) for token in query_terms if len(token) >= 4}
@@ -177,13 +180,21 @@ def _best_supported_sentence(item: Evidence, query_terms: set[str], intent: str 
         "rights": ("right", "rights", "exclusive", "protection", "infringement"),
         "duration": ("term", "years", "expiration", "expiry"),
         "opposition": ("opposition", "opposed", "counter-statement"),
-        "purpose": ("conservation", "sustainable", "benefit", "sharing", "purpose"),
+        "purpose": ("conservation", "sustainable", "benefit", "sharing", "purpose", "object", "objective", "registration", "author", "ownership"),
         "difference": ("means", "right", "protection", "exclusive"),
     }.get(intent or "", ())
 
     def score(sentence: str) -> tuple[int, int, int]:
         lowered = sentence.lower()
+        exact_topic = 0
+        if "tkdl" in query_terms:
+            exact_topic += 4 * int("tkdl" in lowered)
+            exact_topic += 4 * int("traditional knowledge digital library" in lowered)
+        if "traditional" in query_terms and "knowledge" in query_terms:
+            exact_topic += 3 * int("traditional knowledge" in lowered)
+            exact_topic += 2 * int("codified traditional knowledge" in lowered)
         return (
+            exact_topic,
             sum(term in lowered for term in intent_terms),
             sum(term in lowered for term in query_terms),
             -abs(len(sentence) - 220),
@@ -193,6 +204,32 @@ def _best_supported_sentence(item: Evidence, query_terms: set[str], intent: str 
     if intent_terms and not exact_provision and not any(term in best.lower() for term in intent_terms):
         return metadata_fallback
     return best
+
+
+def _exact_topic_sentence(text: str, query_terms: set[str]) -> str:
+    lowered = text.lower()
+    if "tkdl" in query_terms and ("tkdl" in lowered or "traditional knowledge digital library" in lowered):
+        return _window_around_topic(text, ("traditional knowledge digital library", "tkdl"))
+    if "traditional" in query_terms and "knowledge" in query_terms and "traditional knowledge" in lowered:
+        return _window_around_topic(text, ("traditional knowledge", "codified traditional knowledge"))
+    return ""
+
+
+def _window_around_topic(text: str, topics: tuple[str, ...]) -> str:
+    lowered = text.lower()
+    positions = [lowered.find(topic) for topic in topics if lowered.find(topic) >= 0]
+    if not positions:
+        return ""
+    start = max(0, min(positions) - 180)
+    end = min(len(text), min(positions) + 320)
+    window = text[start:end]
+    boundary_start = max(window.rfind(". ", 0, min(200, len(window))), window.rfind("; ", 0, min(200, len(window))))
+    if boundary_start >= 0:
+        window = window[boundary_start + 2 :]
+    boundary_end_candidates = [idx for idx in (window.find(". ", 120), window.find("; ", 120)) if idx >= 0]
+    if boundary_end_candidates:
+        window = window[: min(boundary_end_candidates) + 1]
+    return _clean_fragment(window[:420])
 
 
 def _sentence_candidates(text: str) -> list[str]:
@@ -245,7 +282,7 @@ def _direct_answer(analysis: QueryAnalysis, selections: list[tuple[Evidence, str
         "rights": f"Based on the cited {domain} evidence, the legal protection is tied to the rights and limits described in the retrieved provisions: ",
         "duration": f"Based on the cited {domain} evidence, the period of protection is governed by the retrieved term and renewal provisions: ",
         "opposition": f"Based on the cited {domain} evidence, opposition is handled through the retrieved opposition/application procedure: ",
-        "purpose": f"Based on the cited {domain} evidence, the purpose is reflected in the retrieved conservation, use, and benefit-sharing provisions: ",
+        "purpose": f"Based on the cited {domain} evidence, the purpose is reflected in the retrieved objectives, registration, ownership, and protection provisions: ",
         "difference": "Based on the cited evidence, the distinction depends on the different subject matter and rights described in the retrieved sources: ",
     }.get(analysis.intent or "", f"Based on the cited {domain} evidence: ")
     support = " ".join(sentence for _, sentence in selections)

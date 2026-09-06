@@ -16,6 +16,8 @@ import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
 import com.ipsakti.ip_sakti_backend.question.QuestionService;
 import com.ipsakti.ip_sakti_backend.question.classification.JurisdictionResolver;
 import com.ipsakti.ip_sakti_backend.question.classification.QuestionIntentClassifier;
+import com.ipsakti.ip_sakti_backend.question.general.GeneralLlmProvider;
+import com.ipsakti.ip_sakti_backend.question.routing.DefaultQueryRouter;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagAskResponse;
 import com.ipsakti.ip_sakti_backend.rag.dto.RagCitation;
@@ -30,7 +32,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(QuestionController.class)
-@Import({SecurityConfig.class, QuestionService.class, QuestionIntentClassifier.class, JurisdictionResolver.class, TranslationService.class})
+@Import({SecurityConfig.class, QuestionService.class, QuestionIntentClassifier.class, JurisdictionResolver.class, TranslationService.class, DefaultQueryRouter.class})
 class QuestionControllerTest {
 
     @Autowired
@@ -41,6 +43,9 @@ class QuestionControllerTest {
 
     @MockitoBean
     private TranslationProvider translationProvider;
+
+    @MockitoBean
+    private GeneralLlmProvider generalLlmProvider;
 
     @Test
     void returnsFrontendReadyGroundedResponse() throws Exception {
@@ -88,7 +93,7 @@ class QuestionControllerTest {
 
         mockMvc.perform(post("/api/v1/questions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"question\":\"What is the capital of Mars?\",\"jurisdiction\":\"AUTO\",\"language\":\"en\"}"))
+                        .content("{\"question\":\"Under Indian patent law, is teleportation patentable?\",\"jurisdiction\":\"AUTO\",\"language\":\"en\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.answerType").value("abstained"))
                 .andExpect(jsonPath("$.confidence").value(0.18))
@@ -99,13 +104,15 @@ class QuestionControllerTest {
 
     @Test
     void returnsFrontendReadyGeneralFallback() throws Exception {
-        when(ragClient.ask(any())).thenReturn(new RagAskResponse("General answer", 0.4, false, List.of(), List.of()));
+        when(generalLlmProvider.answer(any())).thenReturn("General answer");
 
         mockMvc.perform(post("/api/v1/questions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"question\":\"What is machine learning?\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.answerType").value("general_fallback"))
+                .andExpect(jsonPath("$.route").value("GENERAL"))
+                .andExpect(jsonPath("$.confidence").doesNotExist())
                 .andExpect(jsonPath("$.jurisdiction").value("AUTO"))
                 .andExpect(jsonPath("$.language").value("en"))
                 .andExpect(jsonPath("$.intent").value("GENERAL"));
@@ -177,7 +184,7 @@ class QuestionControllerTest {
 
         mockMvc.perform(post("/api/v1/questions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"question\":\"What is a trademark?\"}"))
+                        .content("{\"question\":\"What does Indian trademark law require?\"}"))
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.code").value("RAG_UNAVAILABLE"));
     }
@@ -188,7 +195,7 @@ class QuestionControllerTest {
 
         mockMvc.perform(post("/api/v1/questions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"question\":\"What is a trademark?\"}"))
+                        .content("{\"question\":\"What does Indian trademark law require?\"}"))
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.code").value("RAG_MALFORMED_RESPONSE"));
     }

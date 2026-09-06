@@ -9,7 +9,7 @@ public class SecurityProperties {
 
     private String mode = "dev";
     private String apiKey = "";
-    private List<String> allowedOrigins = List.of("http://localhost:5173", "http://localhost:3000");
+    private List<String> allowedOrigins = List.of("http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000");
 
     public String getMode() {
         return mode;

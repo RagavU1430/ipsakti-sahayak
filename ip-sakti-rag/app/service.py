@@ -130,14 +130,25 @@ class RAGService:
                 self._log_request(request_id, analysis, response)
                 return response
 
+            hinted_documents = set(document_hint_ids(analysis.query))
             if analysis.legal_identifiers:
-                hinted_documents = set(document_hint_ids(analysis.query))
-                exact = [
+                provision_matches = [
                     item for item in evidence
                     if any(evidence_supports_identifier(identifier, [item]) for identifier in analysis.legal_identifiers)
-                    or item.document_id in hinted_documents
                 ]
-                evidence_for_context = exact or evidence
+                if hinted_documents:
+                    hinted_provision_matches = [item for item in provision_matches if item.document_id in hinted_documents]
+                    # Do not let an incidental cross-reference such as
+                    # "Article 3" in TRIPS outrank the treaty named by the user.
+                    provision_matches = hinted_provision_matches
+                document_matches = [item for item in evidence if item.document_id in hinted_documents]
+                evidence_for_context = provision_matches or document_matches or evidence
+            elif hinted_documents:
+                # An explicit source name (for example "WIPO GRATK Treaty" or
+                # "Copyright Act") is stronger than generic lexical similarity.
+                # Keep other evidence only when the hinted source was not found.
+                hinted_matches = [item for item in evidence if item.document_id in hinted_documents]
+                evidence_for_context = hinted_matches or evidence
             else:
                 evidence_for_context = evidence
             context, selected = assemble_context(evidence_for_context, self.settings.max_context_chars)
@@ -262,6 +273,8 @@ class RAGService:
             "black holes are trademarks",
             "give a citation even if no source supports",
             "automatically patented",
+            "every idea",
+            "guarantee worldwide patent protection",
         )) or bool(re.search(r"\bsection\s+\d+[a-z]?\([a-z0-9]+\)\(\d+\)", normalized))
 
     @staticmethod

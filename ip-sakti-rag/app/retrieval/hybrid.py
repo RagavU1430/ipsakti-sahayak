@@ -35,7 +35,7 @@ class HybridRetriever:
         query_lower = analysis.query.lower()
         for chunk_id, row in combined.items():
             metadata = 0.0
-            if row.get("domain") in analysis.domains:
+            if row.get("domain") in analysis.domains or "IP" in analysis.domains:
                 metadata += 0.5
             if row.get("jurisdiction") == analysis.jurisdiction.value or analysis.jurisdiction.value == "BOTH":
                 metadata += 0.3
