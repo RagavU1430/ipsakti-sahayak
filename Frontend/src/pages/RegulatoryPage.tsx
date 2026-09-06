@@ -8,6 +8,71 @@ import { CheckboxField, JurisdictionSelect, LanguageSelect, TextArea, TextField 
 import { EvidenceList, formatConfidence } from '../components/Evidence';
 import { LoadingSteps } from '../components/LoadingSteps';
 
+interface RegulatorySampleData {
+  productName: string;
+  ingredients: string;
+  intendedUse: string;
+  claims: string;
+  resourceOrigin: string;
+  traditionalKnowledge: boolean;
+  knownIngredients: boolean;
+  biologicalResources: boolean;
+  geneticResources: boolean;
+  jurisdiction: Jurisdiction;
+  language: Language;
+}
+
+const REGULATORY_SAMPLES: { label: string; data: RegulatorySampleData }[] = [
+  {
+    label: '🌿 Polyherbal Antidiabetic (Sec 3p + ABS)',
+    data: {
+      productName: 'Polyherbal Glycemic Regulation Elixir',
+      ingredients: 'Jamun (Syzygium cumini) seed extract\nKarela (Momordica charantia) fruit extract\nGurmar (Gymnema sylvestre) leaf extract',
+      intendedUse: 'Traditional blood glucose regulation, pancreatic beta-cell support, and metabolic balance',
+      claims: 'Synergistic hypoglycemic botanical composition prepared according to classical decoction principles',
+      resourceOrigin: 'Western Ghats, Karnataka, India',
+      traditionalKnowledge: true,
+      knownIngredients: true,
+      biologicalResources: true,
+      geneticResources: false,
+      jurisdiction: 'INDIA',
+      language: 'en',
+    },
+  },
+  {
+    label: '🔬 Curcumin-Piperine NanoGel (Sec 3e)',
+    data: {
+      productName: 'Liposomal Curcumin-Piperine Topical Gel',
+      ingredients: 'Curcuminoid extract (95% standardized Curcuma longa)\nPiperine bioenhancer (Piper nigrum)\nPhosphatidylcholine liposomal matrix',
+      intendedUse: 'Targeted transdermal anti-inflammatory therapy for joint pain and rheumatoid stiffness',
+      claims: 'Novel liposomal delivery system providing 8x higher cellular bioavailability and unexpected synergistic anti-inflammatory efficacy over simple admixture',
+      resourceOrigin: 'Kerala, India',
+      traditionalKnowledge: true,
+      knownIngredients: true,
+      biologicalResources: true,
+      geneticResources: false,
+      jurisdiction: 'INDIA',
+      language: 'en',
+    },
+  },
+  {
+    label: '🌊 Marine Halichondrin (WIPO GRATK)',
+    data: {
+      productName: 'Marine Halichondrin Derivative Analog (MH-204)',
+      ingredients: 'Synthetic polyether macrolide analog derived from Halichondria okadai marine sponge genetic material',
+      intendedUse: 'Targeted tubulin depolymerization and mitotic spindle inhibition in oncology',
+      claims: 'Novel synthetic macrocyclic ketone derivative with engineered chiral centers conferring reduced cardiotoxicity and improved pharmacokinetics',
+      resourceOrigin: 'Indian Ocean Coastal EEZ / Indo-Pacific Marine Zone',
+      traditionalKnowledge: false,
+      knownIngredients: false,
+      biologicalResources: true,
+      geneticResources: true,
+      jurisdiction: 'INTERNATIONAL',
+      language: 'en',
+    },
+  },
+];
+
 export function RegulatoryPage({ auth }: { auth: AuthHeaders }) {
   const [productName, setProductName] = useState('');
   const [ingredients, setIngredients] = useState('');
@@ -23,6 +88,22 @@ export function RegulatoryPage({ auth }: { auth: AuthHeaders }) {
   const [result, setResult] = useState<RegulatoryAnalysisResponse | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
+
+  function loadSample(sample: RegulatorySampleData) {
+    setProductName(sample.productName);
+    setIngredients(sample.ingredients);
+    setIntendedUse(sample.intendedUse);
+    setClaims(sample.claims);
+    setResourceOrigin(sample.resourceOrigin);
+    setTraditionalKnowledge(sample.traditionalKnowledge);
+    setKnownIngredients(sample.knownIngredients);
+    setBiologicalResources(sample.biologicalResources);
+    setGeneticResources(sample.geneticResources);
+    setJurisdiction(sample.jurisdiction);
+    setLanguage(sample.language);
+    setError(null);
+    setResult(null);
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -76,6 +157,24 @@ export function RegulatoryPage({ auth }: { auth: AuthHeaders }) {
         {/* Left Column: Form */}
         <div>
           <form className="panel form-grid" onSubmit={submit}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--outline-variant)' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--secondary)', textTransform: 'uppercase' }}>
+                Preload Sample:
+              </span>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {REGULATORY_SAMPLES.map((sample) => (
+                  <button
+                    key={sample.label}
+                    className="chip-button"
+                    type="button"
+                    onClick={() => loadSample(sample.data)}
+                  >
+                    {sample.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <TextField label="Product / invention description" value={productName} onChange={setProductName} required />
             <TextArea label="Ingredients / biological resources" value={ingredients} onChange={setIngredients} placeholder="List herbs, plants, organisms..." rows={3} />
             <div className="control-row">

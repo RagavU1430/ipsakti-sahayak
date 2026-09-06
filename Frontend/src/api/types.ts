@@ -185,6 +185,9 @@ export interface ProductReadinessResponse {
   questions: string[];
   report: string;
   scores: ReadinessScores;
+  language?: Language;
+  detected_language?: Language;
+  processing_language?: Language;
 }
 
 export interface RegulatoryRoute {
@@ -392,3 +395,16 @@ export interface VoiceHealthResponse {
   allowedMimeTypes: string[];
   supportedLanguages: Language[];
 }
+
+export interface FormulationChatRequest {
+  message: string;
+  reportContext?: string;
+  language?: Language;
+}
+
+export interface FormulationChatResponse {
+  reply: string;
+  language?: Language;
+  suggestedQuestions?: string[];
+}
+

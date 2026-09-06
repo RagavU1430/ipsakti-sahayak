@@ -30,6 +30,9 @@ import com.ipsakti.ip_sakti_backend.question.model.QuestionIntent;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionRequest;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionResponse;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionSource;
+import com.ipsakti.ip_sakti_backend.question.routing.QueryDomain;
+import com.ipsakti.ip_sakti_backend.question.routing.QueryRoute;
+import com.ipsakti.ip_sakti_backend.question.routing.RoutingContext;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +58,29 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ConversationServiceTest {
+
+    @Test
+    @DisplayName("Adds the previous topic only to referential multilingual follow-ups")
+    void contextualizesReferentialMultilingualFollowUps() {
+        RoutingContext patentContext = new RoutingContext(QueryRoute.DOMAIN_RAG, QueryDomain.PATENT);
+
+        assertThat(ConversationService.contextualizeReferentialFollowUp("How long does it last?", patentContext))
+                .endsWith("Context for this referential follow-up: PATENT.");
+        assertThat(ConversationService.contextualizeReferentialFollowUp("அது எவ்வளவு காலம் நீடிக்கும்?", patentContext))
+                .endsWith("Context for this referential follow-up: PATENT.");
+        assertThat(ConversationService.contextualizeReferentialFollowUp("यह कितने समय तक चलता है?", patentContext))
+                .endsWith("Context for this referential follow-up: PATENT.");
+        assertThat(ConversationService.contextualizeReferentialFollowUp("అది ఎంత కాలం ఉంటుంది?", patentContext))
+                .endsWith("Context for this referential follow-up: PATENT.");
+        assertThat(ConversationService.contextualizeReferentialFollowUp("ಅದು ಎಷ್ಟು ಕಾಲ ಇರುತ್ತದೆ?", patentContext))
+                .endsWith("Context for this referential follow-up: PATENT.");
+        assertThat(ConversationService.contextualizeReferentialFollowUp("അത് എത്ര കാലം നിലനിൽക്കും?", patentContext))
+                .endsWith("Context for this referential follow-up: PATENT.");
+        assertThat(ConversationService.contextualizeReferentialFollowUp("What is a trademark?", patentContext))
+                .isEqualTo("What is a trademark?");
+        assertThat(ConversationService.contextualizeReferentialFollowUp("How long does it last?", RoutingContext.empty()))
+                .isEqualTo("How long does it last?");
+    }
 
     @Mock
     private ConversationRepository conversationRepository;

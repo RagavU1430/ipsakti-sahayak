@@ -82,7 +82,7 @@ class Settings:
     max_context_chars: int
     response_cache_enabled: bool = True
     response_cache_ttl: int = 600
-    llm_timeout: float = 6.0
+    llm_timeout: float = 30.0
     gemini_api_key: str | None = None
 
 
@@ -114,6 +114,6 @@ def get_settings() -> Settings:
         max_context_chars=_int("RAG_MAX_CONTEXT_CHARS", 18000),
         response_cache_enabled=_bool("RAG_RESPONSE_CACHE_ENABLED", True),
         response_cache_ttl=_int("RAG_RESPONSE_CACHE_TTL", 600),
-        llm_timeout=_float("RAG_LLM_TIMEOUT", 6.0),
+        llm_timeout=_float("RAG_LLM_TIMEOUT", 30.0),
         gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
     )

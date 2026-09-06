@@ -24,6 +24,7 @@ public class VoiceException extends RuntimeException {
     public static VoiceException sttEmpty() { return of("STT_EMPTY", "No discernible speech was detected.", HttpStatus.BAD_REQUEST); }
     public static VoiceException sttFailed() { return of("STT_FAILED", "Speech transcription failed.", HttpStatus.BAD_GATEWAY); }
     public static VoiceException ttsFailed() { return of("TTS_FAILED", "Answer audio generation failed.", HttpStatus.BAD_GATEWAY); }
+    public static VoiceException ttsUnavailable() { return of("TTS_UNAVAILABLE", "Answer audio is temporarily unavailable after bounded provider fallback.", HttpStatus.SERVICE_UNAVAILABLE); }
     public static VoiceException providerUnavailable() { return of("VOICE_PROVIDER_UNAVAILABLE", "The voice provider is unavailable.", HttpStatus.SERVICE_UNAVAILABLE); }
     public static VoiceException timeout() { return of("TIMEOUT", "Voice processing timed out.", HttpStatus.GATEWAY_TIMEOUT); }
 }

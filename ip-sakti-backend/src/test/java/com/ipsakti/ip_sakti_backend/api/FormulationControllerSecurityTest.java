@@ -51,6 +51,9 @@ class FormulationControllerSecurityTest {
     @MockitoBean
     private TranslationProvider translationProvider;
 
+    @MockitoBean
+    private com.ipsakti.ip_sakti_backend.formulation.FormulationChatService chatService;
+
     @Test
     void rejectsWithoutApiKeyInProdMode() throws Exception {
         mockMvc.perform(post("/api/v1/formulations/classify")

@@ -10,11 +10,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class GeminiProperties {
 
     private String apiKey = "";
-    private String model = "gemini-2.5-flash";
-    private String fallbackModels = "gemini-2.5-flash,gemini-2.5-flash-lite,gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-flash-lite-latest";
+    private String model = "gemini-3.1-flash-lite";
+    private String fallbackModels = "gemini-3.1-flash-lite,gemini-2.5-flash-lite,gemini-2.5-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest";
     private String baseUrl = "https://generativelanguage.googleapis.com";
-    private Duration connectTimeout = Duration.ofSeconds(2);
-    private Duration readTimeout = Duration.ofSeconds(10);
+    private Duration connectTimeout = Duration.ofSeconds(10);
+    private Duration readTimeout = Duration.ofSeconds(60);
     private boolean enabled = true;
 
     public String getApiKey() {

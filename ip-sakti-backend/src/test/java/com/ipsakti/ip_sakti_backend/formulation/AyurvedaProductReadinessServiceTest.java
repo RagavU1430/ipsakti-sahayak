@@ -43,6 +43,19 @@ class AyurvedaProductReadinessServiceTest {
             return new TranslatedText(text, text, new LanguageMetadata(lang, lang, Language.EN));
         });
 
+        when(translationService.fromCanonical(any(), any(), any())).thenAnswer(invocation -> {
+            String text = invocation.getArgument(0);
+            LanguageMetadata meta = invocation.getArgument(1);
+            return "[TRANSLATED-" + meta.requestedLanguage() + "] " + text;
+        });
+
+        when(translationService.fromCanonicalList(any(), any(), any())).thenAnswer(invocation -> {
+            @SuppressWarnings("unchecked")
+            List<String> list = (List<String>) invocation.getArgument(0);
+            LanguageMetadata meta = invocation.getArgument(1);
+            return list == null ? List.of() : list.stream().map(s -> "[TRANSLATED-" + meta.requestedLanguage() + "] " + s).toList();
+        });
+
         when(ragClient.ask(any())).thenReturn(new RagAskResponse(
                 "Authoritative legal framework provisions from Drugs and Cosmetics Act and Rules.",
                 0.88,
@@ -297,5 +310,69 @@ class AyurvedaProductReadinessServiceTest {
         assertThat(report).doesNotContain("safe for sale");
         assertThat(report).doesNotContain("clinically proven");
         assertThat(res.status()).isNotEqualTo("APPROVED");
+    }
+
+    @Test
+    void testH_multilingualTamilFormulationAnalysis() {
+        FormulationRequest request = new FormulationRequest(
+                "திரிபலா மாத்திரை",
+                List.of("கடுக்காய்", "நெல்லிக்காய்", "தான்றிக்காய்"),
+                "மாத்திரை",
+                "பாரம்பரிய செரிமான சமநிலை",
+                List.of("ஆயுர்வேத செரிமான ஆதரவு"),
+                null,
+                "சரங்கதர சம்ஹிதை",
+                true,
+                true,
+                "இந்தியா",
+                "இந்தியா",
+                null,
+                null,
+                Language.TA,
+                List.of("1:1:1"),
+                "இந்தியா",
+                "டாபர்",
+                "இந்தியா",
+                List.of()
+        );
+
+        ProductReadinessResponse res = service.analyze(request);
+
+        assertThat(res.language()).isEqualTo(Language.TA);
+        assertThat(res.report()).contains("[TRANSLATED-TA]");
+        assertThat(res.nextSteps()).allMatch(s -> s.startsWith("[TRANSLATED-TA]"));
+        assertThat(res.classification().get("rationale").toString()).startsWith("[TRANSLATED-TA]");
+    }
+
+    @Test
+    void testI_multilingualTeluguFormulationAnalysis() {
+        FormulationRequest request = new FormulationRequest(
+                "త్రిఫల గుగ్గులు",
+                List.of("కరక్కాయ", "ఉసిరికాయ", "తానికాయ"),
+                "టాబ్లెట్",
+                "సాంప్రదాయ జీర్ణ సమతుల్యత",
+                List.of("ఆయుర్వేద జీర్ణ మద్దతు"),
+                null,
+                "శారంగధర సంహిత",
+                true,
+                true,
+                "భారతదేశం",
+                "భారతదేశం",
+                null,
+                null,
+                Language.TE,
+                List.of("1:1:1"),
+                "భారతదేశం",
+                "డాబర్",
+                "భారతదేశం",
+                List.of()
+        );
+
+        ProductReadinessResponse res = service.analyze(request);
+
+        assertThat(res.language()).isEqualTo(Language.TE);
+        assertThat(res.report()).contains("[TRANSLATED-TE]");
+        assertThat(res.nextSteps()).allMatch(s -> s.startsWith("[TRANSLATED-TE]"));
+        assertThat(res.classification().get("rationale").toString()).startsWith("[TRANSLATED-TE]");
     }
 }

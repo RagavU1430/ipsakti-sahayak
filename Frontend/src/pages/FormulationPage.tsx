@@ -14,6 +14,8 @@ import type {
 import { ErrorNotice } from '../components/ErrorNotice';
 import { CheckboxField, LanguageSelect, TextArea, TextField } from '../components/FormControls';
 import { EvidenceList, formatConfidence } from '../components/Evidence';
+import { FormattedText } from '../components/FormattedText';
+import { FormulationReportChatbot } from '../components/FormulationReportChatbot';
 import { LoadingSteps } from '../components/LoadingSteps';
 
 type WizardStep = 1 | 2 | 3 | 4 | 5;
@@ -63,6 +65,7 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
   const [error, setError] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [reportModalTab, setReportModalTab] = useState<'chat' | 'report'>('chat');
   const [activeTab, setActiveTab] = useState<'overview' | 'gaps' | 'claims' | 'ip' | 'steps' | 'report'>('overview');
 
   useEffect(() => {
@@ -246,24 +249,31 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
     <div className="page wide-page">
       {/* Header Banner */}
       <div className="page-heading">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, var(--primary), #1e40af)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '26px' }}>verified_user</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, var(--primary), #1e40af)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '26px' }}>verified_user</span>
+            </div>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700 }}>Ayurveda Product Market-Readiness & Compliance Engine</h1>
+              <p style={{ margin: '4px 0 0', color: 'var(--on-surface-variant)', fontSize: '14px' }}>
+                Evidence-grounded regulatory pre-screening, statutory gap analysis, claims scrutiny & IP roadmap.
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700 }}>Ayurveda Product Market-Readiness & Compliance Engine</h1>
-            <p style={{ margin: '4px 0 0', color: 'var(--on-surface-variant)', fontSize: '14px' }}>
-              Evidence-grounded regulatory pre-screening, statutory gap analysis, claims scrutiny & IP roadmap.
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--surface-container-low)', padding: '6px 14px', borderRadius: '10px', border: '1px solid var(--outline-variant)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--primary)' }}>translate</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--body-text)' }}>Report Language:</span>
+            <LanguageSelect value={language} onChange={setLanguage} />
           </div>
         </div>
       </div>
@@ -330,8 +340,8 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
                 Enter product identity, dosage form, manufacturing entities, and raw materials.
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: 'var(--secondary)' }}>Preload Sample:</span>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '12px', color: 'var(--secondary)', fontWeight: 600 }}>Preload Sample:</span>
               <button className="chip-button" type="button" onClick={() => loadSample('classical')}>
                 🌿 Classical Triphala
               </button>
@@ -805,6 +815,18 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
                 <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--primary)' }}>verified</span>
                 <span style={{ fontSize: '13px', fontWeight: 600 }}>{formatConfidence(result.confidence)} Confidence</span>
               </div>
+              <button
+                className="button primary"
+                type="button"
+                onClick={() => {
+                  setReportModalTab('chat');
+                  setReportOpen(true);
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <span className="material-symbols-outlined">smart_toy</span>
+                AI Report Summary
+              </button>
               <button className="button secondary" type="button" onClick={() => setCurrentStep(1)}>
                 <span className="material-symbols-outlined">edit</span>
                 Edit Inputs
@@ -874,13 +896,14 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
               { id: 'claims', label: '3. Claims & Ingredients', icon: 'health_and_safety' },
               { id: 'ip', label: '4. IP, TK & ABS', icon: 'lightbulb' },
               { id: 'steps', label: `5. Next Steps (${result.nextSteps.length})`, icon: 'list_alt' },
-              { id: 'report', label: '6. Full 17-Section Report', icon: 'article' },
+              { id: 'report', label: '6. Full 17-Section Report & AI Summary', icon: 'smart_toy' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => {
                   if (tab.id === 'report') {
+                    setReportModalTab('chat');
                     setReportOpen(true);
                     return;
                   }
@@ -1216,33 +1239,64 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
               <section className="assessment-report-modal" role="dialog" aria-modal="true" aria-labelledby="assessment-report-title">
                 <div className="assessment-report-header">
                   <div>
-                    <span className="assessment-report-eyebrow">Assessment Report</span>
-                    <h3 id="assessment-report-title">Complete 17-Section Regulatory Audit Report</h3>
+                    <span className="assessment-report-eyebrow">Assessment Report Assistant</span>
+                    <h3 id="assessment-report-title">Regulatory Audit Report & AI Summary</h3>
                   </div>
                   <button className="assessment-report-close" type="button" aria-label="Close report" onClick={() => setReportOpen(false)}>
                     <span className="material-symbols-outlined">close</span>
                   </button>
                 </div>
 
-                <div className="assessment-report-actions">
+                <div className="report-modal-tab-bar">
                   <button
-                    className="button secondary"
                     type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(result.report);
-                      alert('17-Section Report copied to clipboard!');
-                    }}
+                    className={`report-modal-tab-btn ${reportModalTab === 'chat' ? 'active' : ''}`}
+                    onClick={() => setReportModalTab('chat')}
                   >
-                    <span className="material-symbols-outlined">content_copy</span>
-                    Copy Markdown
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>smart_toy</span>
+                    <span>AI Report Assistant & Executive Summary</span>
                   </button>
-                  <button className="button secondary" type="button" onClick={() => window.print()}>
-                    <span className="material-symbols-outlined">print</span>
-                    Print / PDF
+                  <button
+                    type="button"
+                    className={`report-modal-tab-btn ${reportModalTab === 'report' ? 'active' : ''}`}
+                    onClick={() => setReportModalTab('report')}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>article</span>
+                    <span>Full 17-Section Regulatory Audit Report</span>
                   </button>
                 </div>
 
-                <div className="assessment-report-content">{result.report}</div>
+                {reportModalTab === 'chat' ? (
+                  <FormulationReportChatbot
+                    result={result}
+                    language={language}
+                    onViewFullReport={() => setReportModalTab('report')}
+                  />
+                ) : (
+                  <>
+                    <div className="assessment-report-actions">
+                      <button
+                        className="button secondary"
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(result.report);
+                          alert('17-Section Report copied to clipboard!');
+                        }}
+                      >
+                        <span className="material-symbols-outlined">content_copy</span>
+                        Copy Markdown
+                      </button>
+                      <button className="button secondary" type="button" onClick={() => window.print()}>
+                        <span className="material-symbols-outlined">print</span>
+                        Print / PDF
+                      </button>
+                    </div>
+
+                    <div className="assessment-report-content">
+                      <FormattedText content={result.report} />
+                    </div>
+                  </>
+                )}
               </section>
             </div>
           )}

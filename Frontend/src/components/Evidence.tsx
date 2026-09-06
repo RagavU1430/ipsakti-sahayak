@@ -14,42 +14,118 @@ export const EvidenceList = React.memo(function EvidenceList({ citations = [], s
   }));
 
   return (
-    <div className="evidence-grid">
-      <section className="result-section">
-        <h3>Evidence</h3>
-        {normalizedCitations.length === 0 ? (
-          <p className="muted">No citations returned by the backend.</p>
-        ) : (
-          <ol className="citation-list">
-            {normalizedCitations.map((citation, index) => (
-              <li key={`${citation.documentId}-${citation.chunkId}-${index}`}>
-                <strong>{citation.document || citation.documentId || 'Source document'}</strong>
-                <dl>
-                  {citation.section ? <><dt>Section</dt><dd>{citation.section}</dd></> : null}
-                  {citation.page ? <><dt>Page</dt><dd>{citation.page}</dd></> : null}
-                  {citation.documentId ? <><dt>Document ID</dt><dd>{citation.documentId}</dd></> : null}
-                  {citation.authority ? <><dt>Authority</dt><dd>{citation.authority}</dd></> : null}
-                </dl>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
-      <section className="result-section">
-        <h3>Sources</h3>
-        {normalizedSources.length === 0 ? (
-          <p className="muted">No source scores returned.</p>
-        ) : (
-          <ul className="source-list">
+    <div className="evidence-section">
+      <div className="evidence-header">
+        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+          menu_book
+        </span>
+        <span>Authoritative Corpus & Statutory Evidence</span>
+        {normalizedCitations.length > 0 ? (
+          <span
+            style={{
+              fontSize: '11.5px',
+              padding: '2px 8px',
+              borderRadius: '999px',
+              background: 'var(--surface-container-high)',
+              color: 'var(--primary)',
+              fontWeight: 700,
+            }}
+          >
+            {normalizedCitations.length} cited
+          </span>
+        ) : null}
+      </div>
+
+      {normalizedCitations.length === 0 ? (
+        <p className="muted" style={{ fontSize: '13px', margin: '4px 0' }}>
+          No citations returned by the backend.
+        </p>
+      ) : (
+        <div className="citation-list">
+          {normalizedCitations.map((citation, index) => (
+            <div key={`${citation.documentId}-${citation.chunkId}-${index}`} className="citation-card">
+              <span className="material-symbols-outlined citation-icon">description</span>
+              <div className="citation-content">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', flexWrap: 'wrap' }}>
+                  <span className="citation-title">
+                    {citation.document || citation.documentId || 'Official Reference Document'}
+                  </span>
+                  {citation.documentId ? (
+                    <span className="evidence-tag doc-id">{citation.documentId}</span>
+                  ) : null}
+                </div>
+                <div className="citation-meta-tags">
+                  {citation.section ? (
+                    <span className="evidence-tag">
+                      <strong>Section:</strong> {citation.section}
+                    </span>
+                  ) : null}
+                  {citation.page ? (
+                    <span className="evidence-tag">
+                      <strong>Page:</strong> {citation.page}
+                    </span>
+                  ) : null}
+                  {citation.authority ? (
+                    <span className="evidence-tag authority">
+                      🏛️ {citation.authority}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {normalizedSources.length > 0 ? (
+        <div style={{ marginTop: '10px' }}>
+          <span
+            style={{
+              fontSize: '12px',
+              fontWeight: 700,
+              color: 'var(--secondary)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.03em',
+              display: 'block',
+              marginBottom: '6px',
+            }}
+          >
+            Retrieved Corpus Sources & Relevance Score
+          </span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {normalizedSources.map((source, index) => (
-              <li key={`${source.documentId}-${index}`}>
-                <span>{source.documentId}</span>
-                <code>score: {formatScore(source.score)}</code>
-              </li>
+              <div
+                key={`${source.documentId}-${index}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'var(--surface-container-low)',
+                  border: '1px solid var(--outline-variant)',
+                  borderRadius: '4px',
+                  padding: '4px 10px',
+                  fontSize: '12px',
+                }}
+              >
+                <span style={{ fontWeight: 600, color: 'var(--on-surface)' }}>{source.documentId}</span>
+                <span
+                  style={{
+                    background: 'var(--surface-container-high)',
+                    padding: '2px 6px',
+                    borderRadius: '3px',
+                    fontSize: '11px',
+                    fontFamily: 'monospace',
+                    color: 'var(--primary)',
+                    fontWeight: 700,
+                  }}
+                >
+                  score: {formatScore(source.score)}
+                </span>
+              </div>
             ))}
-          </ul>
-        )}
-      </section>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 });

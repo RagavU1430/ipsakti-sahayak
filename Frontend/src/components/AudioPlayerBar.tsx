@@ -33,7 +33,9 @@ export function AudioPlayerBar({
   const timerRef = useRef<number | null>(null);
   const serverAudioRef = useRef<HTMLAudioElement | null>(null);
   const serverAudioUrlRef = useRef<string | null>(null);
+  const generationInFlightRef = useRef(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
 
   const cleanedText = useMemo(() => cleanTextForSpeech(text), [text]);
 
@@ -95,6 +97,10 @@ export function AudioPlayerBar({
       URL.revokeObjectURL(serverAudioUrlRef.current);
       serverAudioUrlRef.current = null;
     }
+    serverAudioRef.current = null;
+    generationInFlightRef.current = false;
+    setIsGeneratingAudio(false);
+    setAudioError(null);
   }, [text, language, stopPlayback]);
 
   useEffect(() => () => {
@@ -135,6 +141,18 @@ export function AudioPlayerBar({
     if (isPlaying) {
       stopPlayback();
     } else if (language !== 'en' && auth) {
+      setAudioError(null);
+      if (serverAudioRef.current) {
+        try {
+          await serverAudioRef.current.play();
+          setIsPlaying(true);
+        } catch {
+          setAudioError('The generated audio could not be played. Please retry.');
+        }
+        return;
+      }
+      if (generationInFlightRef.current) return;
+      generationInFlightRef.current = true;
       setIsGeneratingAudio(true);
       try {
         const url = await synthesizeSpeech(cleanedText, language, auth);
@@ -149,12 +167,15 @@ export function AudioPlayerBar({
         audio.onerror = () => {
           setIsPlaying(false);
           setElapsed(0);
+          setAudioError('The generated audio could not be played. Please retry.');
         };
         await audio.play();
         setIsPlaying(true);
-      } catch {
+      } catch (error) {
         setIsPlaying(false);
+        setAudioError(error instanceof Error ? error.message : 'The selected language audio could not be generated.');
       } finally {
+        generationInFlightRef.current = false;
         setIsGeneratingAudio(false);
       }
     } else {
@@ -243,6 +264,8 @@ export function AudioPlayerBar({
           {isMuted ? 'volume_off' : 'volume_up'}
         </span>
       </button>
+
+      {audioError ? <span className="audio-playback-error" role="alert">{audioError}</span> : null}
     </div>
   );
 }

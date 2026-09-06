@@ -115,7 +115,13 @@ public class QuestionService {
                 );
                 return executeRagPipeline(upgradedRouting, canonicalQuestion, languageMetadata, jurisdiction, intent, questionId, started);
             }
-            String answer = translationService.fromCanonical(canonicalAnswer, languageMetadata, questionId);
+            String answer;
+            try {
+                answer = translationService.fromCanonical(canonicalAnswer, languageMetadata, questionId);
+            } catch (Exception ex) {
+                log.warn("translation_fallback_to_canonical questionId={} err={}", questionId, ex.getMessage());
+                answer = canonicalAnswer;
+            }
             QuestionResponse response = new QuestionResponse(answer, AnswerType.GENERAL_FALLBACK, "GENERAL", null, routing.reason(),
                     null, false, jurisdiction, languageMetadata.requestedLanguage(), languageMetadata.detectedLanguage(),
                     languageMetadata.processingLanguage(), QuestionIntent.GENERAL, List.of(), List.of());

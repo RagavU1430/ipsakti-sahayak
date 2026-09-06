@@ -6,11 +6,12 @@ import com.ipsakti.ip_sakti_backend.question.model.Language;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicReference;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -23,21 +24,18 @@ public class GeminiTranslationProvider implements TranslationProvider {
 
     private static final Logger log = LoggerFactory.getLogger(GeminiTranslationProvider.class);
 
-    // Legal identifier protection - placeholders for critical terms
-    private static final Pattern LEGAL_PATTERN = Pattern.compile(
-            "\\b(Section\\s+3\\(p\\)|Section\\s+3\\(e\\)|Section\\s+\\d+[A-Za-z]?|Rule\\s+\\d+|Article\\s+\\d+|Regulation\\s+\\d+|Patents Act,?\\s+1970|Trade Marks Act,?\\s+1999|Geographical Indications|Traditional Knowledge|GRATK|TKDL|WIPO|WTO|ABS|GI|PCT)\\b",
-            Pattern.CASE_INSENSITIVE
-    );
+    static final String TRANSLATION_PROMPT_VERSION = "ip-sakti-legal-v4";
 
     private final RestClient restClient;
     private final GeminiProperties properties;
     private final ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();
+    private final AtomicReference<String> preferredModel = new AtomicReference<>();
+    private final ConcurrentHashMap<String, Long> rateLimitedUntil = new ConcurrentHashMap<>();
 
     public GeminiTranslationProvider(RestClient restClient, GeminiProperties properties) {
         this.restClient = restClient;
         this.properties = properties;
     }
-
     @Override
     public boolean isConfigured() {
         return properties.configured();
@@ -60,107 +58,64 @@ public class GeminiTranslationProvider implements TranslationProvider {
             return text;
         }
 
-        // Simple cache for translation results (safe for stateless short texts)
-        String cacheKey = sourceLanguage.toJson() + "->" + targetLanguage.toJson() + ":" + text.hashCode() + ":" + text.length();
+        String cacheKey = cacheKey(sourceLanguage, targetLanguage, text);
         String cached = cache.get(cacheKey);
         if (cached != null) {
+            log.debug("gemini_translation_cache cacheHit=true sourceLanguage={} targetLanguage={} cacheKeyHash={}",
+                    sourceLanguage, targetLanguage, cacheKey.substring(cacheKey.length() - 16));
             return cached;
         }
+        log.debug("gemini_translation_cache cacheHit=false sourceLanguage={} targetLanguage={} cacheKeyHash={}",
+                sourceLanguage, targetLanguage, cacheKey.substring(cacheKey.length() - 16));
 
-        // Placeholder protection for legal identifiers
-        Map<String, String> placeholders = new ConcurrentHashMap<>();
-        String protectedText = protectLegalIdentifiers(text, placeholders);
-
-        String prompt = buildPrompt(protectedText, sourceLanguage, targetLanguage);
+        String prompt = buildPrompt(text, sourceLanguage, targetLanguage);
         String translated = callGemini(prompt, sourceLanguage, targetLanguage);
-        String restored = restoreLegalIdentifiers(translated, placeholders);
 
         // Cache only successful translations, limited size
         if (cache.size() < 1000) {
-            cache.put(cacheKey, restored);
+            cache.put(cacheKey, translated);
         }
-        return restored;
+        return translated;
     }
 
-    private String protectLegalIdentifiers(String text, Map<String, String> placeholders) {
-        Matcher m = LEGAL_PATTERN.matcher(text);
-        StringBuffer sb = new StringBuffer();
-        int idx = 0;
-        while (m.find()) {
-            String original = m.group();
-            String placeholder = "__LEGAL_REF_" + idx + "__";
-            placeholders.put(placeholder, original);
-            m.appendReplacement(sb, Matcher.quoteReplacement(placeholder));
-            idx++;
+    @Override
+    public void invalidate(String text, Language sourceLanguage, Language targetLanguage) {
+        if (text != null && sourceLanguage != null && targetLanguage != null) {
+            cache.remove(cacheKey(sourceLanguage, targetLanguage, text));
         }
-        m.appendTail(sb);
-        return sb.toString();
-    }
-
-    private String restoreLegalIdentifiers(String text, Map<String, String> placeholders) {
-        String result = text;
-        for (Map.Entry<String, String> e : placeholders.entrySet()) {
-            result = result.replace(e.getKey(), e.getValue());
-        }
-        return result;
     }
 
     private String buildPrompt(String text, Language source, Language target) {
         String sourceName = languageDisplayName(source);
         String targetName = languageDisplayName(target);
         boolean toEnglish = target == Language.EN;
+        boolean hasProtectedTokens = text.contains("[[IPSAKTI_TOKEN_");
 
-        if (toEnglish) {
-            return "You are a translation component for an Indian intellectual property knowledge system.\n\n"
-                    + "Translate the user's text from " + sourceName + " (" + source.toJson() + ") into English.\n\n"
-                    + "Translation only.\n"
-                    + "Do not answer the question.\n"
-                    + "Do not summarize.\n"
-                    + "Do not explain.\n"
-                    + "Do not add information.\n"
-                    + "Preserve:\n"
-                    + "- legal terminology\n"
-                    + "- Act names\n"
-                    + "- Rule names\n"
-                    + "- Section numbers\n"
-                    + "- subsection identifiers\n"
-                    + "- patent numbers\n"
-                    + "- application numbers\n"
-                    + "- dates\n"
-                    + "- numbers\n"
-                    + "- URLs\n"
-                    + "- quoted terms\n"
-                    + "- product names\n"
-                    + "- organization names\n"
-                    + "- placeholders like __LEGAL_REF_N__ exactly\n\n"
-                    + "Return only the translated text.\n\n"
-                    + "Text to translate:\n" + text;
-        } else {
-            return "You are a translation component for an Indian intellectual property knowledge system.\n\n"
-                    + "Translate the supplied authoritative answer from English into " + targetName + " (" + target.toJson() + ").\n\n"
-                    + "Translation only.\n"
-                    + "Do not add facts.\n"
-                    + "Do not remove facts.\n"
-                    + "Do not change legal meaning.\n"
-                    + "Do not change uncertainty.\n"
-                    + "Do not introduce legal advice.\n"
-                    + "Preserve:\n"
-                    + "- citations\n"
-                    + "- document names\n"
-                    + "- section references\n"
-                    + "- rule references\n"
-                    + "- numbers\n"
-                    + "- dates\n"
-                    + "- URLs\n"
-                    + "- organization names\n"
-                    + "- patent/trademark identifiers\n"
-                    + "- bullet structure\n"
-                    + "- headings\n"
-                    + "- placeholders like __LEGAL_REF_N__ exactly\n\n"
-                    + "The answer was generated from authoritative evidence.\n"
-                    + "Do not independently answer or reinterpret the question.\n\n"
-                    + "Return only the translated answer.\n\n"
-                    + "Text to translate:\n" + text;
+        return "You are a faithful translation component for an evidence-grounded IP and regulatory assistant.\n\n"
+                + "Translate the provided text from " + sourceName + " (" + source.toJson() + ") to "
+                + targetName + " (" + target.toJson() + ").\n\n"
+                + (toEnglish ? "Translation only; do not answer the user's question.\n" : "Translation only; do not independently answer or reinterpret the content.\n")
+                + "Preserve meaning exactly. Do not add information, remove information, summarize, reinterpret, provide legal advice, change legal meaning, or convert uncertainty into certainty.\n"
+                + "Do not change section numbers, citation identifiers, document identifiers, URLs, percentages, dates, numbers, Markdown syntax, bullet points, headings, or confidence values.\n"
+                + (hasProtectedTokens
+                        ? "The supplied text contains protected IPSAKTI_TOKEN placeholders. Copy every placeholder exactly once and do not translate, add, remove, duplicate, or modify placeholders. You may move a whole placeholder only where target-language grammar requires it.\n"
+                        : "")
+                + "Only translate natural-language explanatory content. If a legal term has no reliable equivalent, preserve canonical English instead of inventing one.\n\n"
+                + "Return only the translated text.\n\nText to translate:\n" + text;
+    }
+
+    static String cacheKey(Language sourceLanguage, Language targetLanguage, String text) {
+        return TRANSLATION_PROMPT_VERSION + ":" + sourceLanguage.toJson() + "->" + targetLanguage.toJson() + ":" + sha256(text);
+    }
+
+    private static String sha256(String text) {
+        try {
+            byte[] bytes = MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8));
+            StringBuilder value = new StringBuilder(bytes.length * 2);
+            for (byte b : bytes) value.append(String.format("%02x", b));
+            return value.toString();
+        } catch (Exception ex) {
+            throw new IllegalStateException("SHA-256 unavailable", ex);
         }
     }
 
@@ -176,14 +131,33 @@ public class GeminiTranslationProvider implements TranslationProvider {
     }
 
     private String callGemini(String prompt, Language source, Language target) {
-        List<String> candidates = properties.modelCandidates();
-        if (candidates.isEmpty()) {
+        List<String> rawCandidates = properties.modelCandidates();
+        if (rawCandidates.isEmpty()) {
             throw TranslationException.notConfigured();
         }
+
+        long now = System.currentTimeMillis();
+        List<String> candidates = new ArrayList<>();
+        String preferred = preferredModel.get();
+        if (preferred != null && rawCandidates.contains(preferred) && now >= rateLimitedUntil.getOrDefault(preferred, 0L)) {
+            candidates.add(preferred);
+        }
+        for (String m : rawCandidates) {
+            if (!candidates.contains(m) && now >= rateLimitedUntil.getOrDefault(m, 0L)) {
+                candidates.add(m);
+            }
+        }
+        if (candidates.isEmpty()) {
+            candidates = rawCandidates;
+        }
+
         TranslationException lastFailure = null;
         for (String model : candidates) {
             try {
-                return callGeminiModel(prompt, source, target, model);
+                String result = callGeminiModel(prompt, source, target, model, candidates.size() > 1);
+                preferredModel.set(model);
+                rateLimitedUntil.remove(model);
+                return result;
             } catch (TranslationException ex) {
                 lastFailure = ex;
                 if (!shouldTryNextModel(ex)) {
@@ -196,7 +170,7 @@ public class GeminiTranslationProvider implements TranslationProvider {
         throw lastFailure == null ? TranslationException.translationUnavailable() : lastFailure;
     }
 
-    private String callGeminiModel(String prompt, Language source, Language target, String model) {
+    private String callGeminiModel(String prompt, Language source, Language target, String model, boolean hasAlternativeModels) {
         long started = System.nanoTime();
         int maxRetries = 1; // limited retry for transient failures only
         int attempt = 0;
@@ -205,7 +179,7 @@ public class GeminiTranslationProvider implements TranslationProvider {
             try {
                 GeminiRequest request = new GeminiRequest(
                         List.of(new Content(List.of(new Part(prompt)))),
-                        new GenerationConfig(0.1, 4000)
+                        new GenerationConfig(0.0, 4000)
                 );
 
                 String path = "/v1beta/models/" + model + ":generateContent?key=" + properties.getApiKey();
@@ -254,11 +228,17 @@ public class GeminiTranslationProvider implements TranslationProvider {
                             status, source, target, model, latency);
                     throw TranslationException.modelUnavailable(model);
                 }
-                if (status == 429 && attempt <= maxRetries) {
-                    log.warn("gemini_rate_limited sourceLanguage={} targetLanguage={} model={} latencyMs={} retrying",
+                if (status == 429) {
+                    rateLimitedUntil.put(model, System.currentTimeMillis() + 60_000L);
+                    log.warn("gemini_rate_limited sourceLanguage={} targetLanguage={} model={} latencyMs={}",
                             source, target, model, latency);
-                    try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
-                    continue;
+                    if (hasAlternativeModels) {
+                        throw TranslationException.unexpectedStatus(status);
+                    }
+                    if (attempt <= maxRetries) {
+                        try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                        continue;
+                    }
                 }
                 log.warn("gemini_unexpected_http_status status={} sourceLanguage={} targetLanguage={} model={} latencyMs={}",
                         status, source, target, model, latency);

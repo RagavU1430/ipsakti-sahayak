@@ -38,4 +38,18 @@ class GeminiGeneralLlmProviderTest {
         assertThat(provider.answer("Hi")).isEqualTo("Hello!");
         server.verify();
     }
+
+    @Test
+    void answersIdentityAndWorkQuestionsWithIpSaktiDescription() {
+        GeminiProperties properties = new GeminiProperties();
+        GeminiGeneralLlmProvider provider = new GeminiGeneralLlmProvider(RestClient.builder().build(), properties);
+
+        assertThat(provider.answer("Hi, what is your work?"))
+                .contains("IP-SAKTI Sahayak")
+                .contains("Indian Intellectual Property (IP) Law")
+                .contains("Patents, Trademarks, Geographical Indications");
+
+        assertThat(provider.answer("Who are you?"))
+                .contains("IP-SAKTI Sahayak");
+    }
 }

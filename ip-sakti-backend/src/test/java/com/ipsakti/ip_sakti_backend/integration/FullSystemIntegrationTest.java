@@ -85,6 +85,11 @@ class FullSystemIntegrationTest {
         when(translationProvider.translate(any(), eq(Language.EN), eq(Language.TA)))
                 .thenReturn("இந்தியாவில் காப்புரிமைக்கு புதுமை தேவைப்படுகிறது.");
 
+        // TranslationService protects immutable evidence tokens; an echoing provider represents a
+        // compliant provider in this controller contract test.
+        when(translationProvider.translate(any(), eq(Language.EN), eq(Language.HI))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(translationProvider.translate(any(), eq(Language.EN), eq(Language.TA))).thenAnswer(invocation -> invocation.getArgument(0));
+
         // 1. English
         mockMvc.perform(post("/api/v1/questions")
                         .contentType(MediaType.APPLICATION_JSON)

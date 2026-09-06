@@ -37,6 +37,7 @@ export function KeyboardHelpOverlay({ isOpen, onClose }: Props) {
       { key: 'N', desc: 'New Query' },
       { key: 'V', desc: 'Voice Assistant' },
       { key: '?', desc: 'This Help' },
+      { key: 'Ctrl+B', desc: 'Toggle Sidebar' },
       { key: 'M', desc: 'Toggle Menu' },
     ]},
     { group: 'Voice', items: [

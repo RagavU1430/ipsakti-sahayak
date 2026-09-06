@@ -13,7 +13,13 @@ interface FormattedTextProps {
 export function FormattedText({ content, className, style }: FormattedTextProps) {
   if (!content) return null;
 
-  const lines = content.split('\n');
+  // Normalize markdown text so attached headings (e.g. "...வேண்டும்.## 1. ") and bullets have proper line breaks
+  const normalized = content
+    .replace(/\r\n/g, '\n')
+    .replace(/([^\n])(#{1,6}\s+)/g, '$1\n\n$2')
+    .replace(/([^\n])([-*•]\s+)/g, '$1\n$2');
+
+  const lines = normalized.split('\n');
 
   return (
     <div className={className} style={{ ...style }}>

@@ -1,7 +1,9 @@
 package com.ipsakti.ip_sakti_backend.voice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +17,7 @@ import com.ipsakti.ip_sakti_backend.question.model.QuestionResponse;
 import com.ipsakti.ip_sakti_backend.voice.config.VoiceProperties;
 import com.ipsakti.ip_sakti_backend.voice.dto.SynthesizedSpeech;
 import com.ipsakti.ip_sakti_backend.voice.dto.VoiceTranscript;
+import com.ipsakti.ip_sakti_backend.voice.exception.VoiceException;
 import com.ipsakti.ip_sakti_backend.voice.provider.SpeechToTextProvider;
 import com.ipsakti.ip_sakti_backend.voice.provider.TextToSpeechProvider;
 import java.util.List;
@@ -78,5 +81,43 @@ class VoiceV2ServiceTest {
         assertThat(response.answer()).isEqualTo("Section 377 grounded answer");
         assertThat(response.audioBase64()).isNotBlank();
         verify(tts).synthesize("Section 377 grounded answer", Language.EN);
+    }
+
+    @Test
+    void rejectsUnsupportedMimeBeforeCallingSpeechProvider() {
+        var service = new VoiceService(new VoiceProperties(), stt, tts, questions, conversations);
+
+        assertThatThrownBy(() -> service.ask(new byte[]{1}, "application/octet-stream", Language.EN,
+                Jurisdiction.INDIA, null, null))
+                .isInstanceOfSatisfying(VoiceException.class,
+                        error -> assertThat(error.getCode()).isEqualTo("UNSUPPORTED_AUDIO"));
+        verifyNoInteractions(stt, tts, questions, conversations);
+    }
+
+    @Test
+    void rejectsOversizedRecordingBeforeCallingSpeechProvider() {
+        VoiceProperties properties = new VoiceProperties();
+        properties.setMaxAudioBytes(2);
+        var service = new VoiceService(properties, stt, tts, questions, conversations);
+
+        assertThatThrownBy(() -> service.ask(new byte[]{1, 2, 3}, "audio/wav", Language.EN,
+                Jurisdiction.INDIA, null, null))
+                .isInstanceOfSatisfying(VoiceException.class,
+                        error -> assertThat(error.getCode()).isEqualTo("AUDIO_TOO_LARGE"));
+        verifyNoInteractions(stt, tts, questions, conversations);
+    }
+
+    @Test
+    void rejectsBlankProviderTranscriptWithoutCreatingFakeAnswer() {
+        byte[] input = "audio".getBytes();
+        when(stt.transcribe(input, "audio/wav", Language.TA))
+                .thenReturn(new VoiceTranscript("  ", Language.TA));
+        var service = new VoiceService(new VoiceProperties(), stt, tts, questions, conversations);
+
+        assertThatThrownBy(() -> service.ask(input, "audio/wav", Language.TA,
+                Jurisdiction.INDIA, null, null))
+                .isInstanceOfSatisfying(VoiceException.class,
+                        error -> assertThat(error.getCode()).isEqualTo("STT_EMPTY"));
+        verifyNoInteractions(tts, questions, conversations);
     }
 }

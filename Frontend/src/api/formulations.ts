@@ -1,6 +1,12 @@
 import { request } from './client';
 import type { AuthHeaders } from './client';
-import type { FormulationRequest, FormulationResponse, ProductReadinessResponse } from './types';
+import type {
+  FormulationChatRequest,
+  FormulationChatResponse,
+  FormulationRequest,
+  FormulationResponse,
+  ProductReadinessResponse,
+} from './types';
 
 export function classifyFormulation(payload: FormulationRequest, auth?: AuthHeaders) {
   return request<FormulationResponse>('/api/v1/formulations/classify', {
@@ -15,3 +21,11 @@ export function analyzeProductReadiness(payload: FormulationRequest, auth?: Auth
     body: JSON.stringify(payload),
   }, auth);
 }
+
+export function chatFormulationReport(payload: FormulationChatRequest, auth?: AuthHeaders) {
+  return request<FormulationChatResponse>('/api/v1/formulations/chat', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }, auth);
+}
+

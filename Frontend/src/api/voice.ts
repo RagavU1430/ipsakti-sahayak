@@ -11,6 +11,7 @@ const messages: Record<string, string> = {
   STT_EMPTY: "I couldn't hear clear speech. Please try again closer to the microphone.",
   STT_FAILED: "I couldn't transcribe that recording. Please try again.",
   TTS_FAILED: 'The answer was created, but its audio could not be generated.',
+  TTS_UNAVAILABLE: 'Answer audio is temporarily unavailable after the bounded voice-provider fallback.',
   VOICE_PROVIDER_UNAVAILABLE: 'The voice provider is temporarily unavailable.',
   AUTH_REQUIRED: 'Please sign in before adding voice messages to a conversation.',
   INVALID_LANGUAGE: 'Choose one of the six supported languages.',
@@ -84,7 +85,14 @@ export async function synthesizeSpeech(text: string, language: Language, auth: A
     headers: requestHeaders,
     body: JSON.stringify({ text, language }),
   });
-  if (!response.ok) throw new Error('The selected language audio could not be generated.');
+  if (!response.ok) {
+    const body = (response.headers.get('content-type') || '').includes('application/json')
+      ? await response.json() : {};
+    const code = body.code || 'TTS_FAILED';
+    const error = new Error(messages[code] || body.error || 'The selected language audio could not be generated.') as Error & { code?: string };
+    error.code = code;
+    throw error;
+  }
   return URL.createObjectURL(await response.blob());
 }
 

@@ -51,7 +51,8 @@ public class DefaultQueryRouter implements QueryRouter {
     private static final String[] GREETINGS = {
             "hi", "hello", "hey", "good morning", "good afternoon", "good evening", "how are you",
             "thank you", "thanks", "goodbye", "bye", "who are you",
-            "what can you do", "how can you help me", "how can you help", "explain how this chatbot works", "what can this chatbot do"
+            "what can you do", "how can you help me", "how can you help", "explain how this chatbot works", "what can this chatbot do",
+            "what is your work", "what do you do", "what is your job", "tell me about yourself"
     };
     private static final String[] GENERAL_TASKS = {
             "tell me a joke", "write an email", "write a simple", "summarize this sentence", "what is python",

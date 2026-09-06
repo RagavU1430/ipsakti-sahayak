@@ -38,7 +38,7 @@ supabase:
 # RAG microservice connection
 rag:
   base-url: ${RAG_BASE_URL:http://127.0.0.1:8000}
-  connect-timeout: ${RAG_CONNECT_TIMEOUT:5s}
+  connect-timeout: ${RAG_CONNECT_TIMEOUT:10s}
   read-timeout: ${RAG_READ_TIMEOUT:60s}
   default-top-k: ${RAG_TOP_K:8}
 
@@ -55,17 +55,19 @@ app:
 gemini:
   enabled: ${GEMINI_ENABLED:true}
   api-key: ${GEMINI_API_KEY:}
-  model: ${GEMINI_MODEL:gemini-2.5-flash}
-  fallback-models: ${GEMINI_FALLBACK_MODELS:gemini-2.5-flash,gemini-2.5-flash-lite,gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-flash-lite-latest}
+  model: ${GEMINI_MODEL:gemini-3.5-flash-lite}
+  fallback-models: ${GEMINI_FALLBACK_MODELS:gemini-3.5-flash-lite,gemini-flash-lite-latest,gemini-3.1-flash-lite,gemini-2.5-flash-lite,gemini-2.5-flash}
   base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
-  connect-timeout: ${GEMINI_CONNECT_TIMEOUT:2s}
-  read-timeout: ${GEMINI_READ_TIMEOUT:10s}
+  connect-timeout: ${GEMINI_CONNECT_TIMEOUT:10s}
+  read-timeout: ${GEMINI_READ_TIMEOUT:60s}
 
 voice:
   enabled: ${VOICE_ENABLED:true}
   max-audio-bytes: ${VOICE_MAX_AUDIO_BYTES:10485760}
   request-timeout: ${VOICE_REQUEST_TIMEOUT:90s}
   tts-model: ${GEMINI_TTS_MODEL:gemini-3.1-flash-tts-preview}
+  tts-fallback-models: ${GEMINI_TTS_FALLBACK_MODELS:gemini-2.5-flash-preview-tts}
+  tts-max-attempts: ${GEMINI_TTS_MAX_ATTEMPTS:2}
   tts-voice: ${GEMINI_TTS_VOICE:Kore}
 
 server:

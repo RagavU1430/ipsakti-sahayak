@@ -34,48 +34,61 @@ public class GeminiTextToSpeechProvider implements TextToSpeechProvider {
     @Override
     public SynthesizedSpeech synthesize(String text, Language language) {
         if (!isConfigured()) throw VoiceException.providerUnavailable();
-        long started = System.nanoTime();
-        try {
-            Map<String, Object> speechConfig = Map.of(
-                    "languageCode", locale(language),
-                    "voiceConfig", Map.of("prebuiltVoiceConfig", Map.of("voiceName", voice.getTtsVoice())));
-            Map<String, Object> body = Map.of(
-                    "contents", List.of(Map.of("parts", List.of(Map.of("text", "Read this answer clearly and exactly:\n" + text)))),
-                    "generationConfig", Map.of("responseModalities", List.of("AUDIO"), "speechConfig", speechConfig));
-            Map<?, ?> response = client.post()
-                    .uri("/v1beta/models/{model}:generateContent", voice.getTtsModel())
-                    .header("x-goog-api-key", gemini.getApiKey())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .body(Map.class);
-            AudioPart part = extractAudio(response);
-            byte[] decoded = Base64.getDecoder().decode(part.data());
-            String mime = part.mimeType() == null ? "audio/L16;codec=pcm;rate=24000" : part.mimeType();
-            if (mime.toLowerCase().contains("l16") || mime.toLowerCase().contains("pcm")) {
-                decoded = PcmWaveEncoder.mono16Bit24Khz(decoded);
-                mime = "audio/wav";
+        VoiceException lastFailure = null;
+        int attempt = 0;
+        for (String model : voice.ttsModelCandidates()) {
+            attempt++;
+            long started = System.nanoTime();
+            try {
+                Map<String, Object> speechConfig = Map.of(
+                        "languageCode", locale(language),
+                        "voiceConfig", Map.of("prebuiltVoiceConfig", Map.of("voiceName", voice.getTtsVoice())));
+                Map<String, Object> body = Map.of(
+                        "contents", List.of(Map.of("parts", List.of(Map.of("text", "Read this answer clearly and exactly:\n" + text)))),
+                        "generationConfig", Map.of("responseModalities", List.of("AUDIO"), "speechConfig", speechConfig));
+                Map<?, ?> response = client.post()
+                        .uri("/v1beta/models/{model}:generateContent", model)
+                        .header("x-goog-api-key", gemini.getApiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(body)
+                        .retrieve()
+                        .body(Map.class);
+                AudioPart part = extractAudio(response);
+                byte[] decoded = Base64.getDecoder().decode(part.data());
+                String mime = part.mimeType() == null ? "audio/L16;codec=pcm;rate=24000" : part.mimeType();
+                if (mime.toLowerCase().contains("l16") || mime.toLowerCase().contains("pcm")) {
+                    decoded = PcmWaveEncoder.mono16Bit24Khz(decoded);
+                    mime = "audio/wav";
+                }
+                if (decoded.length == 0) throw VoiceException.ttsFailed();
+                log.info("voice_tts_success model={} language={} bytes={} latencyMs={} attempt={} maxAttempts={}",
+                        model, language, decoded.length, elapsedMs(started), attempt, voice.ttsModelCandidates().size());
+                return new SynthesizedSpeech(decoded, mime);
+            } catch (RestClientResponseException ex) {
+                int status = ex.getStatusCode().value();
+                boolean retryable = status == 429 || status >= 500;
+                log.warn("voice_tts_provider_error model={} status={} language={} latencyMs={} attempt={} retrying={}",
+                        model, status, language, elapsedMs(started), attempt,
+                        retryable && attempt < voice.ttsModelCandidates().size());
+                if (status == 401 || status == 403) throw VoiceException.providerUnavailable();
+                if (!retryable) throw VoiceException.ttsFailed();
+                lastFailure = VoiceException.ttsUnavailable();
+            } catch (ResourceAccessException ex) {
+                log.warn("voice_tts_timeout model={} language={} latencyMs={} attempt={} retrying={}",
+                        model, language, elapsedMs(started), attempt, attempt < voice.ttsModelCandidates().size());
+                lastFailure = VoiceException.ttsUnavailable();
+            } catch (RestClientException ex) {
+                boolean timeout = hasTimeoutCause(ex);
+                log.warn("voice_tts_response_error model={} language={} latencyMs={} attempt={} timeout={} retrying={}",
+                        model, language, elapsedMs(started), attempt, timeout,
+                        timeout && attempt < voice.ttsModelCandidates().size());
+                if (!timeout) throw VoiceException.ttsFailed();
+                lastFailure = VoiceException.ttsUnavailable();
+            } catch (IllegalArgumentException ex) {
+                throw VoiceException.ttsFailed();
             }
-            if (decoded.length == 0) throw VoiceException.ttsFailed();
-            log.info("voice_tts_success model={} language={} bytes={} latencyMs={}", voice.getTtsModel(), language, decoded.length, elapsedMs(started));
-            return new SynthesizedSpeech(decoded, mime);
-        } catch (RestClientResponseException ex) {
-            log.warn("voice_tts_provider_error model={} status={} latencyMs={}", voice.getTtsModel(), ex.getStatusCode().value(), elapsedMs(started));
-            if (ex.getStatusCode().value() == 401 || ex.getStatusCode().value() == 403) throw VoiceException.providerUnavailable();
-            throw VoiceException.ttsFailed();
-        } catch (ResourceAccessException ex) {
-            log.warn("voice_tts_timeout model={} latencyMs={}", voice.getTtsModel(), elapsedMs(started));
-            throw VoiceException.timeout();
-        } catch (RestClientException ex) {
-            if (hasTimeoutCause(ex)) {
-                log.warn("voice_tts_timeout model={} latencyMs={}", voice.getTtsModel(), elapsedMs(started));
-                throw VoiceException.timeout();
-            }
-            log.warn("voice_tts_malformed_response model={} latencyMs={}", voice.getTtsModel(), elapsedMs(started));
-            throw VoiceException.ttsFailed();
-        } catch (IllegalArgumentException ex) {
-            throw VoiceException.ttsFailed();
         }
+        throw lastFailure == null ? VoiceException.ttsUnavailable() : lastFailure;
     }
 
     private AudioPart extractAudio(Map<?, ?> response) {
@@ -110,7 +123,7 @@ public class GeminiTextToSpeechProvider implements TextToSpeechProvider {
         }
         return false;
     }
-    @Override public boolean isConfigured() { return gemini.configured() && voice.getTtsModel() != null && !voice.getTtsModel().isBlank(); }
+    @Override public boolean isConfigured() { return gemini.configured() && !voice.ttsModelCandidates().isEmpty(); }
     @Override public String providerName() { return "gemini-tts"; }
     private record AudioPart(String data, String mimeType) {}
 }

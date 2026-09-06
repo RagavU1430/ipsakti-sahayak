@@ -29,6 +29,13 @@ const navItems = [
 
 export function App() {
   const [session, setSession] = useState<Session>(() => readSession());
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('ipsakti_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const [isGlobalVoiceOpen, setIsGlobalVoiceOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -38,6 +45,29 @@ export function App() {
   const { theme, resolvedTheme, toggleTheme } = useTheme();
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('ipsakti_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b' && !isInput) {
+        e.preventDefault();
+        toggleSidebar();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const auth = useMemo(() => ({ token: session.token, devUserId: session.devUserId }), [session]);
 
@@ -53,48 +83,79 @@ export function App() {
 
   return (
     <div className="app-shell nyaya-shell">
-      <aside className="gov-sidebar" aria-label="Service navigation">
-        <NavLink className="new-query-button" to="/ask">
-          <span className="material-symbols-outlined ayurvedic-logo" aria-hidden="true">spa</span>
-          <span>IP-SAKTI Sahayak</span>
-        </NavLink>
-
-        <button className="menu-button sidebar-menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen}>
-          <span className="material-symbols-outlined">menu</span>
-          Menu
-        </button>
-
-        <nav className={menuOpen ? 'portal-nav open' : 'portal-nav'} aria-label="Primary navigation">
-          {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to}>
-              <span className="material-symbols-outlined">{item.icon}</span>
-              {item.label}
+      <aside
+        className={`gov-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}
+        aria-label="Service navigation"
+        aria-hidden={sidebarCollapsed}
+      >
+        <div className="gov-sidebar-inner">
+          <div className="sidebar-header-row">
+            <NavLink className="new-query-button" to="/ask">
+              <span className="material-symbols-outlined ayurvedic-logo" aria-hidden="true">spa</span>
+              <span>IP-SAKTI Sahayak</span>
             </NavLink>
-          ))}
-          {signedIn ? (
-            <NavLink to="/account">
-              <span className="material-symbols-outlined">account_circle</span>
-              Account
-            </NavLink>
-          ) : (
-            <NavLink to="/login">
-              <span className="material-symbols-outlined">login</span>
-              Login
-            </NavLink>
-          )}
-        </nav>
+            <button
+              type="button"
+              className="sidebar-toggle-btn inside-sidebar"
+              onClick={toggleSidebar}
+              title="Collapse sidebar (Ctrl+B)"
+              aria-label="Collapse sidebar"
+            >
+              <span className="material-symbols-outlined">dock_to_left</span>
+            </button>
+          </div>
 
-        <button type="button" className="feedback-pill" onClick={() => setIsFeedbackOpen(true)} title="Send feedback or suggestions">
-          Feedback ★
-        </button>
+          <button className="menu-button sidebar-menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen}>
+            <span className="material-symbols-outlined">menu</span>
+            Menu
+          </button>
+
+          <nav className={menuOpen ? 'portal-nav open' : 'portal-nav'} aria-label="Primary navigation">
+            {navItems.map((item) => (
+              <NavLink key={item.to} to={item.to}>
+                <span className="material-symbols-outlined">{item.icon}</span>
+                {item.label}
+              </NavLink>
+            ))}
+            {signedIn ? (
+              <NavLink to="/account">
+                <span className="material-symbols-outlined">account_circle</span>
+                Account
+              </NavLink>
+            ) : (
+              <NavLink to="/login">
+                <span className="material-symbols-outlined">login</span>
+                Login
+              </NavLink>
+            )}
+          </nav>
+
+          <button type="button" className="feedback-pill" onClick={() => setIsFeedbackOpen(true)} title="Send feedback or suggestions">
+            Feedback ★
+          </button>
+        </div>
       </aside>
 
       <section className="portal-workspace">
         <header className="portal-topbar">
-          <NavLink className="portal-brand" to="/" aria-label="IP-SAKTI Sahayak home">
-            <span className="material-symbols-outlined">account_balance</span>
-            <span>IP-SAKTI Sahayak</span>
-          </NavLink>
+          <div className="portal-topbar-left">
+            <button
+              type="button"
+              className={`sidebar-toggle-btn topbar-toggle ${sidebarCollapsed ? 'collapsed-state' : ''}`}
+              onClick={toggleSidebar}
+              title={sidebarCollapsed ? 'Expand sidebar (Ctrl+B)' : 'Collapse sidebar (Ctrl+B)'}
+              aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-expanded={!sidebarCollapsed}
+            >
+              <span className="material-symbols-outlined">
+                {sidebarCollapsed ? 'dock_to_left' : 'dock_to_left'}
+              </span>
+            </button>
+            <NavLink className="portal-brand" to="/" aria-label="IP-SAKTI Sahayak home">
+              <span className="material-symbols-outlined">account_balance</span>
+              <span>IP-SAKTI Sahayak</span>
+            </NavLink>
+          </div>
           <div className="topbar-actions">
             <button
               type="button"

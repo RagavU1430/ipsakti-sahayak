@@ -212,6 +212,8 @@ describe('FormulationPage 5-Step Product Readiness Wizard', () => {
     const reportTab = screen.getByText(/6. Full 17-Section Report/i);
     fireEvent.click(reportTab);
 
+    expect(screen.getByText(/AI Report Assistant & Executive Summary/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/Full 17-Section Regulatory Audit Report/i));
     expect(screen.getByText('Copy Markdown')).toBeInTheDocument();
   });
 });

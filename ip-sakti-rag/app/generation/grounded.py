@@ -114,7 +114,7 @@ def _parse_grounded_payload(content: str, evidence: list[Evidence]) -> tuple[str
 class OpenRouterGroundedGenerator:
     name = "openrouter-grounded-json-v1"
 
-    def __init__(self, client: OpenRouterClient, model: str, timeout: float = 6.0):
+    def __init__(self, client: OpenRouterClient, model: str, timeout: float = 30.0):
         self.client, self.model, self.timeout = client, model, timeout
 
     def generate(self, analysis: QueryAnalysis, context: str, evidence: list[Evidence]) -> GenerationResult:
@@ -142,15 +142,15 @@ class OpenRouterGroundedGenerator:
 class GeminiGroundedGenerator:
     name = "gemini-grounded-json-v1"
 
-    def __init__(self, api_key: str, model: str = "gemini-2.5-flash", timeout: float = 5.0):
+    def __init__(self, api_key: str, model: str = "gemini-3.5-flash-lite", timeout: float = 30.0):
         import httpx
         self.api_key = api_key
         self.model = model
+        self.fallback_models = [model, "gemini-flash-lite-latest", "gemini-3.1-flash-lite", "gemini-2.5-flash-lite"]
         self.timeout = timeout
-        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
         self._client = httpx.Client(
             limits=httpx.Limits(max_keepalive_connections=10, max_connections=20, keepalive_expiry=60.0),
-            timeout=httpx.Timeout(connect=2.5, read=timeout, write=4.0, pool=3.0)
+            timeout=httpx.Timeout(connect=10.0, read=timeout, write=10.0, pool=10.0)
         )
 
     def generate(self, analysis: QueryAnalysis, context: str, evidence: list[Evidence]) -> GenerationResult:
@@ -169,18 +169,31 @@ class GeminiGroundedGenerator:
                 "responseMimeType": "application/json"
             }
         }
-        resp = self._client.post(self.url, json=payload)
-        resp.raise_for_status()
-        data = resp.json()
-        text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-        answer, used_chunk_ids, insufficient = _parse_grounded_payload(text, evidence)
+        
+        last_exc = None
+        models_to_try = list(dict.fromkeys(self.fallback_models))
+        for m in models_to_try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={self.api_key}"
+            try:
+                resp = self._client.post(url, json=payload)
+                resp.raise_for_status()
+                data = resp.json()
+                text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                answer, used_chunk_ids, insufficient = _parse_grounded_payload(text, evidence)
 
-        return GenerationResult(
-            answer=answer,
-            used_chunk_ids=used_chunk_ids,
-            insufficient_evidence=insufficient,
-            provider=self.name,
-        )
+                return GenerationResult(
+                    answer=answer,
+                    used_chunk_ids=used_chunk_ids,
+                    insufficient_evidence=insufficient,
+                    provider=f"{self.name}:{m}",
+                )
+            except Exception as e:
+                last_exc = e
+                continue
+
+        if last_exc:
+            raise last_exc
+        raise RuntimeError("No Gemini models succeeded in generation.")
 
 
 class GeneralFallbackGenerator:
@@ -212,7 +225,7 @@ class GeneralFallbackGenerator:
                 model=self.model,
                 temperature=0.2,
                 max_tokens=450,
-                timeout=12.0,
+                timeout=30.0,
             )
             answer = response["choices"][0]["message"]["content"].strip()
         else:
@@ -383,13 +396,8 @@ def _deterministic_general_answer(analysis: QueryAnalysis, reason: str) -> str:
         "tell me about yourself", "your features", "your capabilities"
     )):
         return (
-            "I am **IP-SAKTI Sahayak**, your specialized assistant for Indian and International Intellectual Property (IP) Law and Regulatory Compliance.\n\n"
-            "Here is how I can assist you:\n"
-            "• **Patents**: Patentability criteria, Section 3 statutory exclusions, filing procedures, and TKDL prior art searches under The Patents Act, 1970.\n"
-            "• **Trademarks**: Trademark registration, grounds for refusal (Sections 9 & 11), renewals, and Madrid Protocol under The Trade Marks Act, 1999.\n"
-            "• **Geographical Indications & Designs**: GI applicant qualifications, protection duration, and industrial design filings.\n"
-            "• **AYUSH & Biodiversity**: Biological Diversity Act approvals, NBA compliance, Benefit Sharing, and Ayurveda Aahara regulations.\n\n"
-            "You can ask me specific IP questions, classify formulations, or analyze regulatory compliance."
+            "I am **IP-SAKTI Sahayak**, an AI legal assistant for Indian Intellectual Property (IP) Law and AYUSH Regulatory Compliance.\n"
+            "I help you navigate Patents, Trademarks, Geographical Indications, Ayurveda product readiness, and NBA clearances."
         )
 
     if analysis.legal_identifiers:

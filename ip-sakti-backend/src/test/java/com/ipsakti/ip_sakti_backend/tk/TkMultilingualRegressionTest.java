@@ -33,6 +33,7 @@ class TkMultilingualRegressionTest {
                     when(provider.translate(any(), eq(language), eq(Language.EN))).thenReturn(testCase.canonicalEnglish());
                     when(provider.translate(any(), eq(Language.EN), eq(language))).thenReturn("translated: " + testCase.expected().name());
                     when(provider.providerName()).thenReturn("gemini-2.0-flash");
+                    when(provider.translate(any(), eq(Language.EN), eq(language))).thenAnswer(invocation -> invocation.getArgument(0));
                 }
                 when(ragClient.ask(any())).thenReturn(testCase.outOfCorpus()
                         ? abstention()
@@ -111,7 +112,7 @@ class TkMultilingualRegressionTest {
 
     private record Case(String id, String canonicalEnglish, boolean outOfCorpus, TkOverlapClassification expected) {
         String userText(Language language) {
-            return language == Language.EN ? canonicalEnglish : id + " case in " + language.toJson();
+            return language == Language.EN ? canonicalEnglish : "sample case in " + language.toJson();
         }
     }
 }

@@ -86,6 +86,7 @@ class TkOverlapControllerTest {
         when(translationProvider.translate(any(), eq(Language.EN), eq(Language.TA)))
                 .thenReturn("தமிழில் மொழிபெயர்க்கப்பட்ட விளக்கம்.");
         when(translationProvider.providerName()).thenReturn("gemini-2.0-flash");
+        when(translationProvider.translate(any(), eq(Language.EN), eq(Language.TA))).thenAnswer(invocation -> invocation.getArgument(0));
         when(ragClient.ask(any())).thenReturn(strongEvidence());
 
         mockMvc.perform(post("/api/v1/tk/overlap")

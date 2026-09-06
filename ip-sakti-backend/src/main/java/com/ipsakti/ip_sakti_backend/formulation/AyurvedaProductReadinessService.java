@@ -20,6 +20,7 @@ import com.ipsakti.ip_sakti_backend.formulation.model.RegulatoryRoute;
 import com.ipsakti.ip_sakti_backend.multilingual.LanguageMetadata;
 import com.ipsakti.ip_sakti_backend.multilingual.TranslatedText;
 import com.ipsakti.ip_sakti_backend.multilingual.TranslationService;
+import com.ipsakti.ip_sakti_backend.question.model.Language;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionCitation;
 import com.ipsakti.ip_sakti_backend.question.model.QuestionSource;
 import com.ipsakti.ip_sakti_backend.rag.RagClient;
@@ -204,26 +205,72 @@ public class AyurvedaProductReadinessService {
                 "standards", getApplicableStandards(leadingClassification)
         );
 
+        // Localize output if requested language is not English
+        String localizedReport = report;
+        List<String> localizedNextSteps = nextSteps;
+        List<String> localizedQuestions = questions;
+        Map<String, Object> localizedClassificationMap = classificationMap;
+        Map<String, Object> localizedTk = tkAnalysis;
+        Map<String, Object> localizedAbs = absAnalysis;
+
+        if (languageMetadata.requestedLanguage() != Language.EN) {
+            localizedReport = translateReport(report, languageMetadata, requestId);
+            localizedNextSteps = translateList(nextSteps, languageMetadata, requestId);
+            localizedQuestions = translateList(questions, languageMetadata, requestId);
+
+            Map<String, Object> classCopy = new LinkedHashMap<>(classificationMap);
+            classCopy.put("rationale", translateText((String) classificationMap.get("rationale"), languageMetadata, requestId));
+            localizedClassificationMap = classCopy;
+
+            Map<String, Object> tkCopy = new LinkedHashMap<>(tkAnalysis);
+            List<String> tkTexts = new ArrayList<>();
+            String patentImp = (String) tkCopy.get("patentImplication");
+            String tkdlDist = (String) tkCopy.get("tkdlDistinction");
+            if (patentImp != null) tkTexts.add(patentImp);
+            if (tkdlDist != null) tkTexts.add(tkdlDist);
+            if (!tkTexts.isEmpty()) {
+                List<String> translatedTk = translateList(tkTexts, languageMetadata, requestId);
+                int idx = 0;
+                if (patentImp != null && idx < translatedTk.size()) tkCopy.put("patentImplication", translatedTk.get(idx++));
+                if (tkdlDist != null && idx < translatedTk.size()) tkCopy.put("tkdlDistinction", translatedTk.get(idx));
+            }
+            localizedTk = tkCopy;
+
+            Map<String, Object> absCopy = new LinkedHashMap<>(absAnalysis);
+            List<String> absTexts = new ArrayList<>();
+            String rec = (String) absCopy.get("recommendation");
+            String nba = (String) absCopy.get("nbaApprovalRequirement");
+            if (rec != null) absTexts.add(rec);
+            if (nba != null) absTexts.add(nba);
+            if (!absTexts.isEmpty()) {
+                List<String> translatedAbs = translateList(absTexts, languageMetadata, requestId);
+                int idx = 0;
+                if (rec != null && idx < translatedAbs.size()) absCopy.put("recommendation", translatedAbs.get(idx++));
+                if (nba != null && idx < translatedAbs.size()) absCopy.put("nbaApprovalRequirement", translatedAbs.get(idx));
+            }
+            localizedAbs = absCopy;
+        }
+
         ProductReadinessResponse response = new ProductReadinessResponse(
                 productMap,
-                classificationMap,
+                localizedClassificationMap,
                 regulatoryMap,
                 documentsEval,
                 ingredientAnalysis,
                 claimsAnalysis,
-                tkAnalysis,
-                absAnalysis,
+                localizedTk,
+                localizedAbs,
                 ipAnalysis,
                 gaps,
-                nextSteps,
+                localizedNextSteps,
                 mappedCitations,
                 mappedSources,
                 confidence,
                 status,
                 abstained,
                 scores,
-                report,
-                questions,
+                localizedReport,
+                localizedQuestions,
                 languageMetadata.requestedLanguage(),
                 languageMetadata.detectedLanguage(),
                 languageMetadata.processingLanguage()
@@ -1016,5 +1063,63 @@ public class AyurvedaProductReadinessService {
 
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
+    }
+
+    private String translateReport(String report, LanguageMetadata metadata, String requestId) {
+        if (report == null || report.isBlank() || metadata.requestedLanguage() == metadata.processingLanguage()) {
+            return report;
+        }
+        try {
+            // Fast path: translate entire report in 1 single call
+            return translateText(report, metadata, requestId);
+        } catch (Exception e) {
+            log.info("whole_report_translation_fallback targetLanguage={} reason={}, chunking report",
+                    metadata.requestedLanguage(), e.getMessage());
+            try {
+                // Fallback: Group sections into 2-3 large chunks instead of 17 individual calls
+                String[] sections = report.split("(?m)(?=^## )");
+                StringBuilder sb = new StringBuilder();
+                StringBuilder batch = new StringBuilder();
+                for (String section : sections) {
+                    if (section.isBlank()) continue;
+                    if (batch.length() + section.length() > 2500 && !batch.isEmpty()) {
+                        sb.append(translateText(batch.toString(), metadata, requestId));
+                        batch.setLength(0);
+                    }
+                    batch.append(section);
+                }
+                if (!batch.isEmpty()) {
+                    sb.append(translateText(batch.toString(), metadata, requestId));
+                }
+                return sb.toString();
+            } catch (Exception ex2) {
+                log.warn("translation_report_failed targetLanguage={} error={}", metadata.requestedLanguage(), ex2.getMessage());
+                return report;
+            }
+        }
+    }
+
+    private String translateText(String value, LanguageMetadata metadata, String requestId) {
+        if (value == null || value.isBlank() || metadata.requestedLanguage() == metadata.processingLanguage()) {
+            return value;
+        }
+        try {
+            return translationService.fromCanonical(value, metadata, requestId);
+        } catch (Exception e) {
+            log.warn("translation_text_failed targetLanguage={} error={}", metadata.requestedLanguage(), e.getMessage());
+            return value;
+        }
+    }
+
+    private List<String> translateList(List<String> values, LanguageMetadata metadata, String requestId) {
+        if (values == null || values.isEmpty() || metadata.requestedLanguage() == metadata.processingLanguage()) {
+            return values == null ? List.of() : values;
+        }
+        try {
+            return translationService.fromCanonicalList(values, metadata, requestId);
+        } catch (Exception e) {
+            log.warn("translation_list_failed targetLanguage={} error={}", metadata.requestedLanguage(), e.getMessage());
+            return values;
+        }
     }
 }

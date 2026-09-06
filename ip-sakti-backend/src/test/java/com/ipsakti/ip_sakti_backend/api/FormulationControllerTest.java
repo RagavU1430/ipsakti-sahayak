@@ -49,6 +49,9 @@ class FormulationControllerTest {
     @MockitoBean
     private TranslationProvider translationProvider;
 
+    @MockitoBean
+    private com.ipsakti.ip_sakti_backend.formulation.FormulationChatService chatService;
+
     @Test
     void classifiesValidFormulationRequest() throws Exception {
         when(ragClient.ask(any())).thenReturn(groundedRagResponse());

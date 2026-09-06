@@ -18,13 +18,16 @@ public class FormulationController {
 
     private final FormulationClassificationService classificationService;
     private final AyurvedaProductReadinessService readinessService;
+    private final com.ipsakti.ip_sakti_backend.formulation.FormulationChatService chatService;
 
     public FormulationController(
             FormulationClassificationService classificationService,
-            AyurvedaProductReadinessService readinessService
+            AyurvedaProductReadinessService readinessService,
+            com.ipsakti.ip_sakti_backend.formulation.FormulationChatService chatService
     ) {
         this.classificationService = classificationService;
         this.readinessService = readinessService;
+        this.chatService = chatService;
     }
 
     @PostMapping("/classify")
@@ -35,5 +38,12 @@ public class FormulationController {
     @PostMapping("/analyze")
     public ResponseEntity<ProductReadinessResponse> analyze(@Valid @RequestBody FormulationRequest request) {
         return ResponseEntity.ok(readinessService.analyze(request));
+    }
+
+    @PostMapping("/chat")
+    public ResponseEntity<com.ipsakti.ip_sakti_backend.formulation.model.FormulationChatResponse> chat(
+            @Valid @RequestBody com.ipsakti.ip_sakti_backend.formulation.model.FormulationChatRequest request
+    ) {
+        return ResponseEntity.ok(chatService.chat(request));
     }
 }

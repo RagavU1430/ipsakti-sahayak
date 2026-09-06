@@ -32,6 +32,7 @@ import com.ipsakti.ip_sakti_backend.question.routing.RoutingContext;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,10 +147,11 @@ public class ConversationService {
 
     public ConversationMessageResponse askInConversation(UserPrincipal principal, UUID conversationId, ConversationMessageRequest request) {
         UserMessagePersistenceResult userResult = persistUserMessage(principal, conversationId, request);
-        QuestionRequest questionRequest = new QuestionRequest(request.question(), request.jurisdiction(), request.language());
         QuestionResponse questionResponse;
         try {
             RoutingContext context = routingContext(userResult.conversation());
+            String effectiveQuestion = contextualizeReferentialFollowUp(request.question(), context);
+            QuestionRequest questionRequest = new QuestionRequest(effectiveQuestion, request.jurisdiction(), request.language());
             questionResponse = context.previousRoute() == null
                     ? questionService.answer(questionRequest)
                     : questionService.answer(questionRequest, context);
@@ -164,6 +166,36 @@ public class ConversationService {
             throw e;
         }
         return persistAssistantResponse(principal, conversationId, userResult.userMessageId(), questionResponse);
+    }
+
+    static String contextualizeReferentialFollowUp(String question, RoutingContext context) {
+        if (question == null || context == null || context.previousDomain() == null) return question;
+
+        String normalized = question.strip().toLowerCase(Locale.ROOT);
+        boolean referential = List.of(
+                " it ", " this ", " that ", " they ", " them ", " its ", "how long", "what about",
+                "यह", "वह", "इसे", "उसका", "कितने समय", "कब तक",
+                "அது", "இது", "எவ்வளவு காலம்",
+                "అది", "ఇది", "ఎంత కాలం",
+                "ಅದು", "ಇದು", "ಎಷ್ಟು ಕಾಲ",
+                "അത്", "ഇത്", "എത്ര കാലം"
+        ).stream().anyMatch(marker -> (" " + normalized + " ").contains(marker));
+
+        if (!referential) return question;
+
+        String topic = switch (context.previousDomain()) {
+            case GEOGRAPHICAL_INDICATION -> "Geographical Indication";
+            case INDUSTRIAL_DESIGN -> "Industrial Design";
+            case TRADE_SECRET -> "Trade Secret";
+            case TRADITIONAL_KNOWLEDGE -> "Traditional Knowledge";
+            case BIODIVERSITY -> "Biological Diversity";
+            case ABS -> "Access and Benefit Sharing (ABS)";
+            case GRATK -> "GRATK";
+            case INDIA_IP_LAW -> "Indian IP law";
+            case INTERNATIONAL_IP -> "International IP";
+            default -> context.previousDomain().name().replace('_', ' ');
+        };
+        return question + "\nContext for this referential follow-up: " + topic + ".";
     }
 
     private RoutingContext routingContext(ConversationEntity conversation) {
