@@ -2,6 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
+function prefersDarkMode(): boolean {
+  return typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
     // Try to get saved preference
@@ -13,7 +19,7 @@ export function useTheme() {
     const saved = localStorage.getItem('ipsakti-theme') as Theme | null;
     if (saved === 'light' || saved === 'dark') return saved;
     // Check system preference
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    if (prefersDarkMode()) return 'dark';
     return 'light';
   });
 
@@ -22,7 +28,7 @@ export function useTheme() {
     let resolved: 'light' | 'dark';
 
     if (newTheme === 'system') {
-      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      resolved = prefersDarkMode() ? 'dark' : 'light';
     } else {
       resolved = newTheme;
     }
@@ -40,6 +46,7 @@ export function useTheme() {
 
     // Listen for system theme changes when in system mode
     if (theme === 'system') {
+      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handler = () => applyTheme('system');
       mediaQuery.addEventListener('change', handler);

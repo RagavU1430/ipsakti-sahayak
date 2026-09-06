@@ -1,17 +1,17 @@
 import { Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom';
-import { useEffect, useMemo, useState, Suspense } from 'react';
+import React, { useEffect, useMemo, useState, Suspense, lazy } from 'react';
 import { clearSession, isSignedIn, readSession, saveSession, type Session } from './api/auth';
 import { AboutPage } from './pages/AboutPage';
 import { AccountPage } from './pages/AccountPage';
 import { AskPage } from './pages/AskPage';
 import { ConversationDetailPage } from './pages/ConversationDetailPage';
-const FormulationPage = React.lazy(() => import("./pages/FormulationPage"));
+const FormulationPage = lazy(() => import("./pages/FormulationPage"));
 import { HistoryPage } from './pages/HistoryPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegulatoryPage } from './pages/RegulatoryPage';
 import { TkOverlapPage } from './pages/TkOverlapPage';
-const VoiceChatOverlay = React.lazy(() => import("./components/VoiceChatOverlay"));
+const VoiceChatOverlay = lazy(() => import("./components/VoiceChatOverlay"));
 import { FeedbackModal } from './components/FeedbackModal';
 import { KeyboardHelpOverlay } from './components/KeyboardHelpOverlay';
 
@@ -55,8 +55,8 @@ export function App() {
     <div className="app-shell nyaya-shell">
       <aside className="gov-sidebar" aria-label="Service navigation">
         <NavLink className="new-query-button" to="/ask">
-          <span className="material-symbols-outlined">add</span>
-          புதிய கேள்வி
+          <span className="material-symbols-outlined ayurvedic-logo" aria-hidden="true">spa</span>
+          <span>IP-SAKTI Sahayak</span>
         </NavLink>
 
         <button className="menu-button sidebar-menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen}>
@@ -83,19 +83,6 @@ export function App() {
             </NavLink>
           )}
         </nav>
-
-        <section className="justice-help-card" aria-label="Legal help resources">
-          <div className="justice-title">⚖️ நீதி மற்றும் நேர்மை</div>
-          <a href="https://doj.gov.in/" target="_blank" rel="noreferrer">Department of Justice</a>
-          <a href="https://www.tele-law.in/" target="_blank" rel="noreferrer">Tele-Law Portal</a>
-          <span>(Toll Free No-14454)</span>
-          <div className="hit-counter" aria-label="Number of hits">
-            <strong>Number of Hits</strong>
-            <div>
-              {'42252'.split('').map((digit, index) => <span key={`${digit}-${index}`}>{digit}</span>)}
-            </div>
-          </div>
-        </section>
 
         <button type="button" className="feedback-pill" onClick={() => setIsFeedbackOpen(true)} title="Send feedback or suggestions">
           Feedback ★

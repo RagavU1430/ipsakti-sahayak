@@ -80,6 +80,10 @@ class Settings:
     min_score: float
     abstention_threshold: float
     max_context_chars: int
+    response_cache_enabled: bool = True
+    response_cache_ttl: int = 600
+    llm_timeout: float = 6.0
+    gemini_api_key: str | None = None
 
 
 def get_settings() -> Settings:
@@ -108,4 +112,8 @@ def get_settings() -> Settings:
         min_score=_float("RAG_MIN_SCORE", 0.10),
         abstention_threshold=_float("RAG_ABSTENTION_THRESHOLD", 0.12),
         max_context_chars=_int("RAG_MAX_CONTEXT_CHARS", 18000),
+        response_cache_enabled=_bool("RAG_RESPONSE_CACHE_ENABLED", True),
+        response_cache_ttl=_int("RAG_RESPONSE_CACHE_TTL", 600),
+        llm_timeout=_float("RAG_LLM_TIMEOUT", 6.0),
+        gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
     )

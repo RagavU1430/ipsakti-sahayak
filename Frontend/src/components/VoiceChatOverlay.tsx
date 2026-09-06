@@ -130,3 +130,4 @@ export function VoiceChatOverlay({ isOpen, onClose, auth, initialLanguage = 'en'
 }
 
 export { languages as SUPPORTED_VOICE_LANGUAGES };
+export default VoiceChatOverlay;

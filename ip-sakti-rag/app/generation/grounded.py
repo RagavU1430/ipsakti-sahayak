@@ -56,8 +56,8 @@ class ExtractiveGroundedGenerator:
 class OpenRouterGroundedGenerator:
     name = "openrouter-grounded-json-v1"
 
-    def __init__(self, client: OpenRouterClient, model: str):
-        self.client, self.model = client, model
+    def __init__(self, client: OpenRouterClient, model: str, timeout: float = 6.0):
+        self.client, self.model, self.timeout = client, model, timeout
 
     def generate(self, analysis: QueryAnalysis, context: str, evidence: list[Evidence]) -> GenerationResult:
         response = self.client.chat_complete(
@@ -67,34 +67,118 @@ class OpenRouterGroundedGenerator:
             ],
             model=self.model,
             temperature=0.0,
-            max_tokens=900,
+            max_tokens=400,
+            timeout=self.timeout,
+        )
+def _parse_grounded_payload(content: str, evidence: list[Evidence]) -> tuple[str, list[str], bool]:
+    cleaned = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.IGNORECASE).strip()
+
+    allowed = {item.chunk_id for item in evidence}
+
+    # 1. Try full JSON parse
+    for candidate in (cleaned, None):
+        if candidate is None:
+            match = re.search(r"(\{.*\})", cleaned, re.DOTALL)
+            if not match:
+                break
+            candidate = match.group(1)
+        try:
+            parsed = json.loads(candidate, strict=False)
+            if isinstance(parsed, dict) and "answer" in parsed:
+                used = [cid for cid in parsed.get("used_chunk_ids", []) if cid in allowed]
+                return str(parsed.get("answer", "")).strip(), used, bool(parsed.get("insufficient_evidence", False))
+        except Exception:
+            pass
+
+    # 2. Extract answer and chunks from truncated/incomplete JSON
+    answer = ""
+    ans_match = re.search(r'"answer"\s*:\s*"((?:[^"\\]|\\.)*)', cleaned)
+    if ans_match:
+        raw_val = ans_match.group(1)
+        try:
+            answer = json.loads(f'"{raw_val}"')
+        except Exception:
+            answer = raw_val.replace('\\"', '"').replace('\\n', '\n')
+    elif not cleaned.startswith("{"):
+        answer = cleaned
+
+    used_match = re.findall(r'"([A-Za-z0-9_\-]+)"', cleaned)
+    used = [cid for cid in used_match if cid in allowed]
+    if not used:
+        used = [item.chunk_id for item in evidence[:3]]
+    return answer.strip(), used, False
+
+
+class OpenRouterGroundedGenerator:
+    name = "openrouter-grounded-json-v1"
+
+    def __init__(self, client: OpenRouterClient, model: str, timeout: float = 6.0):
+        self.client, self.model, self.timeout = client, model, timeout
+
+    def generate(self, analysis: QueryAnalysis, context: str, evidence: list[Evidence]) -> GenerationResult:
+        response = self.client.chat_complete(
+            [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": f"Jurisdiction: {analysis.jurisdiction.value}\nQuestion: {analysis.query}\n\nEvidence:\n{context}"},
+            ],
+            model=self.model,
+            temperature=0.0,
+            max_tokens=450,
+            timeout=self.timeout,
         )
         content = response["choices"][0]["message"]["content"].strip()
-        # Clean reasoning tags like <think>...</think>
-        cleaned = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
-        if cleaned.startswith("```"):
-            cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.IGNORECASE).strip()
-        
-        try:
-            payload = json.loads(cleaned, strict=False)
-        except Exception:
-            match = re.search(r"(\{.*\})", cleaned, re.DOTALL)
-            if match:
-                try:
-                    payload = json.loads(match.group(1), strict=False)
-                except Exception:
-                    # Fallback: if answer is plain text
-                    payload = {"answer": cleaned, "used_chunk_ids": [item.chunk_id for item in evidence[:3]], "insufficient_evidence": False}
-            else:
-                payload = {"answer": cleaned, "used_chunk_ids": [item.chunk_id for item in evidence[:3]], "insufficient_evidence": False}
-
-        allowed = {item.chunk_id for item in evidence}
-        used = [item for item in payload.get("used_chunk_ids", []) if item in allowed]
+        answer, used_chunk_ids, insufficient = _parse_grounded_payload(content, evidence)
 
         return GenerationResult(
-            answer=str(payload.get("answer", "")).strip(),
-            used_chunk_ids=used,
-            insufficient_evidence=bool(payload.get("insufficient_evidence", False)),
+            answer=answer,
+            used_chunk_ids=used_chunk_ids,
+            insufficient_evidence=insufficient,
+            provider=self.name,
+        )
+
+
+class GeminiGroundedGenerator:
+    name = "gemini-grounded-json-v1"
+
+    def __init__(self, api_key: str, model: str = "gemini-2.5-flash", timeout: float = 5.0):
+        import httpx
+        self.api_key = api_key
+        self.model = model
+        self.timeout = timeout
+        self.url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        self._client = httpx.Client(
+            limits=httpx.Limits(max_keepalive_connections=10, max_connections=20, keepalive_expiry=60.0),
+            timeout=httpx.Timeout(connect=2.5, read=timeout, write=4.0, pool=3.0)
+        )
+
+    def generate(self, analysis: QueryAnalysis, context: str, evidence: list[Evidence]) -> GenerationResult:
+        payload = {
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [
+                        {"text": f"{SYSTEM_PROMPT}\n\nJurisdiction: {analysis.jurisdiction.value}\nQuestion: {analysis.query}\n\nEvidence:\n{context}"}
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.0,
+                "maxOutputTokens": 600,
+                "responseMimeType": "application/json"
+            }
+        }
+        resp = self._client.post(self.url, json=payload)
+        resp.raise_for_status()
+        data = resp.json()
+        text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        answer, used_chunk_ids, insufficient = _parse_grounded_payload(text, evidence)
+
+        return GenerationResult(
+            answer=answer,
+            used_chunk_ids=used_chunk_ids,
+            insufficient_evidence=insufficient,
             provider=self.name,
         )
 

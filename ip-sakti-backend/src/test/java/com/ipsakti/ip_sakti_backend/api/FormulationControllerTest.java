@@ -76,6 +76,45 @@ class FormulationControllerTest {
     }
 
     @Test
+    void analyzesValidFormulationRequestWithAttachedDocuments() throws Exception {
+        when(ragClient.ask(any())).thenReturn(groundedRagResponse());
+
+        mockMvc.perform(post("/api/v1/formulations/analyze")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "productName": "AyurVital Daily Infusion Tea",
+                                  "ingredients": ["Tulsi", "Ginger"],
+                                  "dosageForm": "Herbal Tea / Infusion Sachet",
+                                  "intendedUse": "Daily wellness beverage",
+                                  "claims": ["supports daily wellness"],
+                                  "traditionalUse": true,
+                                  "commercialIntent": true,
+                                  "targetMarket": "India",
+                                  "countryOfManufacture": "India",
+                                  "documents": [
+                                    {
+                                      "id": "std-doc-1",
+                                      "name": "Product Formulation Specification",
+                                      "type": "FORMULATION_SPECIFICATION",
+                                      "status": "DOCUMENT_PROVIDED",
+                                      "notes": "Composition and dosage details"
+                                    },
+                                    {
+                                      "id": "std-doc-8",
+                                      "name": "Trademark Clearance / Filing Record",
+                                      "type": "TRADEMARK_INFO",
+                                      "status": "DOCUMENT_PROVIDED",
+                                      "notes": "IP India search report"
+                                    }
+                                  ]
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.product.name").value("AyurVital Daily Infusion Tea"));
+    }
+
+    @Test
     void rejectsMalformedRequest() throws Exception {
         mockMvc.perform(post("/api/v1/formulations/classify")
                         .contentType(MediaType.APPLICATION_JSON)

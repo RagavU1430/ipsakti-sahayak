@@ -52,7 +52,7 @@ export const EvidenceList = React.memo(function EvidenceList({ citations = [], s
       </section>
     </div>
   );
-}
+});
 
 export function formatScore(score?: number) {
   return typeof score === 'number' ? score.toFixed(2) : 'n/a';

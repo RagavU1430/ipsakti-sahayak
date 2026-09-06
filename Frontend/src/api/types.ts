@@ -56,8 +56,8 @@ export interface ProvidedDocument {
   name: string;
   type: string;
   status: string;
-  details?: string;
-  url?: string;
+  notes?: string;
+  sourceUrl?: string;
 }
 
 export interface FormulationRequest {

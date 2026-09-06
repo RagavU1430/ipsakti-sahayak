@@ -49,4 +49,4 @@ export const QuestionResult = React.memo(function QuestionResult({ result }: { r
       </div>
     </section>
   );
-}
+});

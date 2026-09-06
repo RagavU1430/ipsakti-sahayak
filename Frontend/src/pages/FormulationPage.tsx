@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import type { AuthHeaders } from '../api/client';
 import { analyzeProductReadiness } from '../api/formulations';
 import type {
@@ -26,8 +26,8 @@ const STANDARD_DOCUMENT_TEMPLATES: Array<{ name: string; type: string; descripti
   { name: 'Quality & NABL Assay Test Reports', type: 'QUALITY_TEST_REPORT', description: 'Heavy metals, microbial load, pesticide residue, and aflatoxin assays.' },
   { name: 'Product Label Mockup', type: 'PRODUCT_LABEL', description: 'Artwork with statutory claims, batch number, MRP, and mandatory warning text.' },
   { name: 'Stability Study Records', type: 'STABILITY_STUDY', description: 'Accelerated and real-time shelf-life degradation studies.' },
-  { name: 'Trademark Clearance / Filing Record', type: 'TRADEMARK_DOC', description: 'IP India Class 5/3/30 search report or trademark application acknowledgment.' },
-  { name: 'NBA / ABS Prior Approval / SBB Intimation', type: 'ABS_NBA_APPROVAL', description: 'Section 6 NBA clearance for IP filings based on Indian biological resources.' },
+  { name: 'Trademark Clearance / Filing Record', type: 'TRADEMARK_INFO', description: 'IP India Class 5/3/30 search report or trademark application acknowledgment.' },
+  { name: 'NBA / ABS Prior Approval / SBB Intimation', type: 'NBA_ABS_APPROVAL', description: 'Section 6 NBA clearance for IP filings based on Indian biological resources.' },
 ];
 
 export function FormulationPage({ auth }: { auth: AuthHeaders }) {
@@ -62,7 +62,22 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
   const [result, setResult] = useState<ProductReadinessResponse | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'gaps' | 'claims' | 'ip' | 'steps' | 'report'>('overview');
+
+  useEffect(() => {
+    if (!reportOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setReportOpen(false);
+    };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [reportOpen]);
 
   function toggleStandardDoc(type: string) {
     setSelectedStandardDocs((prev) => ({
@@ -78,7 +93,7 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
       name: customDocName.trim(),
       type: customDocType,
       status: 'DOCUMENT_PROVIDED',
-      details: customDocDetails.trim() || undefined,
+      notes: customDocDetails.trim() || undefined,
     };
     setCustomDocuments((prev) => [...prev, newDoc]);
     setCustomDocName('');
@@ -98,7 +113,7 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
           name: tmpl.name,
           type: tmpl.type,
           status: 'DOCUMENT_PROVIDED',
-          details: tmpl.description,
+          notes: tmpl.description,
         });
       }
     });
@@ -156,6 +171,7 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
     setTraditionalUse(false);
     setCommercialIntent(true);
     setResult(null);
+    setReportOpen(false);
     setError(null);
     setCurrentStep(1);
   }
@@ -215,7 +231,7 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
       setSelectedStandardDocs({
         FORMULATION_SPECIFICATION: true,
         QUALITY_TEST_REPORT: true,
-        TRADEMARK_DOC: true,
+        TRADEMARK_INFO: true,
       });
       setCustomDocuments([]);
       setClaimsText('Novel synergistic formulation with enhanced lipid nanoparticle delivery\nTargeted joint comfort and localized anti-inflammatory support');
@@ -517,9 +533,9 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
                   <option value="QUALITY_TEST_REPORT">Quality / Lab Report</option>
                   <option value="STABILITY_STUDY">Stability Study</option>
                   <option value="PRODUCT_LABEL">Product Label Mockup</option>
-                  <option value="TRADEMARK_DOC">Trademark Document</option>
+                  <option value="TRADEMARK_INFO">Trademark Information</option>
                   <option value="PATENT_DOC">Patent / Prior Art Document</option>
-                  <option value="ABS_NBA_APPROVAL">ABS / NBA Approval Record</option>
+                  <option value="NBA_ABS_APPROVAL">ABS / NBA Approval Record</option>
                   <option value="OTHER_REGULATORY_DOC">Other Regulatory License</option>
                 </select>
               </div>
@@ -545,7 +561,7 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
                 <ul style={{ margin: '6px 0 0', paddingLeft: '20px', fontSize: '12px' }}>
                   {customDocuments.map((doc) => (
                     <li key={doc.id} style={{ marginBottom: '4px' }}>
-                      <strong>{doc.name}</strong> ({doc.type}) {doc.details ? `— ${doc.details}` : ''}
+                      <strong>{doc.name}</strong> ({doc.type}) {doc.notes ? `— ${doc.notes}` : ''}
                       <button
                         type="button"
                         onClick={() => removeCustomDoc(doc.id)}
@@ -863,7 +879,13 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                onClick={() => {
+                  if (tab.id === 'report') {
+                    setReportOpen(true);
+                    return;
+                  }
+                  setActiveTab(tab.id as typeof activeTab);
+                }}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -1183,12 +1205,26 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
             </div>
           )}
 
-          {/* TAB 6: Full 17-Section Report */}
-          {activeTab === 'report' && (
-            <div className="panel" style={{ padding: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px' }}>Complete 17-Section Regulatory Audit Report</h3>
-                <div style={{ display: 'flex', gap: '8px' }}>
+          {reportOpen && (
+            <div
+              className="assessment-report-backdrop"
+              role="presentation"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) setReportOpen(false);
+              }}
+            >
+              <section className="assessment-report-modal" role="dialog" aria-modal="true" aria-labelledby="assessment-report-title">
+                <div className="assessment-report-header">
+                  <div>
+                    <span className="assessment-report-eyebrow">Assessment Report</span>
+                    <h3 id="assessment-report-title">Complete 17-Section Regulatory Audit Report</h3>
+                  </div>
+                  <button className="assessment-report-close" type="button" aria-label="Close report" onClick={() => setReportOpen(false)}>
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+
+                <div className="assessment-report-actions">
                   <button
                     className="button secondary"
                     type="button"
@@ -1205,22 +1241,9 @@ export function FormulationPage({ auth }: { auth: AuthHeaders }) {
                     Print / PDF
                   </button>
                 </div>
-              </div>
 
-              <div style={{
-                background: 'var(--surface-container-low)',
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid var(--outline-variant)',
-                maxHeight: '600px',
-                overflowY: 'auto',
-                fontFamily: 'monospace',
-                fontSize: '12px',
-                whiteSpace: 'pre-wrap',
-                lineHeight: 1.6,
-              }}>
-                {result.report}
-              </div>
+                <div className="assessment-report-content">{result.report}</div>
+              </section>
             </div>
           )}
         </div>
@@ -1321,3 +1344,5 @@ function getDocStatusColor(status: string) {
 function splitLines(value: string) {
   return value.split(/\n|,/).map((item) => item.trim()).filter(Boolean);
 }
+
+export default FormulationPage;

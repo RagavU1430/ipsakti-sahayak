@@ -39,6 +39,7 @@ class RAGService:
         self.reranker = LegalFeatureReranker()
         self.generator = generator or self._generator()
         self.general_generator = self._general_generator()
+        self._cache: dict[tuple[str, str], tuple[float, QueryResponse]] = {}
 
     def _store(self):
         use_supabase = self.settings.storage_backend == "supabase" or (
@@ -65,11 +66,19 @@ class RAGService:
 
     def _generator(self):
         if self.settings.enable_llm:
+            import os
+            if self.settings.gemini_api_key and (
+                "gemini" in self.settings.openrouter_model.lower() or os.getenv("LLM_PROVIDER") == "gemini"
+            ):
+                from app.generation import GeminiGroundedGenerator
+                return GeminiGroundedGenerator(self.settings.gemini_api_key, timeout=self.settings.llm_timeout)
+
             from app.core.openrouter_client import OpenRouterClient
 
             return OpenRouterGroundedGenerator(
                 OpenRouterClient(self.settings.openrouter_api_key),
                 self.settings.openrouter_model,
+                timeout=self.settings.llm_timeout,
             )
         return ExtractiveGroundedGenerator()
 
@@ -87,6 +96,19 @@ class RAGService:
         request_id = str(uuid4())
         total_started = time.perf_counter()
         analysis = analyze_query(request)
+        cache_key = (
+            request.query.strip().lower(),
+            (request.jurisdiction.value if hasattr(request.jurisdiction, "value") else str(request.jurisdiction)).upper(),
+        )
+        if self.settings.response_cache_enabled and cache_key in self._cache:
+            cached_time, cached_response = self._cache[cache_key]
+            if time.time() - cached_time < self.settings.response_cache_ttl:
+                cached_metrics = dict(cached_response.metrics)
+                cached_metrics["cache_hit"] = True
+                cached_metrics["total_ms"] = round((time.perf_counter() - total_started) * 1000, 3)
+                hit_response = cached_response.model_copy(update={"metrics": cached_metrics})
+                self._log_request(request_id, analysis, hit_response)
+                return hit_response
         try:
             if self._is_security_exfiltration_request(request.query):
                 response = self._abstained(
@@ -229,6 +251,11 @@ class RAGService:
                     "generator": generated.provider,
                 },
             )
+            if self.settings.response_cache_enabled and not response.abstained:
+                if len(self._cache) >= 500:
+                    oldest_key = next(iter(self._cache))
+                    self._cache.pop(oldest_key, None)
+                self._cache[cache_key] = (time.time(), response)
             self._log_request(request_id, analysis, response)
             return response
         except Exception:
