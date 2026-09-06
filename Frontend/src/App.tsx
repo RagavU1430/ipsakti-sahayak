@@ -13,6 +13,10 @@ import { RegulatoryPage } from './pages/RegulatoryPage';
 import { TkOverlapPage } from './pages/TkOverlapPage';
 import { VoiceChatOverlay } from './components/VoiceChatOverlay';
 import { FeedbackModal } from './components/FeedbackModal';
+import { KeyboardHelpOverlay } from './components/KeyboardHelpOverlay';
+
+import { useTheme } from './hooks/useTheme';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const navItems = [
   { to: '/ask', label: 'Ask Query', icon: 'add' },
@@ -28,8 +32,10 @@ export function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isGlobalVoiceOpen, setIsGlobalVoiceOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const location = useLocation();
   const signedIn = isSignedIn(session);
+  const { theme, resolvedTheme, toggleTheme } = useTheme();
 
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
@@ -105,6 +111,52 @@ export function App() {
           <div className="topbar-actions">
             <button
               type="button"
+              className={`theme-toggle-btn ${resolvedTheme === 'dark' ? 'dark' : ''}`}
+              onClick={toggleTheme}
+              title={`Toggle theme (${theme})`}
+              aria-label={`Current theme is ${theme}. Click to change.`}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--outline-variant)',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--on-surface-variant)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                {resolvedTheme === 'dark' ? 'dark_mode' : 'light_mode'}
+              </span>
+            </button>
+            <button
+              type="button"
+              className="keyboard-shortcut-btn"
+              onClick={() => setShowKeyboardHelp(true)}
+              title="Keyboard shortcuts (?)"
+              aria-label="Show keyboard shortcuts"
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--outline-variant)',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--on-surface-variant)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>keyboard</span>
+            </button>
+            <button
+              type="button"
               className="live-voice-launch-btn compact"
               onClick={() => setIsGlobalVoiceOpen(true)}
               title="Launch Live Conversational Voice Assistant"
@@ -123,13 +175,19 @@ export function App() {
           auth={auth}
         />
 
+        <KeyboardHelpOverlay
+          isOpen={showKeyboardHelp}
+          onClose={() => setShowKeyboardHelp(false)}
+        />
+
         <FeedbackModal
           isOpen={isFeedbackOpen}
           onClose={() => setIsFeedbackOpen(false)}
         />
 
         <main className="portal-main">
-          <Routes>
+          <ErrorBoundary>
+            <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/ask" element={<AskPage auth={auth} signedIn={signedIn} />} />
             <Route path="/tk" element={<TkOverlapPage auth={auth} />} />
@@ -142,7 +200,8 @@ export function App() {
             <Route path="/account" element={<Protected signedIn={signedIn}><AccountPage session={session} onLogout={handleLogout} /></Protected>} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+            </Routes>
+          </ErrorBoundary>
         </main>
       </section>
     </div>

@@ -1,3 +1,4 @@
+/* Light Theme (Default) */
 :root {
   --primary: #00288e;
   --primary-container: #1e40af;
@@ -5,13 +6,13 @@
   --primary-fixed-dim: #b8c4ff;
   --on-primary: #ffffff;
   --on-primary-fixed: #001453;
-  
+
   --secondary: #585f6c;
   --secondary-container: #dce2f3;
   --secondary-fixed: #dce2f3;
   --secondary-fixed-dim: #c0c7d6;
   --on-secondary-container: #5e6572;
-  
+
   --surface: #f9f9ff;
   --surface-dim: #d3daef;
   --surface-bright: #f9f9ff;
@@ -20,26 +21,142 @@
   --surface-container: #e9edff;
   --surface-container-high: #e1e8fd;
   --surface-container-highest: #dce2f7;
-  
+
   --outline: #757684;
   --outline-variant: #c4c5d5;
   --on-background: #141b2b;
   --on-surface: #141b2b;
   --on-surface-variant: #444653;
   --background: #f9f9ff;
-  
+  --text: #141b2b;
+  --text-dim: rgba(20, 27, 43, 0.65);
+  --text-faint: rgba(20, 27, 43, 0.35);
+  --line: rgba(0, 0, 0, 0.08);
+
   --error: #ba1a1a;
   --error-container: #ffdad6;
   --on-error: #ffffff;
   --success: #16a34a;
   --success-bg: #ecfdf3;
-  
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.16);
+
   --container-max: 1280px;
   --gutter: 24px;
-  
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+
   font-family: 'Poppins', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--on-background);
   background: var(--background);
+}
+
+/* Dark Theme (System Preference) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary: #b8c4ff;
+    --primary-container: #00288e;
+    --primary-fixed: #dde1ff;
+    --primary-fixed-dim: #b8c4ff;
+    --on-primary: #001453;
+    --on-primary-fixed: #dde1ff;
+
+    --secondary: #c0c7d6;
+    --secondary-container: #3f4654;
+    --secondary-fixed: #dce2f3;
+    --secondary-fixed-dim: #c0c7d6;
+    --on-secondary-container: #dce2f3;
+
+    --surface: #0d1117;
+    --surface-dim: #0a0e13;
+    --surface-bright: #161b22;
+    --surface-container-lowest: #0a0d10;
+    --surface-container-low: #0d1117;
+    --surface-container: #161b22;
+    --surface-container-high: #1c2128;
+    --surface-container-highest: #24292f;
+
+    --outline: #8b949e;
+    --outline-variant: #30363d;
+    --on-background: #e6edf3;
+    --on-surface: #e6edf3;
+    --on-surface-variant: #8b949e;
+    --background: #0d1117;
+    --text: #e6edf3;
+    --text-dim: rgba(230, 237, 243, 0.65);
+    --text-faint: rgba(230, 237, 243, 0.35);
+    --line: rgba(255, 255, 255, 0.08);
+
+    --error: #ff7b72;
+    --error-container: #490202;
+    --on-error: #ffffff;
+    --success: #3fb950;
+    --success-bg: #1a3d1f;
+
+    /* Dark shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Dark Theme (Explicit Toggle) */
+[data-theme="dark"] {
+  --primary: #b8c4ff;
+  --primary-container: #00288e;
+  --primary-fixed: #dde1ff;
+  --primary-fixed-dim: #b8c4ff;
+  --on-primary: #001453;
+  --on-primary-fixed: #dde1ff;
+
+  --secondary: #c0c7d6;
+  --secondary-container: #3f4654;
+  --secondary-fixed: #dce2f3;
+  --secondary-fixed-dim: #c0c7d6;
+  --on-secondary-container: #dce2f3;
+
+  --surface: #0d1117;
+  --surface-dim: #0a0e13;
+  --surface-bright: #161b22;
+  --surface-container-lowest: #0a0d10;
+  --surface-container-low: #0d1117;
+  --surface-container: #161b22;
+  --surface-container-high: #1c2128;
+  --surface-container-highest: #24292f;
+
+  --outline: #8b949e;
+  --outline-variant: #30363d;
+  --on-background: #e6edf3;
+  --on-surface: #e6edf3;
+  --on-surface-variant: #8b949e;
+  --background: #0d1117;
+  --text: #e6edf3;
+  --text-dim: rgba(230, 237, 243, 0.65);
+  --text-faint: rgba(230, 237, 243, 0.35);
+  --line: rgba(255, 255, 255, 0.08);
+
+  --error: #ff7b72;
+  --error-container: #490202;
+  --on-error: #ffffff;
+  --success: #3fb950;
+  --success-bg: #1a3d1f;
+
+  /* Dark shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
 }
 
 * {
