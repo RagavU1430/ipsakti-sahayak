@@ -297,6 +297,75 @@
           }
         }
       ]
+    },
+    {
+      "name": "7. Voice Assistant & Audio",
+      "item": [
+        {
+          "name": "Synthesize Speech (TTS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Dev-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Welcome to IP-SAKTI Sahayak. You can ask questions regarding patents, trademarks, and traditional knowledge.\",\n  \"language\": \"EN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/voice/synthesize",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "voice", "synthesize"]
+            },
+            "description": "Synthesizes text into high-quality speech WAV audio."
+          }
+        },
+        {
+          "name": "Live Voice Question (STT + RAG + TTS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Dev-User-Id",
+                "value": "{{userId}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "audio",
+                  "type": "file",
+                  "description": "Recorded voice file (.webm, .wav, or .ogg)"
+                },
+                {
+                  "key": "language",
+                  "value": "en",
+                  "type": "text"
+                },
+                {
+                  "key": "jurisdiction",
+                  "value": "INDIA",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/voice/ask",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "voice", "ask"]
+            },
+            "description": "Transcribes audio input, generates evidence-grounded answer, and returns synthesized audio reply."
+          }
+        }
+      ]
     }
   ]
 }
