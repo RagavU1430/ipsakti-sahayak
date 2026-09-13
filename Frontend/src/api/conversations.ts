@@ -17,9 +17,10 @@ export function getConversation(id: string, auth: AuthHeaders) {
   return request<ConversationDetail>(`/api/v1/conversations/${id}`, {}, auth);
 }
 
-export function askInConversation(id: string, question: string, jurisdiction: string, language: string, auth: AuthHeaders) {
+export function askInConversation(id: string, question: string, jurisdiction: string, language: string, auth: AuthHeaders, requestId?: string) {
   return request<ConversationMessageResponse>(`/api/v1/conversations/${id}/messages`, {
     method: 'POST',
+    headers: requestId ? { 'X-Request-ID': requestId } : undefined,
     body: JSON.stringify({ question, jurisdiction, language }),
   }, auth);
 }

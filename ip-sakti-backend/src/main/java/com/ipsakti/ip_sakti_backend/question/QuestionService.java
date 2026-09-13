@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,7 +67,8 @@ public class QuestionService {
 
     public QuestionResponse answer(QuestionRequest request, RoutingContext context) {
         long started = System.nanoTime();
-        String questionId = UUID.randomUUID().toString();
+        String questionId = MDC.get("request_id");
+        if (questionId == null) questionId = UUID.randomUUID().toString();
         TranslatedText canonicalQuestion = translationService.toCanonical(request.question(), request.language(), questionId);
         LanguageMetadata languageMetadata = canonicalQuestion.metadata();
         QuestionIntent intent = intentClassifier.classify(canonicalQuestion.canonicalText());

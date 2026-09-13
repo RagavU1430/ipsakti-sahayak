@@ -11,6 +11,9 @@ __pycache__/
 !.env.example
 ip-sakti-backend/.env
 ip-sakti-rag/.env
+*firebase-adminsdk*.json
+*service_account*.json
+*credentials*.json
 
 # Virtual environments
 .venv/

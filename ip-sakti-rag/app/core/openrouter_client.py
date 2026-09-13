@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+import threading
 import httpx
 from typing import Any, Dict, List, Optional
 
@@ -9,6 +10,23 @@ logger = logging.getLogger(__name__)
 # Class-level circuit breaker: track models in cooldown after 429/503 errors
 _MODEL_COOLDOWNS: Dict[str, float] = {}
 COOLDOWN_SECONDS = 60.0
+
+# Singleton HTTP client with connection pooling (shared across all instances)
+_GLOBAL_CLIENT: Optional[httpx.Client] = None
+_GLOBAL_CLIENT_LOCK = threading.Lock()
+
+
+def _get_global_http_client() -> httpx.Client:
+    """Get or create singleton HTTP client with connection pooling."""
+    global _GLOBAL_CLIENT
+    if _GLOBAL_CLIENT is None:
+        with _GLOBAL_CLIENT_LOCK:
+            if _GLOBAL_CLIENT is None:
+                _GLOBAL_CLIENT = httpx.Client(
+                    limits=httpx.Limits(max_keepalive_connections=30, max_connections=100, keepalive_expiry=120.0),
+                    timeout=httpx.Timeout(connect=5.0, read=30.0, write=10.0, pool=30.0)
+                )
+    return _GLOBAL_CLIENT
 
 
 class OpenRouterClient:
@@ -25,11 +43,8 @@ class OpenRouterClient:
             "HTTP-Referer": "https://github.com/RagavU1430/ipsakti-sahayak", # Required by OpenRouter
             "X-Title": "IP Sakthi A RAG"
         }
-        # Persistent HTTP client with connection pooling and keep-alive
-        self._client = httpx.Client(
-            limits=httpx.Limits(max_keepalive_connections=20, max_connections=50, keepalive_expiry=60.0),
-            timeout=httpx.Timeout(connect=3.0, read=10.0, write=5.0, pool=5.0)
-        )
+        # Use singleton HTTP client for connection reuse
+        self._client = _get_global_http_client()
 
     def close(self):
         try:

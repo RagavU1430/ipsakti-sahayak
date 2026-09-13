@@ -272,7 +272,7 @@ def _best_supported_sentence(item: Evidence, query_terms: set[str], intent: str 
     if not candidates:
         return metadata_fallback
     intent_terms = {
-        "definition": ("means", "defined", "includes", "agreement", "benefit sharing", "fair and equitable"),
+        "definition": ("means", "defined", "includes", "agreement", "benefit sharing", "fair and equitable", "goods", "territory", "originating"),
         "registration": ("application", "registration", "register", "prescribed", "registrar", "controller"),
         "rights": ("right", "rights", "exclusive", "protection", "infringement"),
         "duration": ("term", "years", "expiration", "expiry"),

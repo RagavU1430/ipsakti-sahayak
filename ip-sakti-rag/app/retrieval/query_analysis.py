@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 
 from app.models import Jurisdiction, QueryAnalysis, QueryRequest
-from app.legal_aliases import document_hint_expansion, normalize_legal_query
+from app.legal_aliases import document_hint_expansion, document_hint_ids, normalize_legal_query
 
 
 DOMAIN_TERMS: dict[str, tuple[str, ...]] = {
@@ -105,6 +105,7 @@ def analyze_query(request: QueryRequest) -> QueryAnalysis:
     _has_ip_regulatory_signal = bool(domains) or _has_broad_ip_signal(query)
     ambiguous = len(request.query.split()) < 2 or vague_pronoun_question or (not _has_ip_regulatory_signal and not out_of_scope)
     retrieval_query = _retrieval_query(request.query, domains, intent)
+    hinted_documents = frozenset(document_hint_ids(request.query))
     return QueryAnalysis(
         query=request.query,
         retrieval_query=retrieval_query,
@@ -117,6 +118,7 @@ def analyze_query(request: QueryRequest) -> QueryAnalysis:
         out_of_scope=out_of_scope,
         speculative_subject=speculative_subject,
         ambiguous=ambiguous,
+        hinted_documents=hinted_documents,
     )
 
 
@@ -155,6 +157,8 @@ def _has_broad_ip_signal(query: str) -> bool:
 
 
 def _intent(query: str) -> str | None:
+    if "what goods" in query or "which goods" in query or "qualify for protection" in query:
+        return "definition"
     for intent in ("difference", "duration", "opposition", "purpose", "rights", "registration", "definition", "infringement"):
         terms = INTENT_TERMS[intent]
         if any(term in query for term in terms):

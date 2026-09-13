@@ -68,6 +68,8 @@ def _evidence_answers_intent(analysis: QueryAnalysis, evidence: list[Evidence]) 
     if not analysis.intent:
         return True
     hinted = set(document_hint_ids(analysis.query))
+    if hinted and any(item.document_id in hinted for item in evidence[:8]) and evidence[0].reranker_score >= 0.5:
+        return True
     if hinted and any(item.document_id in hinted for item in evidence[:3]) and analysis.intent in {"purpose", "definition", "rights"}:
         return True
     if analysis.intent == "difference":

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 from app.models import Evidence, QueryAnalysis
@@ -18,17 +19,33 @@ class HybridRetriever:
     def __init__(self, store: Any, candidate_k: int = 24):
         self.store = store
         self.candidate_k = candidate_k
+        # Thread pool for parallel I/O operations
+        self._executor = ThreadPoolExecutor(max_workers=6)
 
     def retrieve(self, analysis: QueryAnalysis) -> list[Evidence]:
         if not analysis.domains and (analysis.out_of_scope or analysis.ambiguous):
             return []
-        vector = self.store.vector_search(analysis, self.candidate_k)
-        lexical = self.store.keyword_search(analysis, self.candidate_k)
+
+        # Parallel vector + keyword searches
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            vector_future = executor.submit(self.store.vector_search, analysis, self.candidate_k)
+            lexical_future = executor.submit(self.store.keyword_search, analysis, self.candidate_k)
+
+            vector = vector_future.result()
+            lexical = lexical_future.result()
+
+        # For difference intent, parallelize domain-specific searches
         if analysis.intent == "difference" and len(set(analysis.domains)) >= 2:
+            domain_futures = []
             for domain in dict.fromkeys(analysis.domains):
                 domain_analysis = analysis.model_copy(update={"domains": [domain]})
-                vector.extend(self.store.vector_search(domain_analysis, max(6, self.candidate_k // 2)))
-                lexical.extend(self.store.keyword_search(domain_analysis, max(6, self.candidate_k // 2)))
+                domain_futures.append(
+                    (domain, self._executor.submit(self.store.vector_search, domain_analysis, max(6, self.candidate_k // 2)),
+                     self._executor.submit(self.store.keyword_search, domain_analysis, max(6, self.candidate_k // 2)))
+                )
+            for domain, vec_fut, lex_fut in domain_futures:
+                vector.extend(vec_fut.result())
+                lexical.extend(lex_fut.result())
         vector_scores = _normalize(vector, "vector_score")
         lexical_scores = _normalize(lexical, "lexical_score")
         combined = {row["chunk_id"]: dict(row) for row in vector + lexical}
@@ -42,7 +59,7 @@ class HybridRetriever:
             identifiers = analysis.legal_identifiers
             if identifiers and any(identifier.lower() in row.get("text", "").lower() or text_supports_identifier(identifier, row.get("text", "")) for identifier in identifiers):
                 metadata += 0.2
-            metadata += 0.8 * document_hint_score(row.get("document_id", ""), analysis.query)
+            metadata += 0.8 * document_hint_score(row.get("document_id", ""), analysis.hinted_documents)
             row["vector_score"] = vector_scores.get(chunk_id, 0.0)
             row["lexical_score"] = lexical_scores.get(chunk_id, 0.0)
             row["fusion_score"] = 0.55 * row["vector_score"] + 0.35 * row["lexical_score"] + 0.10 * metadata

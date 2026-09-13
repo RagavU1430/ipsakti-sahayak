@@ -44,11 +44,22 @@ class LegalFeatureReranker:
     learned = False
 
     def rerank(self, analysis: QueryAnalysis, candidates: list[Evidence], final_count: int) -> list[Evidence]:
+        # Pre-compute identifier matches once (avoid N+1 lookups)
+        identifier_cache = {}
+        if analysis.legal_identifiers:
+            for item in candidates:
+                identifier_cache[item.chunk_id] = any(
+                    identifier.lower() in item.text.lower() 
+                    or evidence_supports_identifier(identifier, [item]) 
+                    or text_supports_identifier(identifier, item.text) 
+                    for identifier in analysis.legal_identifiers
+                )
+
         query_tokens = set(re.findall(r"[a-z0-9]+", analysis.retrieval_query.lower()))
         for item in candidates:
             text = item.text.lower()
             coverage = sum(token in text for token in query_tokens) / max(len(query_tokens), 1)
-            identifier = 1.0 if any(identifier.lower() in text or evidence_supports_identifier(identifier, [item]) or text_supports_identifier(identifier, item.text) for identifier in analysis.legal_identifiers) else 0.0
+            identifier = 1.0 if identifier_cache.get(item.chunk_id, False) else 0.0
             verified = 1.0 if item.source_status == "VERIFIED" else 0.0
             intent = _intent_relevance(analysis, item)
             definition = _definition_relevance(analysis, item)

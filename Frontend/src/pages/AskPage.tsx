@@ -183,6 +183,7 @@ export function AskPage({ auth }: { auth: AuthHeaders; signedIn: boolean }) {
     setQuestion('');
     setError(null);
     setLoading(true);
+    const requestId = crypto.randomUUID();
 
     const userMessageId = `user-${Date.now()}`;
     const userMessage: ChatMessage = {
@@ -213,7 +214,7 @@ export function AskPage({ auth }: { auth: AuthHeaders; signedIn: boolean }) {
       // Try asking in conversation
       if (currentConvId) {
         try {
-          const resp = await askInConversation(currentConvId, userText, jurisdiction, language, auth);
+          const resp = await askInConversation(currentConvId, userText, jurisdiction, language, auth, requestId);
           const assistantMessage: ChatMessage = {
             id: resp.message_id || `asst-${Date.now()}`,
             role: 'assistant',

@@ -29,6 +29,7 @@ import com.ipsakti.ip_sakti_backend.question.model.QuestionSource;
 import com.ipsakti.ip_sakti_backend.question.routing.QueryDomain;
 import com.ipsakti.ip_sakti_backend.question.routing.QueryRoute;
 import com.ipsakti.ip_sakti_backend.question.routing.RoutingContext;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -145,7 +146,9 @@ public class ConversationService {
         log.info("conversation_deleted conversationId={} userId={}", conversationId, principal.getId());
     }
 
+    @Transactional
     public ConversationMessageResponse askInConversation(UserPrincipal principal, UUID conversationId, ConversationMessageRequest request) {
+        long started = System.nanoTime();
         UserMessagePersistenceResult userResult = persistUserMessage(principal, conversationId, request);
         QuestionResponse questionResponse;
         try {
@@ -165,7 +168,11 @@ public class ConversationService {
             }
             throw e;
         }
-        return persistAssistantResponse(principal, conversationId, userResult.userMessageId(), questionResponse);
+        ConversationMessageResponse response = persistAssistantResponse(
+                userResult.conversation(), userResult.userMessageId(), questionResponse);
+        log.info("conversation_response_ready conversationId={} latencyMs={}", conversationId,
+                Duration.ofNanos(System.nanoTime() - started).toMillis());
+        return response;
     }
 
     static String contextualizeReferentialFollowUp(String question, RoutingContext context) {
@@ -317,7 +324,14 @@ public class ConversationService {
             QuestionResponse response
     ) {
         ConversationEntity conversation = findAndVerifyOwnership(principal, conversationId);
+        return persistAssistantResponse(conversation, userMessageId, response);
+    }
 
+    private ConversationMessageResponse persistAssistantResponse(
+            ConversationEntity conversation,
+            UUID userMessageId,
+            QuestionResponse response
+    ) {
         MessageEntity assistantMessage = MessageEntity.assistantMessage(
                 conversation,
                 response.answer(),
@@ -369,10 +383,10 @@ public class ConversationService {
         conversationRepository.save(conversation);
 
         log.info("assistant_message_persisted conversationId={} assistantMessageId={} citationsCount={} sourcesCount={}",
-                conversationId, savedAssistantMessage.getId(), citations.size(), sources.size());
+                conversation.getId(), savedAssistantMessage.getId(), citations.size(), sources.size());
 
         return new ConversationMessageResponse(
-                conversationId,
+                conversation.getId(),
                 savedAssistantMessage.getId(),
                 userMessageId,
                 response.answer(),

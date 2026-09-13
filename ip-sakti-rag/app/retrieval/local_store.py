@@ -30,6 +30,37 @@ class LocalCorpusStore:
             self.document_frequency.update(counts.keys())
         self.average_length = sum(sum(counts.values()) for counts in self.term_counts) / max(len(self.term_counts), 1)
 
+        # Pre-compute IDF for all terms (cache for performance)
+        self.total = len(self.chunks)
+        self._idf_cache: dict[str, float] = {}
+        self._init_idf_cache()
+        # A document vector is immutable for the frozen corpus. The previous
+        # implementation recomputed all 7,019 norms for every query.
+        self.vector_norms = [self._vector_norm(counts) for counts in self.term_counts]
+
+    def _init_idf_cache(self) -> None:
+        """Pre-compute IDF values for all terms in the corpus."""
+        for term in self.document_frequency:
+            df = self.document_frequency.get(term, 0)
+            self._idf_cache[term] = math.log(1 + (self.total - df + 0.5) / (df + 0.5))
+
+    def _get_idf(self, term: str) -> float:
+        """Get cached IDF value, computing if not yet cached."""
+        if term not in self._idf_cache:
+            df = self.document_frequency.get(term, 0)
+            self._idf_cache[term] = math.log(1 + (self.total - df + 0.5) / (df + 0.5))
+        return self._idf_cache[term]
+
+    def _vector_norm(self, counts: Counter[str]) -> float:
+        return math.sqrt(sum(
+            (frequency * self._vector_idf(term)) ** 2
+            for term, frequency in counts.items()
+        )) or 1.0
+
+    def _vector_idf(self, term: str) -> float:
+        """Return the original TF-IDF weight used by vector search."""
+        return math.log((self.total + 1) / (self.document_frequency.get(term, 0) + 1)) + 1
+
     def _eligible(self, chunk: dict[str, Any], analysis: QueryAnalysis) -> bool:
         jurisdiction_ok = analysis.jurisdiction == Jurisdiction.BOTH or chunk["jurisdiction"] == analysis.jurisdiction.value
         domain_ok = not analysis.domains or "IP" in analysis.domains or chunk["domain"] in analysis.domains or (
@@ -40,7 +71,7 @@ class LocalCorpusStore:
     def keyword_search(self, analysis: QueryAnalysis, count: int) -> list[dict[str, Any]]:
         query_terms = tokens(analysis.retrieval_query)
         results: list[dict[str, Any]] = []
-        total = len(self.chunks)
+        total = self.total
         for chunk, counts in zip(self.chunks, self.term_counts):
             if not self._eligible(chunk, analysis):
                 continue
@@ -50,12 +81,11 @@ class LocalCorpusStore:
                 frequency = counts.get(term, 0)
                 if not frequency:
                     continue
-                df = self.document_frequency.get(term, 0)
-                idf = math.log(1 + (total - df + 0.5) / (df + 0.5))
+                idf = self._get_idf(term)  # Use cached IDF
                 score += idf * frequency * 2.2 / (frequency + 1.2 * (0.25 + 0.75 * length / self.average_length))
             if _identifier_match(chunk, analysis):
                 score += 10.0
-            score += 12.0 * document_hint_score(chunk.get("document_id", ""), analysis.query)
+            score += 12.0 * document_hint_score(chunk.get("document_id", ""), analysis.hinted_documents)
             score += _title_intent_boost(chunk, analysis, lexical=True)
             if score:
                 results.append({**chunk, "lexical_score": score})
@@ -66,25 +96,25 @@ class LocalCorpusStore:
         # production path executes pgvector through SupabaseRAGStore.
         query_counts = Counter(tokens(analysis.retrieval_query))
         results: list[dict[str, Any]] = []
-        total = len(self.chunks)
+        total = self.total
         query_weights = {
-            term: frequency * (math.log((total + 1) / (self.document_frequency.get(term, 0) + 1)) + 1)
+            term: frequency * self._vector_idf(term)
             for term, frequency in query_counts.items()
         }
         query_norm = math.sqrt(sum(value * value for value in query_weights.values())) or 1.0
-        for chunk, counts in zip(self.chunks, self.term_counts):
+        for chunk, counts, document_norm in zip(self.chunks, self.term_counts, self.vector_norms):
             if not self._eligible(chunk, analysis):
                 continue
-            dot = 0.0
-            norm = 0.0
-            for term, frequency in counts.items():
-                weight = frequency * (math.log((total + 1) / (self.document_frequency.get(term, 0) + 1)) + 1)
-                norm += weight * weight
-                dot += weight * query_weights.get(term, 0.0)
-            score = dot / (math.sqrt(norm) * query_norm or 1.0)
+            # Terms absent from the query contributed zero previously, so
+            # iterating over the much shorter query is score-equivalent.
+            dot = sum(
+                counts.get(term, 0) * self._vector_idf(term) * query_weight
+                for term, query_weight in query_weights.items()
+            )
+            score = dot / (document_norm * query_norm or 1.0)
             if _identifier_match(chunk, analysis):
                 score += 0.75
-            score += 0.85 * document_hint_score(chunk.get("document_id", ""), analysis.query)
+            score += 0.85 * document_hint_score(chunk.get("document_id", ""), analysis.hinted_documents)
             score += _title_intent_boost(chunk, analysis, lexical=False)
             if score:
                 results.append({**chunk, "vector_score": score})
@@ -170,7 +200,7 @@ def _include_hinted_documents(
     even when the user names it exactly. Dropping it before reranking makes the
     system answer from a more generic but wrong source.
     """
-    hinted = set(document_hint_ids(analysis.query))
+    hinted = set(analysis.hinted_documents)
     if not hinted:
         return sorted(results, key=lambda item: item[score_field], reverse=True)[:count]
     by_id = {item["chunk_id"]: item for item in results}

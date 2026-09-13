@@ -1,0 +1,1304 @@
+{
+  "summary": {
+    "total_rag_questions": 25,
+    "successful_http": 25,
+    "grounded_answers": 20,
+    "citation_success": 20,
+    "average_backend_total_ms": 1512.902,
+    "median_backend_total_ms": 1722.017,
+    "p95_backend_total_ms": 2251.781
+  },
+  "results": [
+    {
+      "id": "Q01",
+      "pattern": "direct factual lookup",
+      "question": "Which provisions of the Patents Act address inventions that are traditional knowledge or aggregations of known properties?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 2213.909,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 1.0889,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Under the Patents Act, 1970, Section 3(p) addresses inventions that are traditional knowledge or an aggregation or duplication of known properties of traditionally known component or components. (Note: This is legal information, not legal advice, and no outcome is guaranteed.)",
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 10,
+          "section": "Section 3(p)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0193-8b91e02346c5"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-PAT-ACT-1970",
+          "score": 1.0889
+        }
+      ]
+    },
+    {
+      "id": "Q02",
+      "pattern": "document-specific",
+      "question": "What categories of subject matter are excluded from patentability under the Patents Act?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-PAT-ACT-1970"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1877.515,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.8766,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the provided evidence, the Patents Act indicates that certain matters are not considered inventions (Section 3). However, the specific categories and details of what is excluded from patentability are not elaborated in the retrieved text beyond stating that Section 3 deals with \"What are not inventions.\" Therefore, the evidence is insufficient to provide the full categories of excluded subject matter.",
+      "citations": [
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 9,
+          "section": "Section 3",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0183-ca686246af00"
+        },
+        {
+          "document": "The Patents Act, 1970",
+          "document_id": "IND-PAT-ACT-1970",
+          "page": 1,
+          "section": "Section 3",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/resource/patents-resources-act",
+          "chunk_id": "IND-PAT-ACT-1970-0004-8998e747eb40"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-PAT-ACT-1970",
+          "score": 0.8766
+        }
+      ]
+    },
+    {
+      "id": "Q03",
+      "pattern": "evidence-based",
+      "question": "What procedure do the Patents Rules prescribe for requesting examination of a patent application?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-PAT-RULES-2003"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1722.017,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": null,
+      "source_count": 0,
+      "answer_generated": true,
+      "grounded": false,
+      "citations_returned": false,
+      "RAG_USED": false,
+      "expected_source_hit": false,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Citation validation rejected the generated answer; no unsupported legal statement was returned.",
+      "citations": [],
+      "sources": []
+    },
+    {
+      "id": "Q04",
+      "pattern": "research literature",
+      "question": "What does the Ministry of Ayush report about official pharmacopoeial standard-setting for Ayurveda?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-AYUSH-2024",
+        "IND-AYUSH-AR-2024-25"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1247.951,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.6881,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the cited AYURVEDA evidence: The Ministry developed a Central Sector Scheme for promotion of International Cooperation (IC Scheme) with the mandate to promote and strengthen awareness about Ayush Systems of Medicine Rajbhasha/Hindi section reviewed the Quarterly progress report regarding progressive use of Hindi of all the subordinate offices/councils/academic institutions and units under the control of the Ministry of AYUSH and sent the reviewed reports for taking follow up actions based on the review done by the ministry. Ministry of Ayush has constituted a working group prepared construct for 150 Ayurveda treatment packages and submitted to National Health Authority (NHA), Ministry of Health & Family Welfare (MoHFW) along with \"STANDARD CHIKITSA GUIDELINES\" (SCG- 2020). This is legal information, not legal advice; application to specific facts may require professional review.",
+      "citations": [
+        {
+          "document": "Ministry of Ayush Annual Report 2024-25",
+          "document_id": "IND-AYUSH-AR-2024-25",
+          "page": 172,
+          "section": null,
+          "authority": "Ministry of Ayush",
+          "source_url": "https://ayush.gov.in/",
+          "chunk_id": "IND-AYUSH-AR-2024-25-0096-acf8531cb8fa"
+        },
+        {
+          "document": "Ministry of Ayush Annual Report 2024-25",
+          "document_id": "IND-AYUSH-AR-2024-25",
+          "page": 191,
+          "section": null,
+          "authority": "Ministry of Ayush",
+          "source_url": "https://ayush.gov.in/",
+          "chunk_id": "IND-AYUSH-AR-2024-25-0105-4a3116779a9d"
+        },
+        {
+          "document": "Ministry of Ayush Annual Report 2024-25",
+          "document_id": "IND-AYUSH-AR-2024-25",
+          "page": 150,
+          "section": null,
+          "authority": "Ministry of Ayush",
+          "source_url": "https://ayush.gov.in/",
+          "chunk_id": "IND-AYUSH-AR-2024-25-0089-201bae7e45b6"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-AYUSH-AR-2024-25",
+          "score": 0.6881
+        }
+      ]
+    },
+    {
+      "id": "Q05",
+      "pattern": "patent-related",
+      "question": "What is the function of an international application under the Patent Cooperation Treaty?",
+      "jurisdiction": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-PCT"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1854.253,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.8789,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the provided evidence, an international application is defined as an application filed under the Patent Cooperation Treaty. Additionally, the evidence indicates that each international application shall be the subject of an international search, and that the national law of a designated or elected State may provide that any designation or election of such State in the international application has the effect of an indication of the wish to obtain a regional patent under a regional patent treaty. Please note that this information does not constitute legal advice and no outcome is guaranteed.",
+      "citations": [
+        {
+          "document": "Patent Cooperation Treaty",
+          "document_id": "INT-WIPO-PCT",
+          "page": 7,
+          "section": "Article 2",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/pct-system/texts/index",
+          "chunk_id": "INT-WIPO-PCT-0079-5fdbd8d984e1"
+        },
+        {
+          "document": "Patent Cooperation Treaty",
+          "document_id": "INT-WIPO-PCT",
+          "page": 15,
+          "section": "Article 15",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/pct-system/texts/index",
+          "chunk_id": "INT-WIPO-PCT-0140-60f6a9844e77"
+        },
+        {
+          "document": "Patent Cooperation Treaty",
+          "document_id": "INT-WIPO-PCT",
+          "page": 34,
+          "section": "Article 45",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/pct-system/texts/index",
+          "chunk_id": "INT-WIPO-PCT-0298-00c34f3d6b1f"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "INT-WIPO-PCT",
+          "score": 0.8789
+        }
+      ]
+    },
+    {
+      "id": "Q06",
+      "pattern": "regulatory",
+      "question": "Which activities require approval or intimation under India's biodiversity framework?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-BD-ACT-2002",
+        "IND-BD-AMEND-2023"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 2251.781,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.7391,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Under India's biodiversity framework (specifically the Biological Diversity Act, 2002), certain activities require prior approval or intimation depending on the nature of the activity and the person or entity involved:\n\n1. Approval of the National Biodiversity Authority (NBA) is required for:\n   - Obtaining any biological resource occurring in India or associated knowledge for research, commercial utilization, bio-survey, or bio-utilization, if undertaken by non-citizens, non-resident citizens of India, or bodies corporate, associations, or organizations not incorporated/registered in India or having any non-Indian participation in share capital or management.\n   - Transferring the results of any research relating to biological resources occurring in or obtained from India to non-citizens, non-resident citizens of India, or non-Indian registered/incorporated bodies corporate or organizations.\n   - Applying for any intellectual property right (in or outside India) for any invention based on any research or information on a biological resource obtained from India.\n   - Transferring any biological resource or associated knowledge that was already granted approval under Section 19.\n\n2. Prior Intimation to the State Biodiversity Board is required for:\n   - Citizens of India, or bodies corporate, associations, or organizations registered in India, who obtain any biological resource for commercial utilization, or bio-survey and bio-utilization for commercial utilization.\n\nPlease note that this summary constitutes legal information rather than legal advice, and no outcome can be guaranteed.",
+      "citations": [
+        {
+          "document": "The Biological Diversity Act, 2002",
+          "document_id": "IND-BD-ACT-2002",
+          "page": 1,
+          "section": "Section 2",
+          "authority": "Government of India / WIPO Lex",
+          "source_url": "https://www.indiacode.nic.in/handle/123456789/18553",
+          "chunk_id": "IND-BD-ACT-2002-0006-7991951465e9"
+        },
+        {
+          "document": "The Biological Diversity Act, 2002",
+          "document_id": "IND-BD-ACT-2002",
+          "page": 1,
+          "section": "Section 2(1)",
+          "authority": "Government of India / WIPO Lex",
+          "source_url": "https://www.indiacode.nic.in/handle/123456789/18553",
+          "chunk_id": "IND-BD-ACT-2002-0011-7d75024abd2b"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-BD-ACT-2002",
+          "score": 0.7391
+        }
+      ]
+    },
+    {
+      "id": "Q07",
+      "pattern": "traditional knowledge",
+      "question": "What patent disclosure requirement concerning genetic resources and associated traditional knowledge is established by the WIPO GRATK Treaty?",
+      "jurisdiction": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-GRATK-2024"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1238.989,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 1.0813,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the cited INTERNATIONAL evidence: iciaries Youth Examiners Innovation Ecosystems Economics Finance Intangible Assets Global Health Climate Change Competition Policy Sustainable Development Goals Genetic Resources, Traditional Knowledge and Traditional Cultural Expressions Frontier Technologies Mobile Applications Sports Tourism Music Fashion PATENTSCOPE Patent Analytics International Patent Classification ARDI \u2013 Research for Innovation ASPI \u2013 Special This is legal information, not legal advice; application to specific facts may require professional review.",
+      "citations": [
+        {
+          "document": "WIPO Treaty on Intellectual Property Genetic Resources and Associated Traditional Knowledge",
+          "document_id": "INT-WIPO-GRATK-2024",
+          "page": 1,
+          "section": null,
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/traditional-knowledge/wipo-treaty-on-ip-gr-and-associated-tk",
+          "chunk_id": "INT-WIPO-GRATK-2024-0001-dcdc3714a345"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "INT-WIPO-GRATK-2024",
+          "score": 1.0813
+        }
+      ]
+    },
+    {
+      "id": "Q08",
+      "pattern": "product-related",
+      "question": "What labelling requirements apply to Ayurveda Aahara products?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-FSS-AA-2022"
+      ],
+      "expected_abstention": true,
+      "http_status": 200,
+      "total_backend_time_ms": 6.254,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": null,
+      "source_count": 0,
+      "answer_generated": true,
+      "grounded": false,
+      "citations_returned": false,
+      "RAG_USED": false,
+      "expected_source_hit": false,
+      "error": null,
+      "failure_reason": null,
+      "answer": "The authoritative 2022 Ayurveda Aahara regulation source is quarantined because its local file is not a valid PDF; this question cannot be answered safely from the verified 2025 list order alone.",
+      "citations": [],
+      "sources": []
+    },
+    {
+      "id": "Q09",
+      "pattern": "documentation-gap",
+      "question": "How do the Ayurveda Aahara Regulations define Ayurveda Aahara?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-FSS-AA-2022"
+      ],
+      "expected_abstention": true,
+      "http_status": 200,
+      "total_backend_time_ms": 17.742,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": null,
+      "source_count": 0,
+      "answer_generated": true,
+      "grounded": false,
+      "citations_returned": false,
+      "RAG_USED": false,
+      "expected_source_hit": false,
+      "error": null,
+      "failure_reason": null,
+      "answer": "The authoritative 2022 Ayurveda Aahara regulation source is quarantined because its local file is not a valid PDF; this question cannot be answered safely from the verified 2025 list order alone.",
+      "citations": [],
+      "sources": []
+    },
+    {
+      "id": "Q10",
+      "pattern": "claim-verification",
+      "question": "What rights does registration confer under the Trade Marks Act?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-TM-ACT-1999"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1909.777,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 1.0719,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Subject to other provisions of the Trade Marks Act, the valid registration of a trade mark gives the registered proprietor the exclusive right to use the trade mark in relation to the goods or services for which it is registered and the right to obtain relief in respect of infringement in the manner provided by the Act. Furthermore, when a trade mark consists of several matters, its registration confers the exclusive right to use the trade mark taken as a whole. (Note: This is legal information, not legal advice, and outcomes cannot be guaranteed.)",
+      "citations": [
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 14,
+          "section": "Section 27",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0143-2a51e2126aa9"
+        },
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 10,
+          "section": "Section 11(5)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0106-453a3ca8a5dc"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-TM-ACT-1999",
+          "score": 1.0719
+        }
+      ]
+    },
+    {
+      "id": "Q11",
+      "pattern": "multi-document",
+      "question": "What is the registration process prescribed by the GI Act and Rules?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-GI-ACT-1999",
+        "IND-GI-RULES-2002"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1842.078,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 1.0223,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "The provided evidence contains limited information regarding the registration process under the Geographical Indications Act. It indicates that upon the registration of a geographical indication, the Registrar shall issue a certificate of registration (in a prescribed form and sealed with the Geographical Indications Registry's seal) to the applicant and any registered authorised users. Additionally, if the registration of a geographical indication is not completed within twelve months from the date of application due to the applicant's default, the Registrar may treat the application as abandoned after giving notice in the prescribed manner, unless completed within the specified time. Insufficient evidence is available to provide the full, step-by-step registration process prescribed by the Act and Rules. Please note that this information is for legal information purposes only and does not constitute legal advice, nor does it guarantee any outcome.",
+      "citations": [
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": "Section 16(2)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0175-a7c28b9ba7e6"
+        },
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": "Section 16(3)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0176-2e9eab68c007"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-GI-ACT-1999",
+          "score": 1.0223
+        }
+      ]
+    },
+    {
+      "id": "Q12",
+      "pattern": "multiple chunks",
+      "question": "What criteria govern registration of a plant variety under the PPVFR framework?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-PPV-ACT-2001",
+        "IND-PPV-RULES-2003"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1600.931,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.9524,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the provided evidence, the specific criteria governing the registration of a plant variety are not detailed. However, the evidence notes that applications for registration may be made by any person claiming to be the breeder of the variety, a successor of the breeder, or a farmer who has bred or developed a new variety, who is entitled to registration and other protection in like manner as a breeder. Please note that this is legal information and not legal advice, and no outcome is guaranteed.",
+      "citations": [
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 26,
+          "section": "Section 39(i)",
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0237-a6fd99944ae7"
+        },
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 12,
+          "section": "Section 16",
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0108-3ddf5766edc6"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-PPV-ACT-2001",
+          "score": 0.9524
+        }
+      ]
+    },
+    {
+      "id": "Q13",
+      "pattern": "different terminology",
+      "question": "What goods may qualify for protection as a geographical indication under Indian law?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-GI-ACT-1999"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 133.403,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 1.1694,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the cited GI evidence, the term is described as follows: The Geographical Indications of Goods (Registration and Protection) Act, 1999 is a act source from Government of India / IP India in the retrieved corpus. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "citations": [
+        {
+          "document": "The Geographical Indications of Goods (Registration and Protection) Act, 1999",
+          "document_id": "IND-GI-ACT-1999",
+          "page": 1,
+          "section": "Section 2(1)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/page-content/geographical-indications-act-1999",
+          "chunk_id": "IND-GI-ACT-1999-0099-422b6c638e92"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-GI-ACT-1999",
+          "score": 1.1694
+        }
+      ]
+    },
+    {
+      "id": "Q14",
+      "pattern": "semantic paraphrase",
+      "question": "How does the Madrid Protocol facilitate international registration of marks?",
+      "jurisdiction": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-MADRID"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 2171.005,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.8962,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the provided evidence, the Madrid Protocol facilitates securing protection for a mark in the territory of Contracting Parties by allowing a person who has filed a basic application or obtained a basic registration with the Office of a Contracting Party to obtain the registration of that mark in the register of the International Bureau of the World Intellectual Property Organization. Additionally, provisions address fees for international applications and registrations, refusal and invalidation of effects in certain Contracting Parties, limitations of goods and services, and membership in the Assembly and Union. \n\nPlease note that this information is legal information, not legal advice, and no outcome is guaranteed. The evidence provided is insufficient to offer a complete procedural guide.",
+      "citations": [
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 5",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0007-c6bb6d818839"
+        },
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 8",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0012-54b1aed5cc6c"
+        },
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 14",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0025-1fc04150a660"
+        },
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 2",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0027-841fee49f484"
+        },
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 5",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0060-fbc3fc6de6e7"
+        },
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 9",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0112-a866dd61cd72"
+        },
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 10",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0132-cca10bf1deb0"
+        },
+        {
+          "document": "Protocol Relating to the Madrid Agreement Concerning the International Registration of Marks",
+          "document_id": "INT-WIPO-MADRID",
+          "page": 1,
+          "section": "Article 15",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/madrid_protocol/index",
+          "chunk_id": "INT-WIPO-MADRID-0169-8c7075a9d8e2"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "INT-WIPO-MADRID",
+          "score": 0.8962
+        }
+      ]
+    },
+    {
+      "id": "Q15",
+      "pattern": "specific entity",
+      "question": "What does the Budapest Treaty require patent authorities to recognize concerning microorganism deposits?",
+      "jurisdiction": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-BUDAPEST"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1522.43,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.8326,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the provided evidence, the specific requirements that patent authorities must recognize concerning microorganism deposits are not detailed, other than the provision stating that as far as matters regulated in the Treaty and Regulations are concerned, no Contracting State may require compliance with requirements different from or additional to those provided in the Treaty and the Regulations.",
+      "citations": [
+        {
+          "document": "Budapest Treaty on the International Recognition of the Deposit of Microorganisms for the Purposes of Patent Procedure",
+          "document_id": "INT-WIPO-BUDAPEST",
+          "page": 1,
+          "section": "Article 3",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/registration/budapest/index",
+          "chunk_id": "INT-WIPO-BUDAPEST-0039-514c8c0fa984"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "INT-WIPO-BUDAPEST",
+          "score": 0.8326
+        }
+      ]
+    },
+    {
+      "id": "Q16",
+      "pattern": "comparative evidence",
+      "question": "How does the Paris Convention implement national treatment and priority?",
+      "jurisdiction": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-WIPO-PARIS"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1404.572,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.8492,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the provided evidence, there is insufficient information to explain how the Paris Convention implements national treatment and priority, as the text only mentions titles and headings of provisions (such as Article 2 regarding national treatment) without containing the substantive text explaining their implementation. Note that this information is for legal-information purposes only and does not constitute legal advice or guarantee an outcome.",
+      "citations": [
+        {
+          "document": "Paris Convention for the Protection of Industrial Property",
+          "document_id": "INT-WIPO-PARIS",
+          "page": 1,
+          "section": "Article 2",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/ip/paris/index",
+          "chunk_id": "INT-WIPO-PARIS-0003-665d0b9edfa1"
+        },
+        {
+          "document": "Paris Convention for the Protection of Industrial Property",
+          "document_id": "INT-WIPO-PARIS",
+          "page": 2,
+          "section": "Article 2",
+          "authority": "World Intellectual Property Organization",
+          "source_url": "https://www.wipo.int/en/web/treaties/ip/paris/index",
+          "chunk_id": "INT-WIPO-PARIS-0037-cf1461e4a520"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "INT-WIPO-PARIS",
+          "score": 0.8492
+        }
+      ]
+    },
+    {
+      "id": "Q17",
+      "pattern": "source attribution",
+      "question": "What minimum standards of intellectual property protection does TRIPS require members to provide?",
+      "jurisdiction": "INTERNATIONAL",
+      "expected_documents": [
+        "INT-TRIPS-1994"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1871.228,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.999,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "The provided evidence states that Part II of the TRIPS Agreement outlines standards concerning the availability, scope, and use of intellectual property rights, covering categories such as copyright and related rights, trademarks, geographical indications, industrial designs, patents, layout-designs (topographies) of integrated circuits, protection of undisclosed information, and control of anti-competitive practices in contractual licences. Additionally, members may implement more extensive protection in their law than is required by the agreement, provided it does not contravene the agreement's provisions, and are free to determine the appropriate method of implementing the provisions within their own legal system and practice. Note that this information is legal information, not legal advice, and no outcome is guaranteed.",
+      "citations": [
+        {
+          "document": "Agreement on Trade-Related Aspects of Intellectual Property Rights",
+          "document_id": "INT-TRIPS-1994",
+          "page": 1,
+          "section": null,
+          "authority": "World Trade Organization / WIPO Lex",
+          "source_url": "https://www.wto.org/english/docs_e/legal_e/27-trips_01_e.htm",
+          "chunk_id": "INT-TRIPS-1994-0002-b5d8dca14cf2"
+        },
+        {
+          "document": "Agreement on Trade-Related Aspects of Intellectual Property Rights",
+          "document_id": "INT-TRIPS-1994",
+          "page": 1,
+          "section": "Article 1",
+          "authority": "World Trade Organization / WIPO Lex",
+          "source_url": "https://www.wto.org/english/docs_e/legal_e/27-trips_01_e.htm",
+          "chunk_id": "INT-TRIPS-1994-0011-c7182d4cdb22"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "INT-TRIPS-1994",
+          "score": 0.999
+        }
+      ]
+    },
+    {
+      "id": "Q18",
+      "pattern": "potentially conflicting sources",
+      "question": "How did the 2023 amendment change the Biological Diversity Act?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-BD-ACT-2002",
+        "IND-BD-AMEND-2023"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1542.265,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.9203,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the cited ABS evidence: (2 ) The National Biodiversity Authority and the State Biodiversity Boards shall consult the Biodiversity Management Committees while taking any decision relating to the use of biological resources and knowledge associated with such resources occurring within the territorial jurisdiction of the Biodiversity Management Committee. (c ) \"biological resources\" means plants, animals and micro-organisms or parts thereof, their genetic material and by-products (excluding value added products) with actual or potential use or value, but does not include human genetic material Power of Central Government to designate repositories 39.(1) The Central Government may, in consultation with the National Biodiversity Authority, designate institutions as repositories under this Act for different categories of biological resources. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "citations": [
+        {
+          "document": "The Biological Diversity Act, 2002",
+          "document_id": "IND-BD-ACT-2002",
+          "page": 1,
+          "section": "Section 2(1)",
+          "authority": "Government of India / WIPO Lex",
+          "source_url": "https://www.indiacode.nic.in/handle/123456789/18553",
+          "chunk_id": "IND-BD-ACT-2002-0017-6afb4a8172bf"
+        },
+        {
+          "document": "The Biological Diversity Act, 2002",
+          "document_id": "IND-BD-ACT-2002",
+          "page": 1,
+          "section": "Section 2",
+          "authority": "Government of India / WIPO Lex",
+          "source_url": "https://www.indiacode.nic.in/handle/123456789/18553",
+          "chunk_id": "IND-BD-ACT-2002-0005-a414874f33c3"
+        },
+        {
+          "document": "The Biological Diversity Act, 2002",
+          "document_id": "IND-BD-ACT-2002",
+          "page": 1,
+          "section": "Section 2(1)",
+          "authority": "Government of India / WIPO Lex",
+          "source_url": "https://www.indiacode.nic.in/handle/123456789/18553",
+          "chunk_id": "IND-BD-ACT-2002-0016-5c30e9fa048f"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-BD-ACT-2002",
+          "score": 0.9203
+        }
+      ]
+    },
+    {
+      "id": "Q19",
+      "pattern": "synthesis",
+      "question": "What rights and protections are available to farmers under the PPVFR Act?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-PPV-ACT-2001"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 1529.282,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 1.0066,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Under the Protection of Plant Varieties and Farmers' Rights Act, 2001 (PPVFR Act), a farmer who has bred or developed a new variety is entitled to registration and other protection in the same manner as a breeder of a variety under the Act. Please note that this is legal information and not legal advice, and no outcome can be guaranteed.",
+      "citations": [
+        {
+          "document": "The Protection of Plant Varieties and Farmers' Rights Act, 2001",
+          "document_id": "IND-PPV-ACT-2001",
+          "page": 26,
+          "section": "Section 39(i)",
+          "authority": "Protection of Plant Varieties and Farmers' Rights Authority",
+          "source_url": "https://plantauthority.gov.in/acts-rules",
+          "chunk_id": "IND-PPV-ACT-2001-0237-a6fd99944ae7"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-PPV-ACT-2001",
+          "score": 1.0066
+        }
+      ]
+    },
+    {
+      "id": "Q20",
+      "pattern": "long-form",
+      "question": "Explain the Indian design registration application requirements and the procedural rules that apply.",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-DES-ACT-2000",
+        "IND-DES-RULES-2001"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 3227.855,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.9958,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Under the Designs Act, 2000, an application for design registration may be filed by any person claiming to be the proprietor of a design, provided the design is new or original, has not been previously published in any country, and is not contrary to public order or morality. Upon receiving an application, the Controller refers it to an examiner to determine if the design is capable of being registered under the Act and its rules. Once registered, the design is dated as of the application date, and the Controller issues a certificate of registration to the proprietor. Following registration, the Controller publishes the prescribed particulars, making the design open to public inspection.",
+      "citations": [
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 5(1)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0019-89019fba5ac1"
+        },
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 5(6)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0024-18918478cf89"
+        },
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 7",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0034-69430c56be59"
+        },
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 9(1)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0046-d59c25321b7b"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-DES-ACT-2000",
+          "score": 0.9958
+        }
+      ]
+    },
+    {
+      "id": "Q21",
+      "pattern": "short",
+      "question": "What is a registrable design under the Designs Act?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-DES-ACT-2000"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 71.714,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.9138,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "Based on the cited DESIGN evidence, the term is described as follows: The Designs Act, 2000 is a act source from Government of India / IP India in the retrieved corpus. This is legal information, not legal advice; application to specific facts may require professional review.",
+      "citations": [
+        {
+          "document": "The Designs Act, 2000",
+          "document_id": "IND-DES-ACT-2000",
+          "page": 1,
+          "section": "Section 11(1)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/the-designs-act-2000",
+          "chunk_id": "IND-DES-ACT-2000-0054-84c8c7408d11"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-DES-ACT-2000",
+          "score": 0.9138
+        }
+      ]
+    },
+    {
+      "id": "Q22",
+      "pattern": "limited evidence",
+      "question": "What application procedures and forms are prescribed by the Biological Diversity Rules, 2024?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-BD-RULES-2024"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 2079.972,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": null,
+      "source_count": 0,
+      "answer_generated": true,
+      "grounded": false,
+      "citations_returned": false,
+      "RAG_USED": false,
+      "expected_source_hit": false,
+      "error": null,
+      "failure_reason": null,
+      "answer": "The retrieved evidence was insufficient to produce a supported answer.",
+      "citations": [],
+      "sources": []
+    },
+    {
+      "id": "Q23",
+      "pattern": "insufficient evidence",
+      "question": "What labelling requirements apply to Ayurveda Aahara products?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-FSS-AA-2022"
+      ],
+      "expected_abstention": true,
+      "http_status": 200,
+      "total_backend_time_ms": 7.592,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": null,
+      "source_count": 0,
+      "answer_generated": true,
+      "grounded": false,
+      "citations_returned": false,
+      "RAG_USED": false,
+      "expected_source_hit": false,
+      "error": null,
+      "failure_reason": null,
+      "answer": "The authoritative 2022 Ayurveda Aahara regulation source is quarantined because its local file is not a valid PDF; this question cannot be answered safely from the verified 2025 list order alone.",
+      "citations": [],
+      "sources": []
+    },
+    {
+      "id": "Q24",
+      "pattern": "similar or ambiguous domain",
+      "question": "What exclusive rights belong to a copyright owner under Indian law?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-CR-ACT-1957"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 2229.37,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.738,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "The provided evidence does not contain an exhaustive list of the specific exclusive rights conferred upon a copyright owner under Indian law. While Section 51(i) of the Copyright Act, 1957, mentions that the owner of the copyright holds exclusive rights, the text does not explicitly enumerate what those specific rights are.",
+      "citations": [
+        {
+          "document": "The Copyright Act, 1957",
+          "document_id": "IND-CR-ACT-1957",
+          "page": 39,
+          "section": "Section 51(i)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/copyright-resources-act",
+          "chunk_id": "IND-CR-ACT-1957-0261-d06195ce0bab"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-CR-ACT-1957",
+          "score": 0.738
+        }
+      ]
+    },
+    {
+      "id": "Q25",
+      "pattern": "difficult high-value",
+      "question": "How does the Trade Marks Act define infringement of a registered trade mark?",
+      "jurisdiction": "INDIA",
+      "expected_documents": [
+        "IND-TM-ACT-1999"
+      ],
+      "http_status": 200,
+      "total_backend_time_ms": 2248.664,
+      "routing_time_ms": null,
+      "embedding_time_ms": null,
+      "retrieval_time_ms": null,
+      "reranking_time_ms": null,
+      "context_validation_time_ms": null,
+      "LLM_time_ms": null,
+      "time_to_first_token_ms": null,
+      "number_of_chunks_retrieved": 0,
+      "top_similarity_relevance_score": 0.9911,
+      "source_count": 1,
+      "answer_generated": true,
+      "grounded": true,
+      "citations_returned": true,
+      "RAG_USED": false,
+      "expected_source_hit": true,
+      "error": null,
+      "failure_reason": null,
+      "answer": "The provided evidence does not contain a comprehensive definition of what constitutes the infringement of a registered trade mark under the Trade Marks Act, 1999. It only specifies that the continued use of a registered trade mark is not considered an infringement if that particular use was not an infringement of a trade mark registered before the commencement of the Act.",
+      "citations": [
+        {
+          "document": "The Trade Marks Act, 1999",
+          "document_id": "IND-TM-ACT-1999",
+          "page": 51,
+          "section": "Section 159(5)",
+          "authority": "Government of India / IP India",
+          "source_url": "https://ipindia.gov.in/trade-marks-resources-act",
+          "chunk_id": "IND-TM-ACT-1999-0556-b3c8f99e0877"
+        }
+      ],
+      "sources": [
+        {
+          "document_id": "IND-TM-ACT-1999",
+          "score": 0.9911
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "created_at": "2026-09-13T17:22:36.381946+00:00",
+  "input": "C:\\Users\\Ragav U\\OneDrive\\Desktop\\Ragav Folder\\Projects\\SIH\\ipsakti-sahayak\\RAG V2\\dataset",
+  "output": "C:\\Users\\Ragav U\\OneDrive\\Desktop\\Ragav Folder\\Projects\\SIH\\ipsakti-sahayak\\RAG V2\\dataset_markdown",
+  "converted": [
+    {
+      "source": "ayush/.gitkeep",
+      "markdown": "ayush/.gitkeep.md",
+      "source_type": "extensionless"
+    },
+    {
+      "source": "ayush/annual_report_2024_25.pdf",
+      "markdown": "ayush/annual_report_2024_25.pdf.md",
+      "source_type": "pdf",
+      "page_count": 215
+    },
+    {
+      "source": "ayush/ayush_in_india_2024.pdf",
+      "markdown": "ayush/ayush_in_india_2024.pdf.md",
+      "source_type": "pdf",
+      "page_count": 326
+    },
+    {
+      "source": "fssai/.gitkeep",
+      "markdown": "fssai/.gitkeep.md",
+      "source_type": "extensionless"
+    },
+    {
+      "source": "fssai/ayurveda_aahara/ayurveda_aahara_order_2025.ocr.json",
+      "markdown": "fssai/ayurveda_aahara/ayurveda_aahara_order_2025.ocr.json.md",
+      "source_type": "json"
+    },
+    {
+      "source": "fssai/ayurveda_aahara/ayurveda_aahara_order_2025.pdf",
+      "markdown": "fssai/ayurveda_aahara/ayurveda_aahara_order_2025.pdf.md",
+      "source_type": "pdf",
+      "page_count": 172
+    },
+    {
+      "source": "india_code/.gitkeep",
+      "markdown": "india_code/.gitkeep.md",
+      "source_type": "extensionless"
+    },
+    {
+      "source": "india_code/biodiversity/biological_diversity_act_2002.html",
+      "markdown": "india_code/biodiversity/biological_diversity_act_2002.html.md",
+      "source_type": "html"
+    },
+    {
+      "source": "india_code/copyright/copyright_act_1957.pdf",
+      "markdown": "india_code/copyright/copyright_act_1957.pdf.md",
+      "source_type": "pdf",
+      "page_count": 57
+    },
+    {
+      "source": "india_code/designs/designs_act_2000.html",
+      "markdown": "india_code/designs/designs_act_2000.html.md",
+      "source_type": "html"
+    },
+    {
+      "source": "india_code/designs/designs_rules_2001.html",
+      "markdown": "india_code/designs/designs_rules_2001.html.md",
+      "source_type": "html"
+    },
+    {
+      "source": "india_code/gi/gi_act_1999.html",
+      "markdown": "india_code/gi/gi_act_1999.html.md",
+      "source_type": "html"
+    },
+    {
+      "source": "india_code/gi/gi_rules_2002.pdf",
+      "markdown": "india_code/gi/gi_rules_2002.pdf.md",
+      "source_type": "pdf",
+      "page_count": 71
+    },
+    {
+      "source": "india_code/patents/patents_act_1970.pdf",
+      "markdown": "india_code/patents/patents_act_1970.pdf.md",
+      "source_type": "pdf",
+      "page_count": 69
+    },
+    {
+      "source": "india_code/ppvfr/ppvfr_act_2001.pdf",
+      "markdown": "india_code/ppvfr/ppvfr_act_2001.pdf.md",
+      "source_type": "pdf",
+      "page_count": 50
+    },
+    {
+      "source": "india_code/ppvfr/ppvfr_rules_2003.pdf",
+      "markdown": "india_code/ppvfr/ppvfr_rules_2003.pdf.md",
+      "source_type": "pdf",
+      "page_count": 56
+    },
+    {
+      "source": "india_code/trademarks/trade_marks_act_1999.pdf",
+      "markdown": "india_code/trademarks/trade_marks_act_1999.pdf.md",
+      "source_type": "pdf",
+      "page_count": 51
+    },
+    {
+      "source": "india_code/trademarks/trade_marks_rules_2017.pdf",
+      "markdown": "india_code/trademarks/trade_marks_rules_2017.pdf.md",
+      "source_type": "pdf",
+      "page_count": 97
+    },
+    {
+      "source": "ip_india/.gitkeep",
+      "markdown": "ip_india/.gitkeep.md",
+      "source_type": "extensionless"
+    },
+    {
+      "source": "nba/.gitkeep",
+      "markdown": "nba/.gitkeep.md",
+      "source_type": "extensionless"
+    },
+    {
+      "source": "nba/biological_diversity_amendment_act_2023.pdf",
+      "markdown": "nba/biological_diversity_amendment_act_2023.pdf.md",
+      "source_type": "pdf",
+      "page_count": 15
+    },
+    {
+      "source": "nba/biological_diversity_rules_2024.pdf",
+      "markdown": "nba/biological_diversity_rules_2024.pdf.md",
+      "source_type": "pdf",
+      "page_count": 86
+    },
+    {
+      "source": "tkdl/.gitkeep",
+      "markdown": "tkdl/.gitkeep.md",
+      "source_type": "extensionless"
+    },
+    {
+      "source": "wipo/.gitkeep",
+      "markdown": "wipo/.gitkeep.md",
+      "source_type": "extensionless"
+    },
+    {
+      "source": "wipo/budapest_treaty.html",
+      "markdown": "wipo/budapest_treaty.html.md",
+      "source_type": "html"
+    },
+    {
+      "source": "wipo/gratk_treaty.html",
+      "markdown": "wipo/gratk_treaty.html.md",
+      "source_type": "html"
+    },
+    {
+      "source": "wipo/madrid_protocol.html",
+      "markdown": "wipo/madrid_protocol.html.md",
+      "source_type": "html"
+    },
+    {
+      "source": "wipo/paris_convention.pdf",
+      "markdown": "wipo/paris_convention.pdf.md",
+      "source_type": "pdf",
+      "page_count": 20
+    },
+    {
+      "source": "wipo/pct.pdf",
+      "markdown": "wipo/pct.pdf.md",
+      "source_type": "pdf",
+      "page_count": 52
+    },
+    {
+      "source": "wipo/trips_agreement.html",
+      "markdown": "wipo/trips_agreement.html.md",
+      "source_type": "html"
+    }
+  ],
+  "failed": [
+    {
+      "source": "fssai/ayurveda_aahara/ayurveda_aahara_regulations_2022.pdf",
+      "error": "PdfStreamError: Stream has ended unexpectedly"
+    }
+  ]
+}

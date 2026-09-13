@@ -9,6 +9,7 @@ import java.net.SocketTimeoutException;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
@@ -38,6 +39,8 @@ public class RagClient {
 
     public RagAskResponse ask(RagAskRequest request) {
         long started = System.nanoTime();
+        String requestId = MDC.get("request_id");
+        if (requestId == null) requestId = java.util.UUID.randomUUID().toString();
         RagAskRequest outboundRequest = withDefaultTopK(request);
         log.info("rag_request_initiated questionLength={} topK={}", outboundRequest.question().length(), outboundRequest.topK());
         try {
@@ -46,6 +49,7 @@ public class RagClient {
                     .uri("/api/v1/ask")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
+                    .header("X-Request-ID", requestId)
                     .body(outboundRequest)
                     .retrieve()
                     .body(RagAskResponse.class);

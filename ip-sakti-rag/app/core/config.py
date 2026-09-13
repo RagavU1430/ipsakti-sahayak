@@ -84,6 +84,7 @@ class Settings:
     response_cache_ttl: int = 600
     llm_timeout: float = 30.0
     gemini_api_key: str | None = None
+    fast_extractive_enabled: bool = True
 
 
 def get_settings() -> Settings:
@@ -106,8 +107,8 @@ def get_settings() -> Settings:
         openrouter_model=os.getenv("OPENROUTER_MODEL") or os.getenv("LLM_MODEL") or "openai/gpt-4.1-mini",
         enable_llm=_bool("RAG_ENABLE_LLM") if "RAG_ENABLE_LLM" in os.environ else has_api_key,
         enable_general_llm=_bool("RAG_ENABLE_GENERAL_LLM") if "RAG_ENABLE_GENERAL_LLM" in os.environ else has_api_key,
-        top_k=_int("RAG_TOP_K", 8),
-        candidate_k=_int("RAG_CANDIDATE_K", 24),
+        top_k=_int("RAG_TOP_K", 6),
+        candidate_k=_int("RAG_CANDIDATE_K", 16),
         similarity_threshold=_float("RAG_SIMILARITY_THRESHOLD", 0.10),
         min_score=_float("RAG_MIN_SCORE", 0.10),
         abstention_threshold=_float("RAG_ABSTENTION_THRESHOLD", 0.12),
@@ -116,4 +117,5 @@ def get_settings() -> Settings:
         response_cache_ttl=_int("RAG_RESPONSE_CACHE_TTL", 600),
         llm_timeout=_float("RAG_LLM_TIMEOUT", 30.0),
         gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
+        fast_extractive_enabled=_bool("RAG_FAST_EXTRACTIVE_ENABLED", True),
     )

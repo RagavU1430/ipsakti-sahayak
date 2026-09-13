@@ -131,6 +131,7 @@ class QueryAnalysis(BaseModel):
     out_of_scope: bool = False
     speculative_subject: str | None = None
     ambiguous: bool = False
+    hinted_documents: frozenset[str] = frozenset()
 
 
 class QueryResponse(BaseModel):

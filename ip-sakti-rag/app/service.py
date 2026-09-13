@@ -37,6 +37,7 @@ class RAGService:
         self.store = store or self._store()
         self.retriever = HybridRetriever(self.store, self.settings.candidate_k)
         self.reranker = LegalFeatureReranker()
+        self._uses_default_generator = generator is None
         self.generator = generator or self._generator()
         self.general_generator = self._general_generator()
         self._cache: dict[tuple[str, str], tuple[float, QueryResponse]] = {}
@@ -92,8 +93,8 @@ class RAGService:
             )
         return GeneralFallbackGenerator()
 
-    def query(self, request: QueryRequest) -> QueryResponse:
-        request_id = str(uuid4())
+    def query(self, request: QueryRequest, request_id: str | None = None) -> QueryResponse:
+        request_id = request_id or str(uuid4())
         total_started = time.perf_counter()
         analysis = analyze_query(request)
         cache_key = (
@@ -176,11 +177,17 @@ class RAGService:
             context, selected = assemble_context(evidence_for_context, self.settings.max_context_chars)
             generation_started = time.perf_counter()
             try:
-                generated = self.generator.generate(analysis, context, selected)
+                if self._use_fast_extractive_path(analysis):
+                    # Definition, duration and exact-provision questions can be
+                    # answered directly from selected evidence. Avoiding a
+                    # remote rewrite removes seconds of latency while keeping
+                    # citation validation and all downstream guardrails.
+                    generated = ExtractiveGroundedGenerator().generate(analysis, context, selected)
+                else:
+                    generated = self.generator.generate(analysis, context, selected)
             except Exception:
                 logger.warning("Remote LLM generator failed or timed out; falling back to extractive generator.")
                 try:
-                    from app.generation import ExtractiveGroundedGenerator
                     generated = ExtractiveGroundedGenerator().generate(analysis, context, selected)
                 except Exception:
                     logger.exception("rag_generation_failed")
@@ -195,21 +202,59 @@ class RAGService:
                     self._log_request(request_id, analysis, response)
                     return response
             generation_ms = (time.perf_counter() - generation_started) * 1000
-            if not generated.used_chunk_ids or not generated.answer.strip() or (generated.insufficient_evidence and len(generated.answer.strip()) < 80):
-                response = self._abstained(
-                    analysis,
-                    "The retrieved evidence was insufficient to produce a supported answer.",
-                    total_started,
-                    retrieval_ms,
-                    rerank_ms,
-                    selected,
-                    generation_ms,
-                )
-                self._log_request(request_id, analysis, response)
-                return response
+            if not generated.used_chunk_ids or not generated.answer.strip():
+                fallback = ExtractiveGroundedGenerator().generate(analysis, context, selected)
+                if fallback.used_chunk_ids and fallback.answer.strip():
+                    generated = fallback
+                else:
+                    response = self._abstained(analysis, "The retrieved evidence was insufficient to produce a supported answer.", total_started, retrieval_ms, rerank_ms, selected, generation_ms)
+                    self._log_request(request_id, analysis, response)
+                    return response
+            if generated.insufficient_evidence:
+                allow_rules_fallback = analysis.intent == "registration" and any("RULES" in item.document_id for item in selected)
+                if allow_rules_fallback:
+                    fallback = ExtractiveGroundedGenerator().generate(analysis, context, selected)
+                    if fallback.used_chunk_ids and fallback.answer.strip():
+                        generated = fallback
+                if generated.insufficient_evidence:
+                    response = self._abstained(
+                        analysis,
+                        "The retrieved evidence was insufficient to produce a supported answer.",
+                        total_started,
+                        retrieval_ms,
+                        rerank_ms,
+                        selected,
+                        generation_ms,
+                    )
+                    self._log_request(request_id, analysis, response)
+                    return response
 
             citations = citations_for(selected, generated.used_chunk_ids)
             valid, citation_errors = validate_citations(generated.answer, citations, selected)
+            if not valid:
+                # A provider can cite retrieved chunks but introduce an
+                # unsupported provision in its prose. Re-run deterministically
+                # over the identical selected evidence before abstaining.
+                fallback = ExtractiveGroundedGenerator().generate(analysis, context, selected)
+                fallback_citations = citations_for(selected, fallback.used_chunk_ids)
+                fallback_valid, _ = validate_citations(fallback.answer, fallback_citations, selected)
+                if fallback_valid and fallback.used_chunk_ids and fallback.answer.strip():
+                    generated = fallback
+                    citations = fallback_citations
+                    valid = True
+                else:
+                    response = self._abstained(
+                        analysis,
+                        "Citation validation rejected the generated answer; no unsupported legal statement was returned.",
+                        total_started,
+                        retrieval_ms,
+                        rerank_ms,
+                        selected,
+                        generation_ms,
+                        citation_errors,
+                    )
+                    self._log_request(request_id, analysis, response)
+                    return response
             if not valid:
                 response = self._abstained(
                     analysis,
@@ -262,8 +307,15 @@ class RAGService:
             logger.exception("rag_runtime_unhandled_error", extra={"request_id": request_id})
             raise
 
-    def ask(self, request: AskRequest) -> AskResponse:
-        return self._to_ask_response(self.query(request.to_query_request()))
+    def _use_fast_extractive_path(self, analysis) -> bool:
+        if not self._uses_default_generator or not self.settings.enable_llm or not self.settings.fast_extractive_enabled:
+            return False
+        if analysis.intent in {"definition", "duration", "purpose"}:
+            return True
+        return bool(analysis.legal_identifiers and analysis.intent != "difference")
+
+    def ask(self, request: AskRequest, request_id: str | None = None) -> AskResponse:
+        return self._to_ask_response(self.query(request.to_query_request(), request_id=request_id))
 
     @staticmethod
     def _requires_quarantined_ayurveda_aahara_source(query: str) -> bool:
@@ -365,7 +417,7 @@ class RAGService:
                 "total_ms": round((time.perf_counter() - started) * 1000, 3),
                 "confidence_score": 0.18,
                 "candidate_count": len(evidence or []),
-                "evidence_count": 0,
+                "evidence_count": len(evidence or []),
             },
         )
 

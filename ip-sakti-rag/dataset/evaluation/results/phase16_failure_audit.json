@@ -1,0 +1,1107 @@
+[
+  {
+    "id": "Q03",
+    "domains": [
+      "PATENT"
+    ],
+    "intent": "registration",
+    "legal_identifiers": [],
+    "candidate_count": 36,
+    "retrieve_ms": 153.65,
+    "top_candidates": [
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0413-08f8d520b6e5",
+        "vector_score": 1.0,
+        "lexical_score": 1.0,
+        "fusion_score": 1.06
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0421-d584e182b837",
+        "vector_score": 0.9564722057275773,
+        "lexical_score": 0.9041920725119001,
+        "fusion_score": 1.0025269385293325
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0419-5377c9d32265",
+        "vector_score": 0.9276780731685755,
+        "lexical_score": 0.8162902263458062,
+        "fusion_score": 0.9559245194637488
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0199-1cdeb80d8094",
+        "vector_score": 0.9173820357375259,
+        "lexical_score": 0.7945185842257054,
+        "fusion_score": 0.9426416241346361
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0317-9ad3dea98dc8",
+        "vector_score": 0.8902791784650204,
+        "lexical_score": 0.8368654123756388,
+        "fusion_score": 0.9425564424872349
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0622-0e6bc2cefe36",
+        "vector_score": 0.8915206686665246,
+        "lexical_score": 0.8247866477760064,
+        "fusion_score": 0.9390116944881909
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0425-b4501ddb068c",
+        "vector_score": 0.9067499926716046,
+        "lexical_score": 0.789956294919098,
+        "fusion_score": 0.9351971991910669
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0420-299ababb65bc",
+        "vector_score": 0.9006187187841995,
+        "lexical_score": 0.789645099679166,
+        "fusion_score": 0.931716080219018
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0421-d584e182b837",
+        "score": 0.9515968025979995
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0413-08f8d520b6e5",
+        "score": 0.9403333333333332
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0415-45e136ebeb70",
+        "score": 0.9044357939504619
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0622-0e6bc2cefe36",
+        "score": 0.873172513910762
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0199-1cdeb80d8094",
+        "score": 0.8616541454006512
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0419-5377c9d32265",
+        "score": 0.861628926398541
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0317-9ad3dea98dc8",
+        "score": 0.8616115545769507
+      },
+      {
+        "document_id": "IND-PAT-ACT-1970",
+        "chunk_id": "IND-PAT-ACT-1970-0201-463bd198f8f3",
+        "score": 0.8532613246604999
+      }
+    ]
+  },
+  {
+    "id": "Q04",
+    "domains": [
+      "AYURVEDA"
+    ],
+    "intent": null,
+    "legal_identifiers": [],
+    "candidate_count": 32,
+    "retrieve_ms": 73.05,
+    "top_candidates": [
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0096-acf8531cb8fa",
+        "vector_score": 0.9840866577013312,
+        "lexical_score": 1.0,
+        "fusion_score": 0.9712476617357322
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0105-4a3116779a9d",
+        "vector_score": 0.9621632438017648,
+        "lexical_score": 0.9487933596305451,
+        "fusion_score": 0.9412674599616615
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0003-23ffce8945e1",
+        "vector_score": 1.0,
+        "lexical_score": 0.83360879858705,
+        "fusion_score": 0.9217630795054677
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0103-14788c867e5b",
+        "vector_score": 0.9687229400851877,
+        "lexical_score": 0.835537011313395,
+        "fusion_score": 0.9052355710065416
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0001-00136ecd302a",
+        "vector_score": 0.9626191279330614,
+        "lexical_score": 0.8200990038908442,
+        "fusion_score": 0.8964751717249793
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0098-0c1baad2cfb5",
+        "vector_score": 0.9435351510600681,
+        "lexical_score": 0.8371258737683447,
+        "fusion_score": 0.8919383889019583
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0089-201bae7e45b6",
+        "vector_score": 0.9089387616987828,
+        "lexical_score": 0.8827908169194572,
+        "fusion_score": 0.8888931048561406
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0008-ffaf8ae4e6e4",
+        "vector_score": 0.907467530414965,
+        "lexical_score": 0.7893919019760715,
+        "fusion_score": 0.8553943074198558
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0096-acf8531cb8fa",
+        "score": 0.6880524022964375
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0105-4a3116779a9d",
+        "score": 0.6616337299808307
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0089-201bae7e45b6",
+        "score": 0.6468751238566418
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0003-23ffce8945e1",
+        "score": 0.6404529683241625
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0103-14788c867e5b",
+        "score": 0.6321892140746995
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0008-ffaf8ae4e6e4",
+        "score": 0.6301257251384994
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0098-0c1baad2cfb5",
+        "score": 0.6255406230224078
+      },
+      {
+        "document_id": "IND-AYUSH-AR-2024-25",
+        "chunk_id": "IND-AYUSH-AR-2024-25-0078-563350584a94",
+        "score": 0.6178669392354462
+      }
+    ]
+  },
+  {
+    "id": "Q06",
+    "domains": [
+      "ABS"
+    ],
+    "intent": null,
+    "legal_identifiers": [],
+    "candidate_count": 33,
+    "retrieve_ms": 90.25,
+    "top_candidates": [
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0006-7991951465e9",
+        "vector_score": 0.9730865155877992,
+        "lexical_score": 1.0,
+        "fusion_score": 0.9651975835732896
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0003-b236b77e6ddc",
+        "vector_score": 1.0,
+        "lexical_score": 0.8710112135307365,
+        "fusion_score": 0.9348539247357579
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0011-7d75024abd2b",
+        "vector_score": 0.9592633012078542,
+        "lexical_score": 0.9318417572566134,
+        "fusion_score": 0.9337394307041347
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0013-390a73aaa4cb",
+        "vector_score": 0.8047512438248219,
+        "lexical_score": 0.7061763939047137,
+        "fusion_score": 0.7697749219703018
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0018-68f4dc78492a",
+        "vector_score": 0.7466011479612483,
+        "lexical_score": 0.6416292569012685,
+        "fusion_score": 0.7152008712941307
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0010-54daaa2463e3",
+        "vector_score": 0.7695262610782854,
+        "lexical_score": 0.584334159035911,
+        "fusion_score": 0.707756399255626
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0015-ce0ccbc3b891",
+        "vector_score": 0.7265130361064186,
+        "lexical_score": 0.6508958196689291,
+        "fusion_score": 0.7073957067426555
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0021-4327335cb7a7",
+        "vector_score": 0.6968949292434612,
+        "lexical_score": 0.6703849158878581,
+        "fusion_score": 0.6979269316446541
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0006-7991951465e9",
+        "score": 0.7390533372411904
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0003-b236b77e6ddc",
+        "score": 0.6947905987315154
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0011-7d75024abd2b",
+        "score": 0.6942333517157037
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0013-390a73aaa4cb",
+        "score": 0.6122510973487872
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0021-4327335cb7a7",
+        "score": 0.561781647640509
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0018-68f4dc78492a",
+        "score": 0.5558731629197927
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0010-54daaa2463e3",
+        "score": 0.5376054723550857
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0015-ce0ccbc3b891",
+        "score": 0.5374251260986005
+      }
+    ]
+  },
+  {
+    "id": "Q07",
+    "domains": [
+      "PATENT",
+      "ABS",
+      "INTERNATIONAL"
+    ],
+    "intent": null,
+    "legal_identifiers": [],
+    "candidate_count": 41,
+    "retrieve_ms": 190.58,
+    "top_candidates": [
+      {
+        "document_id": "INT-WIPO-GRATK-2024",
+        "chunk_id": "INT-WIPO-GRATK-2024-0001-dcdc3714a345",
+        "vector_score": 1.0,
+        "lexical_score": 1.0,
+        "fusion_score": 1.06
+      },
+      {
+        "document_id": "INT-WIPO-BUDAPEST",
+        "chunk_id": "INT-WIPO-BUDAPEST-0001-84ecee22f590",
+        "vector_score": 0.33953923560855664,
+        "lexical_score": 0.666739851444542,
+        "fusion_score": 0.5001055275902959
+      },
+      {
+        "document_id": "INT-WIPO-BUDAPEST",
+        "chunk_id": "INT-WIPO-BUDAPEST-0138-e2a894f924b1",
+        "vector_score": 0.318667668898466,
+        "lexical_score": 0.4723720956069331,
+        "fusion_score": 0.42059745135658294
+      },
+      {
+        "document_id": "INT-WIPO-PCT",
+        "chunk_id": "INT-WIPO-PCT-0001-eaed68514b9f",
+        "vector_score": 0.28417529599795666,
+        "lexical_score": 0.5086874950904953,
+        "fusion_score": 0.41433703608054956
+      },
+      {
+        "document_id": "INT-WIPO-PCT",
+        "chunk_id": "INT-WIPO-PCT-0212-7692c4dd823b",
+        "vector_score": 0.2694530779627274,
+        "lexical_score": 0.4249119299436668,
+        "fusion_score": 0.37691836835978343
+      },
+      {
+        "document_id": "INT-WIPO-PCT",
+        "chunk_id": "INT-WIPO-PCT-0289-f042d53bf6d3",
+        "vector_score": 0.2687704405259268,
+        "lexical_score": 0.4249119299436668,
+        "fusion_score": 0.37654291776954313
+      },
+      {
+        "document_id": "INT-WIPO-PCT",
+        "chunk_id": "INT-WIPO-PCT-0115-13748cc79c48",
+        "vector_score": 0.26982197468269875,
+        "lexical_score": 0.3624750936852229,
+        "fusion_score": 0.3552683688653124
+      },
+      {
+        "document_id": "INT-TRIPS-1994",
+        "chunk_id": "INT-TRIPS-1994-0001-01980d0f6a9d",
+        "vector_score": 0.0,
+        "lexical_score": 0.6185379098558768,
+        "fusion_score": 0.2964882684495569
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "INT-WIPO-GRATK-2024",
+        "chunk_id": "INT-WIPO-GRATK-2024-0001-dcdc3714a345",
+        "score": 1.081344827586207
+      },
+      {
+        "document_id": "INT-WIPO-BUDAPEST",
+        "chunk_id": "INT-WIPO-BUDAPEST-0001-84ecee22f590",
+        "score": 0.6103631086227342
+      },
+      {
+        "document_id": "INT-WIPO-MADRID",
+        "chunk_id": "INT-WIPO-MADRID-0001-a590e71ba44c",
+        "score": 0.5001631190651825
+      },
+      {
+        "document_id": "INT-TRIPS-1994",
+        "chunk_id": "INT-TRIPS-1994-0001-01980d0f6a9d",
+        "score": 0.49955447905236466
+      },
+      {
+        "document_id": "INT-WIPO-PCT",
+        "chunk_id": "INT-WIPO-PCT-0001-eaed68514b9f",
+        "score": 0.3623064490747575
+      },
+      {
+        "document_id": "INT-WIPO-PCT",
+        "chunk_id": "INT-WIPO-PCT-0212-7692c4dd823b",
+        "score": 0.3380798738350641
+      },
+      {
+        "document_id": "INT-WIPO-PCT",
+        "chunk_id": "INT-WIPO-PCT-0289-f042d53bf6d3",
+        "score": 0.337892148539944
+      },
+      {
+        "document_id": "INT-WIPO-PCT",
+        "chunk_id": "INT-WIPO-PCT-0115-13748cc79c48",
+        "score": 0.332772115467139
+      }
+    ]
+  },
+  {
+    "id": "Q08",
+    "domains": [
+      "FOOD",
+      "AYURVEDA"
+    ],
+    "intent": "registration",
+    "legal_identifiers": [],
+    "candidate_count": 25,
+    "retrieve_ms": 90.03,
+    "top_candidates": [
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0001-2b3fb13a3509",
+        "vector_score": 1.0,
+        "lexical_score": 1.0,
+        "fusion_score": 1.06
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0024-ece37b48b3c0",
+        "vector_score": 0.8447915564159024,
+        "lexical_score": 0.5843797261324691,
+        "fusion_score": 0.8291682601751106
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0002-bd935e7a4300",
+        "vector_score": 0.8350803370227506,
+        "lexical_score": 0.4807154215214268,
+        "fusion_score": 0.7875445828950123
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0023-d26993c2eb73",
+        "vector_score": 0.8384422172055479,
+        "lexical_score": 0.4687325200063158,
+        "fusion_score": 0.7851996014652619
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0010-f601386c5d51",
+        "vector_score": 0.8355134358000191,
+        "lexical_score": 0.46950301841594017,
+        "fusion_score": 0.7838584461355896
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0003-3b13e438d069",
+        "vector_score": 0.8359638877093,
+        "lexical_score": 0.4488510506879801,
+        "fusion_score": 0.7768780059809081
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0020-f06704b59a9f",
+        "vector_score": 0.8332133289857777,
+        "lexical_score": 0.44338285821930296,
+        "fusion_score": 0.7734513313189338
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0016-c5af2c4724bb",
+        "vector_score": 0.8316439314030427,
+        "lexical_score": 0.4301707591608897,
+        "fusion_score": 0.767963927977985
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0001-2b3fb13a3509",
+        "score": 0.901
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0023-d26993c2eb73",
+        "score": 0.723599800732631
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0010-f601386c5d51",
+        "score": 0.7229292230677948
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0003-3b13e438d069",
+        "score": 0.719439002990454
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0024-ece37b48b3c0",
+        "score": 0.7189174634208886
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0002-bd935e7a4300",
+        "score": 0.7114389581141729
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0020-f06704b59a9f",
+        "score": 0.7043923323261336
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0016-c5af2c4724bb",
+        "score": 0.7016486306556591
+      }
+    ]
+  },
+  {
+    "id": "Q09",
+    "domains": [
+      "FOOD",
+      "AYURVEDA"
+    ],
+    "intent": "definition",
+    "legal_identifiers": [],
+    "candidate_count": 30,
+    "retrieve_ms": 79.03,
+    "top_candidates": [
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0001-2b3fb13a3509",
+        "vector_score": 1.0,
+        "lexical_score": 1.0,
+        "fusion_score": 1.06
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0024-ece37b48b3c0",
+        "vector_score": 0.8286305280131738,
+        "lexical_score": 0.5629115506512414,
+        "fusion_score": 0.8127658331351801
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0002-bd935e7a4300",
+        "vector_score": 0.8166549439014281,
+        "lexical_score": 0.43602492574829804,
+        "fusion_score": 0.7617689431576898
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0023-d26993c2eb73",
+        "vector_score": 0.8206605554605774,
+        "lexical_score": 0.4188587869801071,
+        "fusion_score": 0.7579638809463551
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0010-f601386c5d51",
+        "vector_score": 0.8179620546288572,
+        "lexical_score": 0.42149016586691207,
+        "fusion_score": 0.7574006880992907
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0003-3b13e438d069",
+        "vector_score": 0.8191901987836374,
+        "lexical_score": 0.4004329439644595,
+        "fusion_score": 0.7507061397185615
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0020-f06704b59a9f",
+        "vector_score": 0.8170076473164113,
+        "lexical_score": 0.4022020264623982,
+        "fusion_score": 0.7501249152858657
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0009-3502e2c6d16b",
+        "vector_score": 0.8170187857954262,
+        "lexical_score": 0.37760208534912215,
+        "fusion_score": 0.7415210620596772
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0001-2b3fb13a3509",
+        "score": 0.7882727272727273
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0023-d26993c2eb73",
+        "score": 0.7281637586549958
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0010-f601386c5d51",
+        "score": 0.7278821622314635
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0003-3b13e438d069",
+        "score": 0.7245348880410989
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0024-ece37b48b3c0",
+        "score": 0.7119283711130446
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0009-3502e2c6d16b",
+        "score": 0.7053968946662021
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0016-c5af2c4724bb",
+        "score": 0.7041966124992423
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0015-c32961df225f",
+        "score": 0.7019269904226142
+      }
+    ]
+  },
+  {
+    "id": "Q13",
+    "domains": [
+      "GI"
+    ],
+    "intent": "rights",
+    "legal_identifiers": [],
+    "candidate_count": 33,
+    "retrieve_ms": 98.82,
+    "top_candidates": [
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0196-3963f5c51d9d",
+        "vector_score": 0.9695361574181135,
+        "lexical_score": 1.0,
+        "fusion_score": 1.0432448865799624
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0410-1f3d899aa920",
+        "vector_score": 0.9850313172125778,
+        "lexical_score": 0.9576311840122063,
+        "fusion_score": 1.03693813887119
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0264-dde1ad73d27c",
+        "vector_score": 0.9859856481453351,
+        "lexical_score": 0.9268554543283253,
+        "fusion_score": 1.0266915154948482
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0231-da30a7b8e90d",
+        "vector_score": 0.9529085090137286,
+        "lexical_score": 0.963913642144548,
+        "fusion_score": 1.0214694547081424
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0096-b20b5cd32382",
+        "vector_score": 0.9555273145344619,
+        "lexical_score": 0.947641511278848,
+        "fusion_score": 1.0172145519415507
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0197-f342d90cab68",
+        "vector_score": 0.9670130907570681,
+        "lexical_score": 0.9144660338321975,
+        "fusion_score": 1.0119203117576565
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0266-f22db2f31b39",
+        "vector_score": 0.963417543739013,
+        "lexical_score": 0.9069374283591133,
+        "fusion_score": 1.007307748982147
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0179-e776b9e4fed9",
+        "vector_score": 0.9345132074799514,
+        "lexical_score": 0.9392104892058298,
+        "fusion_score": 1.0027059353360137
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0196-3963f5c51d9d",
+        "score": 1.0111876606812855
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0197-f342d90cab68",
+        "score": 0.9816123297918715
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0231-da30a7b8e90d",
+        "score": 0.9602999447453755
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0410-1f3d899aa920",
+        "score": 0.9280342868268994
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0179-e776b9e4fed9",
+        "score": 0.9248312285375722
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0350-109a3998a599",
+        "score": 0.919227956125384
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0096-b20b5cd32382",
+        "score": 0.9042594498838188
+      },
+      {
+        "document_id": "IND-GI-ACT-1999",
+        "chunk_id": "IND-GI-ACT-1999-0175-a7c28b9ba7e6",
+        "score": 0.899928323862663
+      }
+    ]
+  },
+  {
+    "id": "Q18",
+    "domains": [
+      "ABS"
+    ],
+    "intent": null,
+    "legal_identifiers": [],
+    "candidate_count": 35,
+    "retrieve_ms": 102.03,
+    "top_candidates": [
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0017-6afb4a8172bf",
+        "vector_score": 0.9889742344545834,
+        "lexical_score": 1.0,
+        "fusion_score": 1.053935828950021
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0005-a414874f33c3",
+        "vector_score": 1.0,
+        "lexical_score": 0.9721004971432179,
+        "fusion_score": 1.0502351740001263
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0016-5c30e9fa048f",
+        "vector_score": 0.985205026781851,
+        "lexical_score": 0.908897489582955,
+        "fusion_score": 1.0199768860840521
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0003-b236b77e6ddc",
+        "vector_score": 0.9719916658303286,
+        "lexical_score": 0.9139782185670213,
+        "fusion_score": 1.0144877927051383
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0011-7d75024abd2b",
+        "vector_score": 0.9722526963706485,
+        "lexical_score": 0.8625797365538538,
+        "fusion_score": 0.9966418907977056
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0004-ab6a4da6d68e",
+        "vector_score": 0.9440494561952686,
+        "lexical_score": 0.87853814441429,
+        "fusion_score": 0.9867155514523992
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0002-0c6cdcab5b8a",
+        "vector_score": 0.9769176360512067,
+        "lexical_score": 0.8219003502296733,
+        "fusion_score": 0.9849698224085494
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0006-7991951465e9",
+        "vector_score": 0.9400406656121095,
+        "lexical_score": 0.811106260793562,
+        "fusion_score": 0.960909557364407
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0017-6afb4a8172bf",
+        "score": 0.9203012478083439
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0005-a414874f33c3",
+        "score": 0.9184509203333966
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0016-5c30e9fa048f",
+        "score": 0.9033217763753594
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0003-b236b77e6ddc",
+        "score": 0.9005772296859025
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0011-7d75024abd2b",
+        "score": 0.8916542787321862
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0006-7991951465e9",
+        "score": 0.88712144534887
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0008-a2b552807f5a",
+        "score": 0.8736663117498691
+      },
+      {
+        "document_id": "IND-BD-ACT-2002",
+        "chunk_id": "IND-BD-ACT-2002-0004-ab6a4da6d68e",
+        "score": 0.8733577757261997
+      }
+    ]
+  },
+  {
+    "id": "Q22",
+    "domains": [
+      "ABS"
+    ],
+    "intent": "registration",
+    "legal_identifiers": [],
+    "candidate_count": 48,
+    "retrieve_ms": 107.9,
+    "top_candidates": [
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0210-7cb25801474f",
+        "vector_score": 1.0,
+        "lexical_score": 0.0,
+        "fusion_score": 0.7100000000000001
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0007-0e1ba8307857",
+        "vector_score": 0.9986527068234069,
+        "lexical_score": 0.0,
+        "fusion_score": 0.7092589887528739
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0010-c74517af0c30",
+        "vector_score": 0.9986527068234069,
+        "lexical_score": 0.0,
+        "fusion_score": 0.7092589887528739
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0012-f0525c7da42e",
+        "vector_score": 0.9986527068234069,
+        "lexical_score": 0.0,
+        "fusion_score": 0.7092589887528739
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0016-78192d8c3389",
+        "vector_score": 0.9986527068234069,
+        "lexical_score": 0.0,
+        "fusion_score": 0.7092589887528739
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0024-8c2f207eb995",
+        "vector_score": 0.9986527068234069,
+        "lexical_score": 0.0,
+        "fusion_score": 0.7092589887528739
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0064-9b853c67a343",
+        "vector_score": 0.9986527068234069,
+        "lexical_score": 0.0,
+        "fusion_score": 0.7092589887528739
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0070-6a416cd00a7f",
+        "vector_score": 0.9986527068234069,
+        "lexical_score": 0.0,
+        "fusion_score": 0.7092589887528739
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0210-7cb25801474f",
+        "score": 0.655
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0007-0e1ba8307857",
+        "score": 0.6546294943764369
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0010-c74517af0c30",
+        "score": 0.6546294943764369
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0012-f0525c7da42e",
+        "score": 0.6546294943764369
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0016-78192d8c3389",
+        "score": 0.6546294943764369
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0024-8c2f207eb995",
+        "score": 0.6546294943764369
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0064-9b853c67a343",
+        "score": 0.6546294943764369
+      },
+      {
+        "document_id": "IND-BD-RULES-2024",
+        "chunk_id": "IND-BD-RULES-2024-0070-6a416cd00a7f",
+        "score": 0.6546294943764369
+      }
+    ]
+  },
+  {
+    "id": "Q23",
+    "domains": [
+      "FOOD",
+      "AYURVEDA"
+    ],
+    "intent": "registration",
+    "legal_identifiers": [],
+    "candidate_count": 25,
+    "retrieve_ms": 85.37,
+    "top_candidates": [
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0001-2b3fb13a3509",
+        "vector_score": 1.0,
+        "lexical_score": 1.0,
+        "fusion_score": 1.06
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0024-ece37b48b3c0",
+        "vector_score": 0.8447915564159024,
+        "lexical_score": 0.5843797261324691,
+        "fusion_score": 0.8291682601751106
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0002-bd935e7a4300",
+        "vector_score": 0.8350803370227506,
+        "lexical_score": 0.4807154215214268,
+        "fusion_score": 0.7875445828950123
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0023-d26993c2eb73",
+        "vector_score": 0.8384422172055479,
+        "lexical_score": 0.4687325200063158,
+        "fusion_score": 0.7851996014652619
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0010-f601386c5d51",
+        "vector_score": 0.8355134358000191,
+        "lexical_score": 0.46950301841594017,
+        "fusion_score": 0.7838584461355896
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0003-3b13e438d069",
+        "vector_score": 0.8359638877093,
+        "lexical_score": 0.4488510506879801,
+        "fusion_score": 0.7768780059809081
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0020-f06704b59a9f",
+        "vector_score": 0.8332133289857777,
+        "lexical_score": 0.44338285821930296,
+        "fusion_score": 0.7734513313189338
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0016-c5af2c4724bb",
+        "vector_score": 0.8316439314030427,
+        "lexical_score": 0.4301707591608897,
+        "fusion_score": 0.767963927977985
+      }
+    ],
+    "reranked": [
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0001-2b3fb13a3509",
+        "score": 0.901
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0023-d26993c2eb73",
+        "score": 0.723599800732631
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0010-f601386c5d51",
+        "score": 0.7229292230677948
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0003-3b13e438d069",
+        "score": 0.719439002990454
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0024-ece37b48b3c0",
+        "score": 0.7189174634208886
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0002-bd935e7a4300",
+        "score": 0.7114389581141729
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0020-f06704b59a9f",
+        "score": 0.7043923323261336
+      },
+      {
+        "document_id": "IND-FSS-AA-ORDER-2025",
+        "chunk_id": "IND-FSS-AA-ORDER-2025-0016-c5af2c4724bb",
+        "score": 0.7016486306556591
+      }
+    ]
+  }
+]

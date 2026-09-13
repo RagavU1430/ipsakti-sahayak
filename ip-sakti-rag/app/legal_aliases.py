@@ -34,6 +34,9 @@ DOCUMENT_ALIASES: dict[str, tuple[str, ...]] = {
         "therapeutic use",
         "novel composition",
     ),
+    "IND-PAT-RULES-2003": (
+        "patents rules", "patent rules", "patents rules 2003", "patent rules 2003",
+    ),
     "IND-TM-ACT-1999": (
         "trade marks act",
         "trademarks act",
@@ -85,6 +88,8 @@ DOCUMENT_ALIASES: dict[str, tuple[str, ...]] = {
     "IND-BD-AMEND-2023": (
         "biological diversity amendment act",
         "biodiversity amendment",
+        "biological diversity act amendment",
+        "2023 amendment",
     ),
     "INT-WIPO-GRATK-2024": (
         "gratk",
@@ -157,7 +162,7 @@ def normalize_legal_query(query: str) -> str:
 
 
 def document_hint_ids(query: str) -> list[str]:
-    normalized = normalize_legal_query(query).lower()
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalize_legal_query(query).lower()).strip()
     hints: list[str] = []
     for document_id, aliases in DOCUMENT_ALIASES.items():
         if any(alias in normalized for alias in aliases):
@@ -196,14 +201,26 @@ def document_hint_ids(query: str) -> list[str]:
         hints.extend(["IND-PAT-ACT-1970", "IND-BD-ACT-2002", "IND-AYUSH-AR-2024-25"])
     if "community traditional knowledge" in normalized:
         hints.extend(["IND-BD-ACT-2002", "IND-PAT-ACT-1970", "INT-WIPO-GRATK-2024"])
+    if "patents rules" in normalized or "patent rules" in normalized:
+        hints = [item for item in hints if item != "IND-PAT-ACT-1970"]
     return list(dict.fromkeys(hints))
 
 
-def document_hint_score(document_id: str, query: str) -> float:
-    normalized = normalize_legal_query(query).lower()
+def document_hint_score(document_id: str, query: str | frozenset[str]) -> float:
+    """Return hint score.
+
+    Accepts either the raw query string (backward-compatible, recomputes hints)
+    or a precomputed frozenset of hinted document ids (fast path used by the
+    retrieval loop, which would otherwise recompute hints for every chunk).
+    """
+    if isinstance(query, frozenset):
+        hinted = query
+    else:
+        hinted = frozenset(document_hint_ids(query))
+    normalized = normalize_legal_query(query if isinstance(query, str) else "").lower()
     if document_id == "IND-PAT-ACT-1970" and any(term in normalized for term in ("simply mixing", "known plant extract", "known ingredients", "admixture")):
         return 1.6
-    return 1.0 if document_id in document_hint_ids(query) else 0.0
+    return 1.0 if document_id in hinted else 0.0
 
 
 def document_hint_expansion(query: str) -> str:

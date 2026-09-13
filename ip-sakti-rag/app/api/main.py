@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 import logging
+import time
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
 
 from app.models import AskRequest, AskResponse, ErrorResponse, QueryRequest, QueryResponse
 from app.service import RAGService, get_service
@@ -10,10 +12,26 @@ from app.service import RAGService, get_service
 
 logger = logging.getLogger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    """Build the corpus index before the API advertises readiness."""
+    started = time.perf_counter()
+    service = get_service()
+    logger.info(
+        "rag_service_ready startup_ms=%.3f chunks=%s generator=%s",
+        (time.perf_counter() - started) * 1000,
+        len(getattr(service.store, "chunks", [])),
+        getattr(service.generator, "name", type(service.generator).__name__),
+    )
+    yield
+
+
 app = FastAPI(
     title="IP-SAKTI Sahayak RAG API",
     version="0.1.0",
     description="Source-grounded IP and Ayurveda regulatory retrieval boundary.",
+    lifespan=lifespan,
 )
 
 
@@ -27,9 +45,19 @@ def health() -> dict[str, str]:
     response_model=AskResponse,
     responses={422: {"model": ErrorResponse}, 503: {"model": ErrorResponse}},
 )
-def ask(request: AskRequest, service: RAGService = Depends(get_service)) -> AskResponse:
+def ask(request: AskRequest, response: Response, x_request_id: str | None = Header(default=None), service: RAGService = Depends(get_service)) -> AskResponse:
     try:
-        return service.ask(request)
+        # Public response shape remains unchanged; benchmark-safe headers expose
+        # stage timings from the actual request rather than a synthetic probe.
+        query_response = service.query(request.to_query_request(), request_id=x_request_id)
+        for key, value in query_response.metrics.items():
+            if isinstance(value, (int, float, str, bool)):
+                response.headers[f"X-RAG-{key.replace('_', '-')}"] = str(value)
+        response.headers["X-RAG-evidence-passed-to-llm"] = str(bool(query_response.evidence)).lower()
+        response.headers["X-RAG-context-chunks"] = str(len(query_response.evidence))
+        if x_request_id:
+            response.headers["X-Request-ID"] = x_request_id
+        return service._to_ask_response(query_response)
     except (FileNotFoundError, RuntimeError, ValueError):
         logger.exception("rag_ask_unavailable")
         raise HTTPException(status_code=503, detail={
