@@ -29,6 +29,7 @@ import com.ipsakti.ip_sakti_backend.question.model.QuestionSource;
 import com.ipsakti.ip_sakti_backend.question.routing.QueryDomain;
 import com.ipsakti.ip_sakti_backend.question.routing.QueryRoute;
 import com.ipsakti.ip_sakti_backend.question.routing.RoutingContext;
+import com.ipsakti.ip_sakti_backend.config.RequestTiming;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -149,7 +150,9 @@ public class ConversationService {
     @Transactional
     public ConversationMessageResponse askInConversation(UserPrincipal principal, UUID conversationId, ConversationMessageRequest request) {
         long started = System.nanoTime();
+        long historyStarted = RequestTiming.now();
         UserMessagePersistenceResult userResult = persistUserMessage(principal, conversationId, request);
+        RequestTiming.record("history_read_write", historyStarted);
         QuestionResponse questionResponse;
         try {
             RoutingContext context = routingContext(userResult.conversation());
@@ -168,8 +171,10 @@ public class ConversationService {
             }
             throw e;
         }
+        long historySaveStarted = RequestTiming.now();
         ConversationMessageResponse response = persistAssistantResponse(
                 userResult.conversation(), userResult.userMessageId(), questionResponse);
+        RequestTiming.record("history_save", historySaveStarted);
         log.info("conversation_response_ready conversationId={} latencyMs={}", conversationId,
                 Duration.ofNanos(System.nanoTime() - started).toMillis());
         return response;

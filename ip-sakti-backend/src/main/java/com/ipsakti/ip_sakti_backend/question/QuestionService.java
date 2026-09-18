@@ -25,6 +25,7 @@ import com.ipsakti.ip_sakti_backend.question.routing.QueryRoute;
 import com.ipsakti.ip_sakti_backend.question.routing.QueryRouter;
 import com.ipsakti.ip_sakti_backend.question.routing.RoutingContext;
 import com.ipsakti.ip_sakti_backend.question.routing.RoutingDecision;
+import com.ipsakti.ip_sakti_backend.config.RequestTiming;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
@@ -76,6 +77,8 @@ public class QuestionService {
         long routingStarted = System.nanoTime();
         RoutingDecision routing = queryRouter.route(canonicalQuestion.canonicalText(), languageMetadata.requestedLanguage(), jurisdiction, context);
         long routingMs = Duration.ofNanos(System.nanoTime() - routingStarted).toMillis();
+        RequestTiming.set("route", routingMs);
+        RequestTiming.routeName(routing.route() != null ? routing.route().name() : "UNKNOWN");
 
         log.info(
                 "question_request_received questionId={} intent={} jurisdiction={} requestedLanguage={} detectedLanguage={} processingLanguage={} questionLength={}",
@@ -102,7 +105,10 @@ public class QuestionService {
         }
 
         if (routing.route() == QueryRoute.GENERAL) {
+            long llmStarted = RequestTiming.now();
             String canonicalAnswer = generalLlmProvider.answer(canonicalQuestion.canonicalText());
+            RequestTiming.record("llm", llmStarted);
+            RequestTiming.provider(generalLlmProvider.providerName());
             GuardrailDecision guardrail = evaluateGuardrail(canonicalAnswer, routing.domain(), intent);
             if (guardrail.requiresUpgrade()) {
                 log.info("question_route_upgraded_to_domain_rag questionId={} reason=guardrail_authoritative_evidence_required domain={}",
@@ -197,7 +203,9 @@ public class QuestionService {
                 jurisdictionResolver.ragJurisdictionFor(jurisdiction),
                 null
         );
+        long ragStarted = RequestTiming.now();
         RagAskResponse ragResponse = ragClient.ask(ragRequest);
+        RequestTiming.record("rag", ragStarted);
         String answer = translationService.fromCanonical(ragResponse.answer(), languageMetadata, questionId);
 
         String routeName = routing.route() != null ? routing.route().name() : "DOMAIN_RAG";

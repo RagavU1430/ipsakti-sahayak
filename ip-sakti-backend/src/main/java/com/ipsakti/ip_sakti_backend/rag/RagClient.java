@@ -13,6 +13,8 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import com.ipsakti.ip_sakti_backend.config.RequestTiming;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
@@ -44,7 +46,7 @@ public class RagClient {
         RagAskRequest outboundRequest = withDefaultTopK(request);
         log.info("rag_request_initiated questionLength={} topK={}", outboundRequest.question().length(), outboundRequest.topK());
         try {
-            RagAskResponse response = ragRestClient
+            ResponseEntity<RagAskResponse> entity = ragRestClient
                     .post()
                     .uri("/api/v1/ask")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -52,7 +54,18 @@ public class RagClient {
                     .header("X-Request-ID", requestId)
                     .body(outboundRequest)
                     .retrieve()
-                    .body(RagAskResponse.class);
+                    .toEntity(RagAskResponse.class);
+            RagAskResponse response = entity.getBody();
+
+            // These values originate in the RAG service's measured stages, not estimates.
+            copyMetric(entity, "X-RAG-retrieval-ms", "retrieval");
+            copyMetric(entity, "X-RAG-generation-ms", "llm");
+            copyMetric(entity, "X-RAG-reranking-ms", "evidence_validation");
+            String chunkCount = entity.getHeaders().getFirst("X-RAG-evidence-count");
+            if (chunkCount == null) chunkCount = entity.getHeaders().getFirst("X-RAG-context-chunks");
+            if (chunkCount != null) try { RequestTiming.chunks(Integer.parseInt(chunkCount)); } catch (NumberFormatException ignored) { }
+            String generator = entity.getHeaders().getFirst("X-RAG-generator");
+            RequestTiming.provider(generator == null ? "rag" : generator);
 
             if (response == null || response.answer() == null || response.confidence() == null
                     || response.abstained() == null || response.citations() == null || response.sources() == null) {
@@ -126,5 +139,11 @@ public class RagClient {
             current = current.getCause();
         }
         return false;
+    }
+
+    private void copyMetric(ResponseEntity<?> entity, String header, String stage) {
+        String value = entity.getHeaders().getFirst(header);
+        if (value == null) return;
+        try { RequestTiming.set(stage, Double.parseDouble(value)); } catch (NumberFormatException ignored) { }
     }
 }
