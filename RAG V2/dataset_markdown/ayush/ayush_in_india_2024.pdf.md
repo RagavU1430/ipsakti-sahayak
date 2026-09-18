@@ -1,5 +1,4 @@
 ---
-source: "ayush/ayush_in_india_2024.pdf"
 source_type: "pdf"
 page_count: 326
 ---

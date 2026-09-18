@@ -1,5 +1,4 @@
 ---
-source: "fssai/ayurveda_aahara/ayurveda_aahara_order_2025.ocr.json"
 source_type: "json"
 ---
 

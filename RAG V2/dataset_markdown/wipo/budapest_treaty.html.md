@@ -1,5 +1,4 @@
 ---
-source: "wipo/budapest_treaty.html"
 source_type: "html"
 ---
 

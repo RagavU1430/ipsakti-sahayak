@@ -1,5 +1,4 @@
 ---
-source: "fssai/ayurveda_aahara/ayurveda_aahara_regulations_2022.pdf"
 source_type: "pdf"
 conversion_status: "extraction_failed"
 error: "PdfStreamError: Stream has ended unexpectedly"

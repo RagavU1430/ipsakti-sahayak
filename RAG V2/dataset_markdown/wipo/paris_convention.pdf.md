@@ -1,5 +1,4 @@
 ---
-source: "wipo/paris_convention.pdf"
 source_type: "pdf"
 page_count: 20
 ---

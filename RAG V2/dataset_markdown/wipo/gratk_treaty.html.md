@@ -1,5 +1,4 @@
 ---
-source: "wipo/gratk_treaty.html"
 source_type: "html"
 ---
 

@@ -1,5 +1,4 @@
 ---
-source: "wipo/pct.pdf"
 source_type: "pdf"
 page_count: 52
 ---

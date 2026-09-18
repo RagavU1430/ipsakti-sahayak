@@ -1,5 +1,4 @@
 ---
-source: "fssai/ayurveda_aahara/ayurveda_aahara_order_2025.pdf"
 source_type: "pdf"
 page_count: 172
 ---

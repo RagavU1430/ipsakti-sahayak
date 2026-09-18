@@ -1,5 +1,4 @@
 ---
-source: "wipo/trips_agreement.html"
 source_type: "html"
 ---
 

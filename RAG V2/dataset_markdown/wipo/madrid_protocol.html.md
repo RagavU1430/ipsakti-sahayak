@@ -1,5 +1,4 @@
 ---
-source: "wipo/madrid_protocol.html"
 source_type: "html"
 ---
 

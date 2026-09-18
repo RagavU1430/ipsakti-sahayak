@@ -1,5 +1,4 @@
 ---
-source: "ayush/annual_report_2024_25.pdf"
 source_type: "pdf"
 page_count: 215
 ---

@@ -1,5 +1,4 @@
 ---
-source: "nba/biological_diversity_rules_2024.pdf"
 source_type: "pdf"
 page_count: 86
 ---

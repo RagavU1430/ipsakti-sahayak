@@ -1,5 +1,4 @@
 ---
-source: "nba/biological_diversity_amendment_act_2023.pdf"
 source_type: "pdf"
 page_count: 15
 ---
