@@ -1,5 +1,4 @@
 ---
-source: "india_code/gi/gi_act_1999.html"
 source_type: "html"
 ---
 

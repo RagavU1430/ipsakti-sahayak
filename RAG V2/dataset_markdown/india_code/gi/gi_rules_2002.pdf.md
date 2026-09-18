@@ -1,5 +1,4 @@
 ---
-source: "india_code/gi/gi_rules_2002.pdf"
 source_type: "pdf"
 page_count: 71
 ---

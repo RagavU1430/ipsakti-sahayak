@@ -1,5 +1,4 @@
 ---
-source: "india_code/designs/designs_act_2000.html"
 source_type: "html"
 ---
 

@@ -1,5 +1,4 @@
 ---
-source: "india_code/copyright/copyright_act_1957.pdf"
 source_type: "pdf"
 page_count: 57
 ---
