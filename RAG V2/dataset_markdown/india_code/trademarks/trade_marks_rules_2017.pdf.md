@@ -1,5 +1,4 @@
 ---
-source: "india_code/trademarks/trade_marks_rules_2017.pdf"
 source_type: "pdf"
 page_count: 97
 ---

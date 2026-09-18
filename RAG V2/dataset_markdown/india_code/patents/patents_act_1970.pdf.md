@@ -1,5 +1,4 @@
 ---
-source: "india_code/patents/patents_act_1970.pdf"
 source_type: "pdf"
 page_count: 69
 ---

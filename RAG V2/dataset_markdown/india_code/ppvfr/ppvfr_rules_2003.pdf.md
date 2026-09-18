@@ -1,5 +1,4 @@
 ---
-source: "india_code/ppvfr/ppvfr_rules_2003.pdf"
 source_type: "pdf"
 page_count: 56
 ---
