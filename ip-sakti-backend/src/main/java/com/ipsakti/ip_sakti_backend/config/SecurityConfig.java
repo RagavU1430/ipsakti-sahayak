@@ -138,10 +138,19 @@ public class SecurityConfig {
                 "X-API-Key",
                 "X-Dev-User-Id",
                 "X-User-Id",
+                "X-Request-ID",
                 "Accept",
                 "Origin",
                 "X-Requested-With"));
-        configuration.setExposedHeaders(List.of("Content-Type", "Authorization"));
+        configuration.setExposedHeaders(List.of(
+                "Content-Type",
+                "Authorization",
+                "X-Request-ID",
+                "Server-Timing",
+                "X-IPSAKTI-Provider",
+                "X-IPSAKTI-Chunks",
+                "X-IPSAKTI-Backend-Total-Ms",
+                "X-IPSAKTI-Route"));
         configuration.setAllowCredentials(false);
         configuration.setMaxAge(3600L);
 
