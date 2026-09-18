@@ -1,4 +1,4 @@
-import { request } from './client';
+import { request, requestWithMeta } from './client';
 import type { AuthHeaders } from './client';
 import type { ConversationDetail, ConversationMessageResponse, ConversationPage } from './types';
 
@@ -19,6 +19,14 @@ export function getConversation(id: string, auth: AuthHeaders) {
 
 export function askInConversation(id: string, question: string, jurisdiction: string, language: string, auth: AuthHeaders, requestId?: string) {
   return request<ConversationMessageResponse>(`/api/v1/conversations/${id}/messages`, {
+    method: 'POST',
+    headers: requestId ? { 'X-Request-ID': requestId } : undefined,
+    body: JSON.stringify({ question, jurisdiction, language }),
+  }, auth);
+}
+
+export function askInConversationWithMeta(id: string, question: string, jurisdiction: string, language: string, auth: AuthHeaders, requestId?: string) {
+  return requestWithMeta<ConversationMessageResponse>(`/api/v1/conversations/${id}/messages`, {
     method: 'POST',
     headers: requestId ? { 'X-Request-ID': requestId } : undefined,
     body: JSON.stringify({ question, jurisdiction, language }),
