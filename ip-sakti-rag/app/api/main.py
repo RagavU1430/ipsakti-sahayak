@@ -53,6 +53,10 @@ def ask(request: AskRequest, response: Response, x_request_id: str | None = Head
         for key, value in query_response.metrics.items():
             if isinstance(value, (int, float, str, bool)):
                 response.headers[f"X-RAG-{key.replace('_', '-')}"] = str(value)
+        response.headers["Server-Timing"] = ", ".join(
+            f"{name};dur={float(query_response.metrics.get(metric, 0)):.1f}"
+            for name, metric in (("retrieval", "retrieval_ms"), ("rerank", "reranking_ms"), ("llm", "generation_ms"), ("total", "total_ms"))
+        )
         response.headers["X-RAG-evidence-passed-to-llm"] = str(bool(query_response.evidence)).lower()
         response.headers["X-RAG-context-chunks"] = str(len(query_response.evidence))
         if x_request_id:

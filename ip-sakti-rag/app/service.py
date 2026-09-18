@@ -232,17 +232,18 @@ class RAGService:
             citations = citations_for(selected, generated.used_chunk_ids)
             valid, citation_errors = validate_citations(generated.answer, citations, selected)
             if not valid:
-                # A provider can cite retrieved chunks but introduce an
-                # unsupported provision in its prose. Re-run deterministically
-                # over the identical selected evidence before abstaining.
-                fallback = ExtractiveGroundedGenerator().generate(analysis, context, selected)
-                fallback_citations = citations_for(selected, fallback.used_chunk_ids)
-                fallback_valid, _ = validate_citations(fallback.answer, fallback_citations, selected)
-                if fallback_valid and fallback.used_chunk_ids and fallback.answer.strip():
-                    generated = fallback
-                    citations = fallback_citations
-                    valid = True
-                else:
+                if self._uses_default_generator:
+                    # A provider can cite retrieved chunks but introduce an
+                    # unsupported provision in its prose. Re-run deterministically
+                    # over the identical selected evidence before abstaining.
+                    fallback = ExtractiveGroundedGenerator().generate(analysis, context, selected)
+                    fallback_citations = citations_for(selected, fallback.used_chunk_ids)
+                    fallback_valid, _ = validate_citations(fallback.answer, fallback_citations, selected)
+                    if fallback_valid and fallback.used_chunk_ids and fallback.answer.strip():
+                        generated = fallback
+                        citations = fallback_citations
+                        valid = True
+                if not valid:
                     response = self._abstained(
                         analysis,
                         "Citation validation rejected the generated answer; no unsupported legal statement was returned.",
@@ -255,6 +256,7 @@ class RAGService:
                     )
                     self._log_request(request_id, analysis, response)
                     return response
+
             if not valid:
                 response = self._abstained(
                     analysis,
