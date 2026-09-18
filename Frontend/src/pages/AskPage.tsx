@@ -1,8 +1,8 @@
 import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { askQuestion } from '../api/questions';
+import { askQuestionWithMeta } from '../api/questions';
 import {
   createConversation,
-  askInConversation,
+  askInConversationWithMeta,
   listConversations,
   getConversation,
   deleteConversation,
@@ -28,6 +28,39 @@ export interface ChatMessage {
   sources?: Source[];
   timestamp?: string;
   isDomainRag?: boolean;
+}
+
+export interface PerformanceWatchEntry {
+  requestId: string;
+  query: string;
+  route: string;
+  provider: string;
+  ragUsed: boolean;
+  chunks: number | null;
+  frontendOverheadMs: number;
+  routingMs: number | null;
+  retrievalMs: number | null;
+  llmMs: number | null;
+  historyMs: number | null;
+  backendMs: number | null;
+  networkMs: number | null;
+  requestMs: number;
+  renderMs: number;
+  totalMs: number;
+  status: number;
+  responseSizeBytes: number;
+  timestamp: string;
+}
+
+function serverTimingValue(value: string | null, name: string): number | null {
+  if (!value) return null;
+  const match = value.split(',').map((part) => part.trim()).find((part) => part.startsWith(`${name};`));
+  const duration = match?.match(/dur=([\d.]+)/)?.[1];
+  return duration ? Number(duration) : null;
+}
+
+function afterReactCommit(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 }
 
 interface ConversationItem {
@@ -82,6 +115,14 @@ export function AskPage({ auth }: { auth: AuthHeaders; signedIn: boolean }) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isVoiceOverlayOpen, setIsVoiceOverlayOpen] = useState(false);
+  const [performanceWatch, setPerformanceWatch] = useState<PerformanceWatchEntry[]>([]);
+  const [showPerfWatch] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return Boolean(import.meta.env.DEV || params.has('perf') || params.has('debug'));
+    }
+    return Boolean(import.meta.env.DEV);
+  });
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollBottomRef = useRef<HTMLDivElement>(null);
@@ -180,6 +221,8 @@ export function AskPage({ auth }: { auth: AuthHeaders; signedIn: boolean }) {
   async function executeAsk(queryText: string) {
     if (!queryText.trim() || loading) return;
     const userText = queryText.trim();
+    try { performance.mark('ipsakti-user-submit'); } catch { /* ignore */ }
+    const t0 = performance.now();
     setQuestion('');
     setError(null);
     setLoading(true);
@@ -197,47 +240,86 @@ export function AskPage({ auth }: { auth: AuthHeaders; signedIn: boolean }) {
 
     try {
       let currentConvId = activeConversationId;
+      let requestStart = 0;
 
-      // If no active conversation, create one
+      // If no active conversation, send direct question immediately (zero pre-flight network delay)
       if (!currentConvId) {
-        try {
-          const newConv = await createConversation('New Conversation', auth);
-          if (newConv && newConv.id) {
-            currentConvId = newConv.id;
-            setActiveConversationId(newConv.id);
-          }
-        } catch {
-          // Fallback if conversation creation is unsupported
-        }
+        try { performance.mark('ipsakti-request-start'); } catch { /* ignore */ }
+        requestStart = performance.now();
+        const requestResult = await askQuestionWithMeta({ question: userText, jurisdiction, language }, auth, requestId);
+        const responseReceived = performance.now();
+        try { performance.mark('ipsakti-response-received'); } catch { /* ignore */ }
+        const directResp = requestResult.data;
+        const assistantMessage: ChatMessage = {
+          id: `asst-${Date.now()}`,
+          role: 'assistant',
+          content: directResp.answer,
+          confidence: directResp.confidence,
+          abstained: directResp.abstained,
+          jurisdiction: directResp.jurisdiction || jurisdiction,
+          language: directResp.language || language,
+          citations: directResp.citations || [],
+          sources: directResp.sources || [],
+          timestamp: formatTime(),
+          isDomainRag: directResp.route === 'RAG' || Boolean(directResp.citations && directResp.citations.length > 0),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+        await afterReactCommit();
+        const t4 = performance.now();
+        try { performance.mark('ipsakti-react-render-end'); } catch { /* ignore */ }
+        recordPerformance(userText, requestResult, t0, requestStart, responseReceived, t4);
+
+        // Asynchronously persist conversation in background for subsequent turn continuity
+        createConversation(userText.length > 40 ? `${userText.slice(0, 37)}...` : userText, auth)
+          .then((newConv) => {
+            if (newConv && newConv.id) {
+              setActiveConversationId(newConv.id);
+              loadConversationList();
+            }
+          })
+          .catch(() => {});
+        return;
       }
 
-      // Try asking in conversation
-      if (currentConvId) {
-        try {
-          const resp = await askInConversation(currentConvId, userText, jurisdiction, language, auth, requestId);
-          const assistantMessage: ChatMessage = {
-            id: resp.message_id || `asst-${Date.now()}`,
-            role: 'assistant',
-            content: resp.answer,
-            confidence: resp.confidence,
-            abstained: resp.abstained,
-            jurisdiction: resp.jurisdiction || jurisdiction,
-            language: resp.language || language,
-            citations: resp.citations || [],
-            sources: resp.sources || [],
-            timestamp: formatTime(resp.created_at),
-            isDomainRag: resp.route === 'RAG' || Boolean(resp.citations && resp.citations.length > 0),
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-          loadConversationList();
-          return;
-        } catch {
-          // If in-conversation ask fails, smoothly fall through to direct askQuestion
-        }
+      // In-conversation ask for subsequent follow-up queries
+      try {
+        try { performance.mark('ipsakti-request-start'); } catch { /* ignore */ }
+        requestStart = performance.now();
+        const requestResult = await askInConversationWithMeta(currentConvId, userText, jurisdiction, language, auth, requestId);
+        const responseReceived = performance.now();
+        try { performance.mark('ipsakti-response-received'); } catch { /* ignore */ }
+        const resp = requestResult.data;
+        const assistantMessage: ChatMessage = {
+          id: resp.message_id || `asst-${Date.now()}`,
+          role: 'assistant',
+          content: resp.answer,
+          confidence: resp.confidence,
+          abstained: resp.abstained,
+          jurisdiction: resp.jurisdiction || jurisdiction,
+          language: resp.language || language,
+          citations: resp.citations || [],
+          sources: resp.sources || [],
+          timestamp: formatTime(resp.created_at),
+          isDomainRag: resp.route === 'RAG' || Boolean(resp.citations && resp.citations.length > 0),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+        await afterReactCommit();
+        const t4 = performance.now();
+        try { performance.mark('ipsakti-react-render-end'); } catch { /* ignore */ }
+        recordPerformance(userText, requestResult, t0, requestStart, responseReceived, t4);
+        loadConversationList();
+        return;
+      } catch {
+        // Fall through to direct askQuestion if in-conversation endpoint fails
       }
 
       // Direct askQuestion fallback (guarantees question always receives response)
-      const directResp = await askQuestion({ question: userText, jurisdiction, language }, auth);
+      try { performance.mark('ipsakti-request-start'); } catch { /* ignore */ }
+      requestStart = performance.now();
+      const requestResult = await askQuestionWithMeta({ question: userText, jurisdiction, language }, auth, requestId);
+      const responseReceived = performance.now();
+      try { performance.mark('ipsakti-response-received'); } catch { /* ignore */ }
+      const directResp = requestResult.data;
       const assistantMessage: ChatMessage = {
         id: `asst-${Date.now()}`,
         role: 'assistant',
@@ -252,6 +334,10 @@ export function AskPage({ auth }: { auth: AuthHeaders; signedIn: boolean }) {
         isDomainRag: directResp.route === 'RAG' || Boolean(directResp.citations && directResp.citations.length > 0),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+      await afterReactCommit();
+      const t4 = performance.now();
+      try { performance.mark('ipsakti-react-render-end'); } catch { /* ignore */ }
+      recordPerformance(userText, requestResult, t0, requestStart, responseReceived, t4);
       loadConversationList();
     } catch (err) {
       setError(
@@ -259,6 +345,75 @@ export function AskPage({ auth }: { auth: AuthHeaders; signedIn: boolean }) {
       );
     } finally {
       setLoading(false);
+    }
+  }
+
+  function recordPerformance(
+    query: string,
+    result: {
+      requestId: string | null;
+      serverTiming: string | null;
+      provider: string | null;
+      chunks: number | null;
+      route: string | null;
+      backendTotalMs: number | null;
+      tRequestStart?: number;
+      tResponseStart?: number;
+      tResponseEnd?: number;
+      httpStatus?: number;
+      responseSizeBytes?: number;
+    },
+    t0: number,
+    t1: number,
+    t3: number,
+    t4: number,
+  ) {
+    const route = result.route || 'UNKNOWN';
+    const frontendOverheadMs = Math.max(0, t1 - t0);
+    const requestMs = Math.max(0, t3 - t1);
+    const renderMs = Math.max(0, t4 - t3);
+    const totalMs = Math.max(0, t4 - t0);
+
+    try {
+      performance.measure('frontend_overhead_ms', 'ipsakti-user-submit', 'ipsakti-request-start');
+      performance.measure('frontend_request_ms', 'ipsakti-request-start', 'ipsakti-response-received');
+      performance.measure('react_render_ms', 'ipsakti-response-received', 'ipsakti-react-render-end');
+      performance.measure('end_to_end_user_wait_ms', 'ipsakti-user-submit', 'ipsakti-react-render-end');
+    } catch {
+      // Ignore measure errors in tests
+    }
+
+    const backendMs = result.backendTotalMs ?? serverTimingValue(result.serverTiming, 'total');
+    const networkMs = backendMs != null ? Math.max(0, requestMs - backendMs) : null;
+    const entry: PerformanceWatchEntry = {
+      requestId: result.requestId || 'unavailable',
+      query,
+      route,
+      provider: result.provider || 'unknown',
+      ragUsed: route === 'DOMAIN_RAG' || route === 'RAG',
+      chunks: result.chunks,
+      frontendOverheadMs,
+      routingMs: serverTimingValue(result.serverTiming, 'route'),
+      retrievalMs: serverTimingValue(result.serverTiming, 'retrieval') ?? serverTimingValue(result.serverTiming, 'rag'),
+      llmMs: serverTimingValue(result.serverTiming, 'llm'),
+      historyMs: serverTimingValue(result.serverTiming, 'history_save'),
+      backendMs,
+      networkMs,
+      requestMs,
+      renderMs,
+      totalMs,
+      status: result.httpStatus ?? 200,
+      responseSizeBytes: result.responseSizeBytes ?? 0,
+      timestamp: new Date().toISOString(),
+    };
+
+    setPerformanceWatch((previous) => [entry, ...previous].slice(0, 10));
+
+    // Expose on global window object for automated browser benchmark extraction
+    if (typeof window !== 'undefined') {
+      const w = window as any;
+      w.__IPSAKTI_LAST_RUN__ = entry;
+      w.__IPSAKTI_BENCHMARK_HISTORY__ = [entry, ...(w.__IPSAKTI_BENCHMARK_HISTORY__ || [])];
     }
   }
 
@@ -622,6 +777,39 @@ export function AskPage({ auth }: { auth: AuthHeaders; signedIn: boolean }) {
         initialLanguage={language}
         initialJurisdiction={jurisdiction}
       />
+
+      {showPerfWatch && performanceWatch.length > 0 ? (
+        <aside className="performance-watch" aria-label="Response Performance" data-testid="performance-watch">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <strong>⚡ Response Performance (developer)</strong>
+            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Real-time user perceived metrics</span>
+          </div>
+          {performanceWatch.map((entry, index) => (
+            <div className="performance-watch-entry" key={`${entry.requestId}-${index}`} data-testid={`perf-entry-${index}`}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', fontSize: '0.82rem', color: '#94a3b8' }}>
+                <span data-testid="perf-request-id">ID: {entry.requestId.slice(0, 8)}</span>
+                <span>Route: <strong data-testid="perf-route" style={{ color: entry.route === 'DOMAIN_RAG' ? '#f59e0b' : entry.route === 'GENERAL' ? '#22c55e' : '#ef4444' }}>{entry.route}</strong></span>
+                <span>Provider: <strong data-testid="perf-provider">{entry.provider}</strong></span>
+                <span>RAG: <strong data-testid="perf-rag-used">{entry.ragUsed ? '✓ Yes' : '✗ No'}</strong></span>
+                {entry.chunks != null && <span>Chunks: <strong data-testid="perf-chunks">{entry.chunks}</strong></span>}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '4px 16px', fontSize: '0.8rem', marginTop: '6px' }}>
+                <span>Frontend overhead: <strong>{entry.frontendOverheadMs.toFixed(0)}</strong> ms</span>
+                <span>Routing: <strong data-testid="perf-routing">{entry.routingMs?.toFixed(0) ?? '—'}</strong> ms</span>
+                <span>Retrieval: <strong data-testid="perf-retrieval">{entry.retrievalMs?.toFixed(0) ?? '—'}</strong> ms</span>
+                <span>LLM: <strong data-testid="perf-llm">{entry.llmMs?.toFixed(0) ?? '—'}</strong> ms</span>
+                <span>History: <strong data-testid="perf-history">{entry.historyMs?.toFixed(0) ?? '—'}</strong> ms</span>
+                <span>Backend: <strong data-testid="perf-backend">{entry.backendMs?.toFixed(0) ?? '—'}</strong> ms</span>
+                <span>Network: <strong data-testid="perf-network">{entry.networkMs?.toFixed(0) ?? '—'}</strong> ms</span>
+                <span>Render: <strong data-testid="perf-render">{entry.renderMs.toFixed(0)}</strong> ms</span>
+              </div>
+              <div style={{ marginTop: '4px', fontSize: '0.85rem' }}>
+                <b data-testid="perf-total-wait" style={{ color: entry.totalMs > 5000 ? '#ef4444' : entry.totalMs > 2000 ? '#f59e0b' : '#22c55e' }}>Total user wait: {entry.totalMs.toFixed(0)} ms</b>
+              </div>
+            </div>
+          ))}
+        </aside>
+      ) : null}
     </div>
   );
 }
