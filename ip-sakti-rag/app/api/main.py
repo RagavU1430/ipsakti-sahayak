@@ -57,8 +57,14 @@ def ask(request: AskRequest, response: Response, x_request_id: str | None = Head
             f"{name};dur={float(query_response.metrics.get(metric, 0)):.1f}"
             for name, metric in (("retrieval", "retrieval_ms"), ("rerank", "reranking_ms"), ("llm", "generation_ms"), ("total", "total_ms"))
         )
+        # Phase 20: truthful, backward-compatible evidence metrics (Java reads these).
         response.headers["X-RAG-evidence-passed-to-llm"] = str(bool(query_response.evidence)).lower()
         response.headers["X-RAG-context-chunks"] = str(len(query_response.evidence))
+        response.headers["X-RAG-evidence-count"] = str(query_response.metrics.get("evidence_count", len(query_response.evidence)))
+        response.headers["X-RAG-rag-used"] = str(bool(query_response.metrics.get("rag_used", bool(query_response.evidence)))).lower()
+        response.headers["X-RAG-evidence-status"] = str(query_response.metrics.get("evidence_status", "UNKNOWN"))
+        response.headers["X-RAG-corpus"] = str(query_response.metrics.get("corpus", getattr(service.store, "corpus_source", "unknown")))
+        response.headers["X-RAG-generator"] = str(query_response.metrics.get("generator", "unknown"))
         if x_request_id:
             response.headers["X-Request-ID"] = x_request_id
         return service._to_ask_response(query_response)

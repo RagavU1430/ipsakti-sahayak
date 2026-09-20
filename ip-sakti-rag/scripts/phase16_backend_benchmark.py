@@ -24,9 +24,28 @@ for case in CASES:
         docs={x.get("document_id") for x in citations+sources}
         expected=set(case.get("expected_documents",[]))
         grounded=not abstained and bool(answer) and bool(citations) and bool(sources)
-        metric=lambda name: headers.get("X-Rag-"+name.replace("_","-"))
-        num=lambda name: float(metric(name)) if metric(name) not in (None, "") else None
-        row={**case,"http_status":status,"total_backend_time_ms":round(elapsed,3),"routing_time_ms":None,"embedding_time_ms":None,"retrieval_time_ms":num("retrieval_ms"),"reranking_time_ms":num("reranking_ms"),"context_validation_time_ms":None,"LLM_time_ms":num("generation_ms"),"time_to_first_token_ms":None,"number_of_chunks_retrieved":int(metric("evidence_count") or 0),"top_similarity_relevance_score":max([x.get("score",0) for x in sources],default=None),"source_count":len(sources),"answer_generated":bool(answer),"grounded":grounded,"citations_returned":bool(citations),"RAG_USED":metric("evidence_passed_to_llm")=="true","expected_source_hit":not expected or bool(expected & docs),"error":None,"failure_reason":None,"answer":answer,"citations":citations,"sources":sources}
+        # Phase 20 fix: headers are case-insensitive on the wire; FastAPI emits
+        # lowercase. Also accept X-RAG-context-chunks fallback for evidence count.
+        lower_headers={str(k).lower(): v for k, v in headers.items()}
+        def metric(name: str):
+            return lower_headers.get(("x-rag-"+name.replace("_","-")).lower())
+        def num(name):
+            value=metric(name)
+            try:
+                return float(value) if value not in (None, "") else None
+            except (TypeError, ValueError):
+                return None
+        evidence_count_raw=metric("evidence_count")
+        if evidence_count_raw in (None, ""):
+            evidence_count_raw=metric("context_chunks")
+        try:
+            chunks_retrieved=int(evidence_count_raw or 0)
+        except (TypeError, ValueError):
+            chunks_retrieved=0
+        rag_used_raw=metric("evidence_passed_to_llm")
+        if rag_used_raw in (None, ""):
+            rag_used_raw=metric("rag_used")
+        row={**case,"http_status":status,"total_backend_time_ms":round(elapsed,3),"routing_time_ms":None,"embedding_time_ms":None,"retrieval_time_ms":num("retrieval_ms"),"reranking_time_ms":num("reranking_ms"),"context_validation_time_ms":None,"LLM_time_ms":num("generation_ms"),"time_to_first_token_ms":None,"number_of_chunks_retrieved":chunks_retrieved,"top_similarity_relevance_score":max([x.get("score",0) for x in sources],default=None),"source_count":len(sources),"answer_generated":bool(answer),"grounded":grounded,"citations_returned":bool(citations),"RAG_USED":str(rag_used_raw).lower()=="true","expected_source_hit":not expected or bool(expected & docs),"error":None,"failure_reason":None,"answer":answer,"citations":citations,"sources":sources}
     except Exception as exc:
         row={**case,"http_status":None,"total_backend_time_ms":round((time.perf_counter()-started)*1000,3),"error":type(exc).__name__,"failure_reason":str(exc),"answer_generated":False,"grounded":False,"citations_returned":False,"RAG_USED":False}
     rows.append(row); print(case["id"],row["http_status"],row["total_backend_time_ms"],row.get("grounded"),flush=True)

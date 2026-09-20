@@ -1,0 +1,124 @@
+{
+  "date": "2026-09-20",
+  "corpus": "v1-legacy",
+  "config": {
+    "candidate_k": 24,
+    "top_k": 8,
+    "jurisdiction": "auto(25Q: case; 55Q: auto)"
+  },
+  "q25": {
+    "n": 25,
+    "rag_used": 13,
+    "grounded": 13,
+    "abstained": 12,
+    "avg_retrieval_ms": 113.91,
+    "avg_total_ms": 2064.75,
+    "corpus": "v1-legacy",
+    "generator_note": "mixed extractive/live-Gemini per intent; see per-row generator"
+  },
+  "q55": {
+    "n": 65,
+    "rag_used": 45,
+    "grounded": 45,
+    "abstained": 20,
+    "avg_retrieval_ms": 145.45,
+    "avg_total_ms": 1595.19,
+    "corpus": "v1-legacy"
+  },
+  "adversarial": {
+    "n": 30,
+    "abstained": 16,
+    "grounded": 14
+  },
+  "retrieval": {
+    "vector": {
+      "Recall@5": 0.8413,
+      "Recall@8": 0.8413,
+      "Recall@10": 0.8413,
+      "MRR": 0.881,
+      "n": 63
+    },
+    "lexical": {
+      "Recall@5": 0.9206,
+      "Recall@8": 0.9206,
+      "Recall@10": 0.9206,
+      "MRR": 0.881,
+      "n": 63
+    },
+    "hybrid": {
+      "Recall@5": 0.9206,
+      "Recall@8": 0.9206,
+      "Recall@10": 0.9206,
+      "MRR": 0.9127,
+      "n": 63
+    },
+    "hybrid_rerank": {
+      "Recall@5": 0.8333,
+      "Recall@8": 0.8333,
+      "Recall@10": 0.8333,
+      "MRR": 0.8862,
+      "n": 63
+    }
+  },
+  "candidate_k": [
+    {
+      "K": 8,
+      "n": 63,
+      "recall@10": 0.8333,
+      "mrr": 0.8889,
+      "avg_retrieval_ms": 140.23,
+      "avg_rerank_ms": 3.24
+    },
+    {
+      "K": 12,
+      "n": 63,
+      "recall@10": 0.8333,
+      "mrr": 0.8889,
+      "avg_retrieval_ms": 143.04,
+      "avg_rerank_ms": 4.76
+    },
+    {
+      "K": 16,
+      "n": 63,
+      "recall@10": 0.8333,
+      "mrr": 0.8889,
+      "avg_retrieval_ms": 142.16,
+      "avg_rerank_ms": 5.97
+    },
+    {
+      "K": 24,
+      "n": 63,
+      "recall@10": 0.8333,
+      "mrr": 0.8889,
+      "avg_retrieval_ms": 141.66,
+      "avg_rerank_ms": 8.23
+    }
+  ],
+  "v1_tests": {
+    "passed": 86,
+    "skipped": 30,
+    "total": 116,
+    "by_module": {
+      "api+chunking+dataset": 18,
+      "grounding": 13,
+      "multilingual": "33 passed + 30 skipped",
+      "retrieval+supabase": 13,
+      "merge": 9
+    }
+  },
+  "v2_tests": {
+    "test_rag_v2": "26 passed",
+    "corpus+part3": "18 passed, 4 failed (pre-existing TestQueryUnderstanding patent/trademark/copyright + international refs; RAG V2/ untouched by merge)"
+  },
+  "safety": {
+    "Q08": "abstain (quarantined 2022 source guard)",
+    "Q09": "abstain (same)",
+    "Q23": "abstain (same)",
+    "section_3p": "grounds on default corpus (regression test)"
+  },
+  "sources": {
+    "FSSAI_2022": "NOT COVERED",
+    "TKDL": "NOT COVERED",
+    "IP_India": "NOT COVERED"
+  }
+}

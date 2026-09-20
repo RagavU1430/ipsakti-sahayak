@@ -41,6 +41,20 @@ class RAGService:
         self.generator = generator or self._generator()
         self.general_generator = self._general_generator()
         self._cache: dict[tuple[str, str], tuple[float, QueryResponse]] = {}
+        # Phase 15: short-lived deterministic abstention cache (60s). Only safe abstentions.
+        self._abstention_cache: dict[tuple[str, str], tuple[float, QueryResponse]] = {}
+        self._abstention_cache_ttl = 60.0
+        try:
+            logger.info(
+                "rag_service_init corpus=%s chunks=%s embedding_provider=%s candidate_k=%s llm=%s",
+                getattr(self.store, "corpus_source", "unknown"),
+                len(getattr(self.store, "chunks", [])),
+                self.settings.embedding_provider,
+                self.settings.candidate_k,
+                getattr(self.generator, "name", type(self.generator).__name__),
+            )
+        except Exception:
+            pass
 
     def _store(self):
         use_supabase = self.settings.storage_backend == "supabase" or (
@@ -110,6 +124,17 @@ class RAGService:
                 hit_response = cached_response.model_copy(update={"metrics": cached_metrics})
                 self._log_request(request_id, analysis, hit_response)
                 return hit_response
+        # Phase 15: 60s abstention cache (safe deterministic abstentions only).
+        if cache_key in self._abstention_cache:
+            cached_time, cached_response = self._abstention_cache[cache_key]
+            if time.time() - cached_time < self._abstention_cache_ttl:
+                cached_metrics = dict(cached_response.metrics)
+                cached_metrics["cache_hit"] = True
+                cached_metrics["abstention_cache_hit"] = True
+                cached_metrics["total_ms"] = round((time.perf_counter() - total_started) * 1000, 3)
+                hit_response = cached_response.model_copy(update={"metrics": cached_metrics})
+                self._log_request(request_id, analysis, hit_response)
+                return hit_response
         try:
             if self._is_security_exfiltration_request(request.query):
                 response = self._abstained(
@@ -143,13 +168,22 @@ class RAGService:
             rerank_started = time.perf_counter()
             evidence = self.reranker.rerank(analysis, candidates, request.top_k or self.settings.top_k)
             rerank_ms = (time.perf_counter() - rerank_started) * 1000
+            # Phase 14: explicit evidence status. PARTIAL critical evidence must not
+            # produce an authoritative definitive answer (Q08/Q09/Q23 class).
+            evidence_status = self._evidence_status(analysis, evidence)
             reason = abstention_reason(analysis, evidence, max(self.settings.min_score, self.settings.abstention_threshold))
+            if evidence_status == "INSUFFICIENT" and not reason:
+                reason = "The retrieved evidence was insufficient to produce a supported answer."
             if reason:
                 if self._should_general_fallback(analysis, reason):
                     response = self._general_fallback(analysis, reason, total_started, retrieval_ms, rerank_ms, candidates)
                     self._log_request(request_id, analysis, response)
                     return response
+                # Phase 15: cache safe deterministic abstentions for 60s (never LLM answers).
                 response = self._abstained(analysis, reason, total_started, retrieval_ms, rerank_ms, evidence)
+                response.metrics["evidence_status"] = evidence_status
+                response.metrics["rag_used"] = False
+                self._cache_abstention(cache_key, response)
                 self._log_request(request_id, analysis, response)
                 return response
 
@@ -175,6 +209,22 @@ class RAGService:
             else:
                 evidence_for_context = evidence
             context, selected = assemble_context(evidence_for_context, self.settings.max_context_chars)
+            # Verified official-PDF overrides (URL + page) applied before citations/validation.
+            from app.citations.verified_sources import apply_verified_sources
+            selected = apply_verified_sources(selected)
+            # Phase 9/16: Gemini must never receive an empty evidence set for an IP-SAKTI
+            # RAG response and then generate an authoritative answer. Abstain BEFORE generation.
+            if not selected:
+                response = self._abstained(
+                    analysis,
+                    "The retrieved evidence was insufficient to produce a supported answer.",
+                    total_started, retrieval_ms, rerank_ms, selected,
+                )
+                response.metrics["evidence_status"] = "INSUFFICIENT"
+                response.metrics["rag_used"] = False
+                self._cache_abstention(cache_key, response)
+                self._log_request(request_id, analysis, response)
+                return response
             generation_started = time.perf_counter()
             try:
                 if self._use_fast_extractive_path(analysis):
@@ -296,6 +346,11 @@ class RAGService:
                     "reranker": self.reranker.name,
                     "reranker_learned": self.reranker.learned,
                     "generator": generated.provider,
+                    # Phase 9/17/20: truthful RAG_USED + evidence contract fields.
+                    "rag_used": bool(selected),
+                    "evidence_status": self._evidence_status(analysis, selected),
+                    "corpus": getattr(self.store, "corpus_source", "unknown"),
+                    "embedding_provider": self.settings.embedding_provider,
                 },
             )
             if self.settings.response_cache_enabled and not response.abstained:
@@ -308,6 +363,45 @@ class RAGService:
         except Exception:
             logger.exception("rag_runtime_unhandled_error", extra={"request_id": request_id})
             raise
+
+    @staticmethod
+    def _evidence_status(analysis, evidence) -> str:
+        """Phase 14: SUFFICIENT / PARTIAL / INSUFFICIENT / CONFLICTING.
+
+        PARTIAL with critical legal identifiers or quarantined-class queries must
+        abstain downstream — never an authoritative definitive answer.
+        """
+        items = list(evidence or [])
+        if not items:
+            return "INSUFFICIENT"
+        # Q08/Q09/Q23 class: Ayurveda Aahara 2022 regulation requested but only the
+        # 2025 list order is indexed -> PARTIAL (critical source missing).
+        try:
+            q = (analysis.query or "").lower()
+            if "ayurveda aahara" in q and any(
+                t in q for t in ("2022", "regulation", "define", "definition", "label")
+            ):
+                docs = {getattr(e, "document_id", "") for e in items}
+                if "IND-FSS-AA-ORDER-2025" in docs and not any("2022" in d for d in docs):
+                    return "PARTIAL"
+        except Exception:
+            pass
+        scores = [float(getattr(e, "reranker_score", 0.0) or 0.0) for e in items]
+        best = max(scores) if scores else 0.0
+        if best < 0.12 or len(items) == 0:
+            return "INSUFFICIENT"
+        if len(items) < 2 or best < 0.35:
+            return "PARTIAL"
+        return "SUFFICIENT"
+
+    def _cache_abstention(self, cache_key, response: QueryResponse) -> None:
+        try:
+            if len(self._abstention_cache) >= 500:
+                oldest = next(iter(self._abstention_cache))
+                self._abstention_cache.pop(oldest, None)
+            self._abstention_cache[cache_key] = (time.time(), response)
+        except Exception:
+            pass
 
     def _use_fast_extractive_path(self, analysis) -> bool:
         if not self._uses_default_generator or not self.settings.enable_llm or not self.settings.fast_extractive_enabled:

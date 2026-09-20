@@ -89,7 +89,7 @@ public class RegulatoryAnalysisService {
                 needsClarification
                         ? translationService.fromCanonicalList(List.of("Please clarify any missing or conflicting traditional-knowledge, biological-resource, origin, or technical-effect facts."), languageMetadata, requestId)
                         : List.of(),
-                translationService.fromCanonical("This is an evidence-backed decision-support summary, not final legal advice.", languageMetadata, requestId),
+                translationService.fromCanonical(conclusionFor(overall, engines), languageMetadata, requestId),
                 languageMetadata.requestedLanguage(),
                 languageMetadata.detectedLanguage(),
                 languageMetadata.processingLanguage()
@@ -152,8 +152,24 @@ public class RegulatoryAnalysisService {
         return translationService.toCanonical(value, metadata.requestedLanguage(), "field").canonicalText();
     }
 
-    private RegulatoryStatus overallStatus(List<RegulatoryEngineResult> engines) {
-        if (engines.stream().anyMatch(result -> result.status() == RegulatoryStatus.REVIEW_RECOMMENDED)) {
+    /** One-line plain-language final conclusion (never a paragraph). */
+    static String conclusionFor(RegulatoryStatus overall, List<RegulatoryEngineResult> engines) {
+        long flagged = engines.stream()
+                .filter(result -> result.status() == RegulatoryStatus.REVIEW_RECOMMENDED
+                        || result.status() == RegulatoryStatus.POTENTIALLY_APPLICABLE)
+                .count();
+        return switch (overall) {
+            case REVIEW_RECOMMENDED ->
+                    "Needs expert review: " + flagged + " of " + engines.size() + " checks flagged an issue — confirm with a lawyer before acting.";
+            case POTENTIALLY_APPLICABLE ->
+                    "Possibly affected: " + flagged + " of " + engines.size() + " checks may apply — please confirm the details with an expert.";
+            case INSUFFICIENT_EVIDENCE ->
+                    "Cannot decide yet: there is not enough evidence — please add the missing details.";
+            default -> "Looks clear: no issues flagged — no further action needed.";
+        };
+    }
+
+    private RegulatoryStatus overallStatus(List<RegulatoryEngineResult> engines) {        if (engines.stream().anyMatch(result -> result.status() == RegulatoryStatus.REVIEW_RECOMMENDED)) {
             return RegulatoryStatus.REVIEW_RECOMMENDED;
         }
         if (engines.stream().anyMatch(result -> result.status() == RegulatoryStatus.POTENTIALLY_APPLICABLE)) {

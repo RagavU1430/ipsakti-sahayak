@@ -1,0 +1,487 @@
+{
+  "table": {
+    "vector": {
+      "Recall@5": 0.8413,
+      "Recall@8": 0.8413,
+      "Recall@10": 0.8413,
+      "MRR": 0.881,
+      "n": 63
+    },
+    "lexical": {
+      "Recall@5": 0.9206,
+      "Recall@8": 0.9206,
+      "Recall@10": 0.9206,
+      "MRR": 0.881,
+      "n": 63
+    },
+    "hybrid": {
+      "Recall@5": 0.9206,
+      "Recall@8": 0.9206,
+      "Recall@10": 0.9206,
+      "MRR": 0.9127,
+      "n": 63
+    },
+    "hybrid_rerank": {
+      "Recall@5": 0.8333,
+      "Recall@8": 0.8333,
+      "Recall@10": 0.8333,
+      "MRR": 0.8862,
+      "n": 63
+    }
+  },
+  "by_domain": [
+    {
+      "domain": "traditional_knowledge",
+      "n": 2,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "patentability",
+      "n": 2,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "trademarks",
+      "n": 2,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "GI",
+      "n": 7,
+      "hybrid_rerank_failures": 1,
+      "vector": {
+        "Recall@5": 0.7857,
+        "Recall@10": 0.7857,
+        "MRR": 0.8571
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.9286
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.9286
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.7857,
+        "Recall@10": 0.7857,
+        "MRR": 0.8571
+      }
+    },
+    {
+      "domain": "copyright",
+      "n": 7,
+      "hybrid_rerank_failures": 1,
+      "vector": {
+        "Recall@5": 0.8571,
+        "Recall@10": 0.8571,
+        "MRR": 0.8571
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.9286
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.9286
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.8571,
+        "Recall@10": 0.8571,
+        "MRR": 0.8571
+      }
+    },
+    {
+      "domain": "designs",
+      "n": 2,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 0.75,
+        "Recall@10": 0.75,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 0.75,
+        "Recall@10": 0.75,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 0.75,
+        "Recall@10": 0.75,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.75,
+        "Recall@10": 0.75,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "plant_varieties",
+      "n": 2,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 0.75,
+        "Recall@10": 0.75,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.75,
+        "Recall@10": 0.75,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "ABS",
+      "n": 7,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 0.9286,
+        "Recall@10": 0.9286,
+        "MRR": 0.9286
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.7857
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.9286
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.8571,
+        "Recall@10": 0.8571,
+        "MRR": 0.9048
+      }
+    },
+    {
+      "domain": "biodiversity",
+      "n": 1,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 0.5,
+        "Recall@10": 0.5,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 0.5,
+        "Recall@10": 0.5,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 0.5,
+        "Recall@10": 0.5,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.5,
+        "Recall@10": 0.5,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "Ayurveda",
+      "n": 1,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 0.5,
+        "Recall@10": 0.5,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.5,
+        "Recall@10": 0.5,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "international_IP",
+      "n": 5,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.9
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "patent",
+      "n": 5,
+      "hybrid_rerank_failures": 1,
+      "vector": {
+        "Recall@5": 0.7,
+        "Recall@10": 0.7,
+        "MRR": 0.8
+      },
+      "lexical": {
+        "Recall@5": 0.7,
+        "Recall@10": 0.7,
+        "MRR": 0.8
+      },
+      "hybrid": {
+        "Recall@5": 0.7,
+        "Recall@10": 0.7,
+        "MRR": 0.8
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.7,
+        "Recall@10": 0.7,
+        "MRR": 0.8
+      }
+    },
+    {
+      "domain": "trademark",
+      "n": 5,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 0.9,
+        "Recall@10": 0.9,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 0.9,
+        "Recall@10": 0.9,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 0.9,
+        "Recall@10": 0.9,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.9,
+        "Recall@10": 0.9,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "design",
+      "n": 5,
+      "hybrid_rerank_failures": 1,
+      "vector": {
+        "Recall@5": 0.8,
+        "Recall@10": 0.8,
+        "MRR": 0.8
+      },
+      "lexical": {
+        "Recall@5": 0.8,
+        "Recall@10": 0.8,
+        "MRR": 0.7
+      },
+      "hybrid": {
+        "Recall@5": 0.8,
+        "Recall@10": 0.8,
+        "MRR": 0.8
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.8,
+        "Recall@10": 0.8,
+        "MRR": 0.7
+      }
+    },
+    {
+      "domain": "plant_variety",
+      "n": 5,
+      "hybrid_rerank_failures": 2,
+      "vector": {
+        "Recall@5": 0.6,
+        "Recall@10": 0.6,
+        "MRR": 0.6
+      },
+      "lexical": {
+        "Recall@5": 0.8,
+        "Recall@10": 0.8,
+        "MRR": 0.7
+      },
+      "hybrid": {
+        "Recall@5": 0.8,
+        "Recall@10": 0.8,
+        "MRR": 0.7
+      },
+      "hybrid_rerank": {
+        "Recall@5": 0.6,
+        "Recall@10": 0.6,
+        "MRR": 0.6
+      }
+    },
+    {
+      "domain": "food",
+      "n": 1,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "ayurveda",
+      "n": 1,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      },
+      "hybrid_rerank": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      }
+    },
+    {
+      "domain": "international",
+      "n": 3,
+      "hybrid_rerank_failures": 0,
+      "vector": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.6667
+      },
+      "lexical": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.8333
+      },
+      "hybrid": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 0.8333
+      },
+      "hybrid_rerank": {
+        "Recall@5": 1.0,
+        "Recall@10": 1.0,
+        "MRR": 1.0
+      }
+    }
+  ],
+  "corpus": "v1-legacy",
+  "candidate_k": 24,
+  "note": "document-level ground truth; chunk-level recall NOT MEASURED"
+}

@@ -47,9 +47,22 @@ export const EvidenceList = React.memo(function EvidenceList({ citations = [], s
               <span className="material-symbols-outlined citation-icon">description</span>
               <div className="citation-content">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', flexWrap: 'wrap' }}>
-                  <span className="citation-title">
-                    {citation.document || citation.documentId || 'Official Reference Document'}
-                  </span>
+                  {citation.sourceUrl ? (
+                    <a
+                      className="citation-title"
+                      href={isPdfUrl(citation.sourceUrl) && citation.page ? `${citation.sourceUrl}#page=${citation.page}` : citation.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Open official source to verify"
+                      style={{ color: 'var(--primary)', textDecoration: 'underline', cursor: 'pointer' }}
+                    >
+                      {citation.document || citation.documentId || 'Official Reference Document'}
+                    </a>
+                  ) : (
+                    <span className="citation-title">
+                      {citation.document || citation.documentId || 'Official Reference Document'}
+                    </span>
+                  )}
                   {citation.documentId ? (
                     <span className="evidence-tag doc-id">{citation.documentId}</span>
                   ) : null}
@@ -132,6 +145,10 @@ export const EvidenceList = React.memo(function EvidenceList({ citations = [], s
 
 export function formatScore(score?: number) {
   return typeof score === 'number' ? score.toFixed(2) : 'n/a';
+}
+
+function isPdfUrl(url: string) {
+  return /\.pdf($|[?#])/i.test(url);
 }
 
 export function formatConfidence(confidence?: number | null) {

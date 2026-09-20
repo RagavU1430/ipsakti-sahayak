@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
 import re
 from collections import Counter
@@ -9,6 +10,9 @@ from typing import Any
 
 from app.models import Jurisdiction, QueryAnalysis
 from app.legal_aliases import document_hint_ids, document_hint_score, text_supports_identifier
+from app.retrieval.v2_adapters import normalize_v2_chunk
+
+logger = logging.getLogger(__name__)
 
 
 TOKEN_RE = re.compile(r"[a-z0-9]+(?:\([a-z0-9]+\))?", re.IGNORECASE)
@@ -23,7 +27,18 @@ class LocalCorpusStore:
     """Executable local fallback for tests/development; not a Supabase substitute in production."""
 
     def __init__(self, chunks_path: Path):
-        self.chunks = [json.loads(line) for line in chunks_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        raw = [json.loads(line) for line in chunks_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        # Phase 2/3: V2 canonical chunks normalize into the V1 evidence interface.
+        # normalize_v2_chunk is idempotent for V1 rows; required for V2 string-typed fields.
+        from app.retrieval.v2_adapters import normalize_v2_chunks
+        try:
+            self.chunks = normalize_v2_chunks(raw)
+        except Exception:
+            logger.warning("v2_chunk_normalization_fallback_to_raw")
+            self.chunks = raw
+        corpus_tag = "v2-canonical" if "RAG V2" in str(chunks_path) or "chunks_v2" in str(chunks_path) else "v1-legacy"
+        self.corpus_source = corpus_tag
+        logger.info("local_corpus_loaded path=%s chunks=%d corpus=%s", str(chunks_path), len(self.chunks), corpus_tag)
         self.term_counts = [Counter(tokens(chunk["text"] + " " + chunk["title"])) for chunk in self.chunks]
         self.document_frequency: Counter[str] = Counter()
         for counts in self.term_counts:

@@ -6,6 +6,12 @@ from typing import Any
 
 from app.models import Evidence, QueryAnalysis
 from app.legal_aliases import document_hint_score, text_supports_identifier
+from app.retrieval.v2_legal_boost import (
+    domain_priority_boost,
+    extract_legal_terms_lite,
+    legal_term_boost,
+    understand_query_lite,
+)
 
 
 def _normalize(rows: list[dict[str, Any]], field: str) -> dict[str, float]:
@@ -50,6 +56,9 @@ class HybridRetriever:
         lexical_scores = _normalize(lexical, "lexical_score")
         combined = {row["chunk_id"]: dict(row) for row in vector + lexical}
         query_lower = analysis.query.lower()
+        # Phases 4-7: V2 deterministic signals (no LLM). Additive only; V1 fusion stays authoritative.
+        v2_signals = understand_query_lite(analysis.query)
+        v2_terms = extract_legal_terms_lite(analysis.query)
         for chunk_id, row in combined.items():
             metadata = 0.0
             if row.get("domain") in analysis.domains or "IP" in analysis.domains:
@@ -62,7 +71,16 @@ class HybridRetriever:
             metadata += 0.8 * document_hint_score(row.get("document_id", ""), analysis.hinted_documents)
             row["vector_score"] = vector_scores.get(chunk_id, 0.0)
             row["lexical_score"] = lexical_scores.get(chunk_id, 0.0)
-            row["fusion_score"] = 0.55 * row["vector_score"] + 0.35 * row["lexical_score"] + 0.10 * metadata
+            # V2 additive retrieval intelligence: exact legal-term overlap + soft domain priority.
+            # Bounded (<=0.10 total) so V1 0.55/0.35/0.10 fusion weights remain authoritative.
+            v2_boost = 0.0
+            try:
+                v2_boost += 0.5 * legal_term_boost(row.get("text", ""), row.get("title", ""), v2_terms)
+                v2_boost += domain_priority_boost(row.get("domain", ""), v2_signals)
+                v2_boost = min(max(v2_boost, 0.0), 1.0)
+            except Exception:
+                v2_boost = 0.0
+            row["fusion_score"] = 0.55 * row["vector_score"] + 0.35 * row["lexical_score"] + 0.10 * metadata + 0.10 * v2_boost
             row["reranker_score"] = 0.0
             row.setdefault("document_version", row.get("document_version", "unknown"))
             row.setdefault("source_status", "UNVERIFIED")

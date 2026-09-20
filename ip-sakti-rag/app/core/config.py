@@ -85,6 +85,8 @@ class Settings:
     llm_timeout: float = 30.0
     gemini_api_key: str | None = None
     fast_extractive_enabled: bool = True
+    canonical_chunks_override: str | None = None
+    corpus_source: str = "auto"
 
 
 def get_settings() -> Settings:
@@ -92,10 +94,32 @@ def get_settings() -> Settings:
     root = Path(__file__).resolve().parents[2]
     api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("LLM_API_KEY") or None
     has_api_key = bool(api_key and api_key.strip())
+    default_canonical = root / "dataset" / "canonical" / "chunks.jsonl"
+    # Phase 2: V2 canonical corpus migration. RAG_CANONICAL_CHUNKS wins; else
+    # RAG_CORPUS_SOURCE=v2|v1|auto (auto -> V2 file when present, explicit v1 fallback only).
+    # Phase 2 finding (2026-09-20 smoke): wholesale migration to V2 canonical REGRESSES
+    # Section 3(p) (V2 has 0 chunks with 3(p) traditional-knowledge text; V1 grounds it).
+    # Therefore auto defaults to V1 legacy; V2 is explicit opt-in (RAG_CORPUS_SOURCE=v2)
+    # until the V2 rebuild restores 3(p)-class provisions. No silent fallback either way.
+    v2_canonical = root.parent / "RAG V2" / "dataset" / "canonical" / "chunks_v2.jsonl"
+    corpus_source = (os.getenv("RAG_CORPUS_SOURCE", "auto") or "auto").lower()
+    override = os.getenv("RAG_CANONICAL_CHUNKS") or None
+    if override:
+        canonical_chunks = Path(override)
+    elif corpus_source == "v2" and v2_canonical.is_file():
+        canonical_chunks = v2_canonical
+    elif corpus_source == "v1":
+        canonical_chunks = default_canonical
+    elif corpus_source == "auto":
+        canonical_chunks = default_canonical  # blocked V2 migration: see note above
+    elif v2_canonical.is_file():
+        canonical_chunks = v2_canonical
+    else:
+        canonical_chunks = default_canonical
     return Settings(
         root=root,
         canonical_documents_path=root / "dataset" / "canonical" / "documents.jsonl",
-        canonical_chunks_path=root / "dataset" / "canonical" / "chunks.jsonl",
+        canonical_chunks_path=canonical_chunks,
         supabase_url=os.getenv("SUPABASE_URL") or None,
         supabase_anon_key=os.getenv("SUPABASE_ANON_KEY") or None,
         supabase_service_role_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or None,
@@ -118,4 +142,6 @@ def get_settings() -> Settings:
         llm_timeout=_float("RAG_LLM_TIMEOUT", 30.0),
         gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
         fast_extractive_enabled=_bool("RAG_FAST_EXTRACTIVE_ENABLED", True),
+        canonical_chunks_override=override,
+        corpus_source=corpus_source,
     )
