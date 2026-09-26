@@ -24,7 +24,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../ip-sakti-backend/src/main/resources/static',
+    outDir: process.env.VERCEL ? 'dist' : '../ip-sakti-backend/src/main/resources/static',
     emptyOutDir: true,
   },
   test: {

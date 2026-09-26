@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd Frontend && npm run build",
+  "outputDirectory": "Frontend/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
